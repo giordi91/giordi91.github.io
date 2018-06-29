@@ -1,0 +1,21 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+- docker pull yanqd0/hugo
+
+script:
+  - set -e
+  - docker run --rm -v $PWD:/srv/hugo yanqd0/hugo hugo
+  - ls -la public
+# Deploy to GitHub pages
+deploy:
+  provider: pages
+  skip_cleanup: true
+  # Our token is set in travis-ci.org dashboard
+  github_token: $GITHUB_TOKEN
+  local_dir: public
+  on:
+    branch: master
