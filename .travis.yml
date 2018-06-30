@@ -1,5 +1,7 @@
 sudo: required
 
+language: node
+
 services:
   - docker
 
@@ -9,7 +11,7 @@ before_install:
 script:
   - set -e
   - docker run --rm -v $PWD:/srv/hugo yanqd0/hugo hugo
-  - ls -la public
+
 # Deploy to GitHub pages
 deploy:
   provider: pages
