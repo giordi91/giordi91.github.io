@@ -2,6 +2,7 @@
 date: 2018-06-30
 linktitle: Awesome Post
 title: Awesome Post with Emoji 🤘
+---
 
 # Ala iam quondam iunctis poposcerat visa
 
