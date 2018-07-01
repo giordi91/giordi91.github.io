@@ -1,5 +1,5 @@
 baseurl = "/"
-title = "Blog Title"
+title = "A-programmer's-cave"
 copyright = "Copyright (c) 2018 - present, all rights reserved."
 languageCode = "en-US"
 canonifyurls = true

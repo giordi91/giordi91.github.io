@@ -1,55 +1,109 @@
 ---
-date: 2018-06-26
-linktitle: First Post
-title: Frist Post
+date: 2018-07-01
+linktitle: HLSL Will it MAD/FMA 
+title: "HLSL: Will it MAD/FMA ?"
 ---
 
-# Ala iam quondam iunctis poposcerat visa
+The other day I was working on optimizing an HLSL shader and came across a source code line like this:
 
-## Tota contempsere Crocon ignesque
+```hlsl
+result.xy = (myValue.xy + 1.0f) * 0.5f;
+```
 
-Lorem markdownum quaeque. Usque nempe: addidit talia saetis, numina.
+After having watched the great GDC videos 
+[[1](https://www.gdcvault.com/play/1020352/Low-Level-Shader-Optimization-for)]
+[[2](https://www.gdcvault.com/play/1017786/Low-Level-Thinking-in-High)] 
+from [Emil Persson](https://twitter.com/_Humus_) the first thing that came to mind was, ***will this MAD/FMA***? 
 
-> In omnia, unum ac ornat: illa et non tulero facto et protinus. Et procul tam;
-> diros suis ut alter inmeritae marmore. Et hac parvus in specta et certius erat
-> villosa lacus. Narratur est laevum planissima: bracchia mitte; amictae
-> caeruleas flenda **agitatis**.
+The first step was, of course, to go and check the intermediate representation, I could do it directly
+from Unity but I decided to do it from the really cool new [NSight Graphics](https://developer.nvidia.com/nsight-graphics) tool that I use on a daily
+basis for optimization/debugging, and got this result:
 
-## Delosque suos
+![originalIntermediate](../images/01_madd/originalIntermediate.jpg)
 
-Et tutus numina quae radice dat dummodo violenta auctor fecunda; mortisque ante,
-qui negabamus in certe, saepe. Illam veris medentes? Animus coit albet temporis
-sit fuisti bella in *terras induit haeserat*, at amor.
+As we can see from the intermediate representation, the compiler generated an add and mul.
+Personally I am not a big fan of intermediate representation, that is because both AMD and Nvidia
+do different optimizations at different point of the compilation stages.
+Nowaday, a lot of optimization happens
+between the translation from [IR](https://en.wikipedia.org/wiki/Intermediate_representation) 
+to machine code, so the fact that it doesnt generate a MAD/FMA here doesnt
+necessarely means it wont generate it in machine code, later we are actually gonna look at some machien code.
 
-1. Longa fertur si nostra procul
-2. Nemus sorores natae
-3. Debueram faunique passu terrore cedit
-4. Rostro Phorbantis mucro et canes imitata turba
-5. Sermonibus fundebat
+The question now is, can we do better? (even in IR?).
+The answer is yes, this is a fairly trivial case, but should give an idea of the general pattern.
+We can transform the above source code as:
+```hlsl
+//intermediate step 
+//result.xy = (myValue.xy *0.5 ) +  1.0f * 0.5f;
+result.xy = (myValue.xy *0.5 ) +  0.5f;
+```
 
-## Foeda noscoque
+We expanded the multiplication and the multiplication 1.0f * 0.5f can be constant folded, and we get
+the above line, where now, we do have a proper multiply and add line of code, that should be easier
+for the compiler to map to a madd/fma instruction.
+Lets compile the code and lets check the result:
 
-Iugalibus quoque humanam quamvis sanguis meo et malignas mille inritata nempe
-unus cui residens pelago sinu Oceano metum. Missos acceptaque apris, nil non nil
-littera iuves. Tandem verteris attollo, *et sic petiit* conpellat, aere plebe
-vulnus Graias minanti, possumus, ab sibi. Cursus examina poplite socios.
+![optimizedIntermediate](../images/01_madd/optimizedIntermediate.jpg)
 
-- Unda terra
-- Artus inmotae quamquam laetus
-- Miserum iacere moratos
-- Confinia oscula ut silva Minervae nata dies
+As we can see now, we did get a MAD instruction. This small optimization just saved us one instruction.
+This is of on paper, we will need to check some disassembly to be 100% sure. I cannot comment on the Nvidia 
+disassembly since is closed under NDA, but we can use some publicky available tools from AMD to see what
+machine code it will generate.
 
-## Ignibus contingere ea mille toro
+At this point in time I do not have an AMD gpu in my system, so I needed to find a way to generate 
+that code without an AMD driver and or GPU in my system.
+After trying several tools from GPUOpen.com I was not able to achieve my goal, so I turned to twitter, 
+I got pointed out to this great tool:
 
-Adeant sunt amnis a cuspis dilatus facta tulit Acarnanum cultusque *in*
-scelerata arduus vagantur est [putat aristis](http://oramanus.com/quin.aspx).
-[Arbor](http://www.neciuvenem.net/collibussidus.html) quod radiorum vocatur
-iamque veteres cum et cum aequoreae portus. Nec nec manibus paulatim cutis.
-Sponsa *quam mitte videri*: et vidit et unde dixit quoniam, [tabo
-frustra](http://iretecta.com/) viribus ostentis tuetur qui **potes** virgineo.
+https://github.com/jbarczak/Pyramid
 
-Nunc non moverat signatum, anguem casses oculos non nam translata dubitati.
-Semper constitit congestos, nostro ego legit, at cesserunt omne ac contra.
-Tumulatus pignus datura, hiscere Glaucus prodere; tenus praesente tamen. Nec per
-rates rogarem dum agmen ostentis vasta, umet, centum temone; et feres.
+This tool worked out of the box and actually allowed me to see severa different disassemblies for AMD cards
+being generated. Let see what we got:
+
+***ORIGINAL***
+
+![amdOriginal](../images/01_madd/amdOriginal.jpg)
+
+***OPTIMIZED***
+
+![amdOptimized](../images/01_madd/amdOptimized.jpg)
+
+As we can see we got the same exact behaviour of the IR. Once we re-organized the source code line,
+we got MAD/FMA being generated.
+
+That'is it, end of story..... or ***IS IT?***
+
+I have not been completely honest in the result I got, on my first test I got AMD to generate MADs
+for both cases, so I was just thinking, look at clang being awesome. Then I started working on this
+blog post and generating the screenshots, and something odd happened, I started getting MAD/FMA for 
+both cases even in HLSL IR.
+
+I was puzzled, I was sure I was getting ADD/MUL instruction for the original case, how come now I am getting
+MAD/FMA?
+Took me a little to figure out what was going on there, I actualy stumbled on it by mistake.
+Have a look at those two pieces of code and corresponding disassamblies:
+
+***CODE A***
+
+![codeA](../images/01_madd/codeA.jpg)
+
+***CODE B***
+
+![codeB](../images/01_madd/codeB.jpg)
+
+We are still using the "un-optimized" version of the code, for both examples A and B. The only 
+difference is that we initalized the col variable. To be fair, we don't need to completely initalize
+the float4, we could just initialize the zw value and will start generating MAD/FMA.
+If we inspect the intermediate representation we see that the actual declaration of the output
+changes based on how many channels of the float4 are initialized:
+
+```hlsl
+dcl_output o0.xyzw
+```
+
+Although that does not explain why we are still able to generate MAD with the "optimized" version of 
+the code. I find this interesting and would love to know more about it. I am gonna try to poke twitter
+about it and/or maybe the AMD forum. That is it for now.
+Since I got curious I started to have a look if this also happens on CPU (for scalar values not vector values),
+more on that on the next post.
 
