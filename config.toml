@@ -7,7 +7,7 @@ paginate = 3
 theme = "hugo-dusk"
 
 googleAnalytics = ""
-disqusShortname = ""
+disqusShortname = "aprogrammerscave"
 
 SectionPagesMenu = "main"
 
@@ -28,12 +28,18 @@ pygmentsCodeFences = true
   identifier = "tag"
   url = "/tags/"
 
+[[menu.footer]]
+  name = "Comments Policy"
+  weight = -110
+  identifier = "comments"
+  url = "/comments-policy/"
+
 [author]
-  name = ""
+  name = "Marco Giordano"
 
 [params.meta]
   keywords = ""
-  description = "Personal blog."
+  description = "A-programmer's-cave"
 
 [params]
   email = "myemail"
