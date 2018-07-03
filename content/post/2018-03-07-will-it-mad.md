@@ -2,6 +2,7 @@
 date: 2018-07-01
 linktitle: HLSL Will it MAD/FMA 
 title: "HLSL: Will it MAD/FMA ?"
+tags : ["disassembly","optimizations","shaders","gpu"]
 ---
 
 The other day I was working on optimizing an HLSL shader and came across a source code line like this:

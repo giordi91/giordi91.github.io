@@ -43,9 +43,9 @@ pygmentsCodeFences = true
 
 [params]
   email = "myemail"
-  github = "github id"
+  github = "giordi91"
   #gitlab = "gitlab id"
-  twitter = "twitter id"
+  twitter = "MarcoG_Rigger"
   #linkedin = "linkedin id"
 
 [params.colors]
