@@ -5,19 +5,35 @@ title: "HLSL: Will it MAD/FMA ?"
 tags : ["disassembly","optimizations","shaders","gpu"]
 ---
 
+<details> 
+  <summary>SPOILER: What is a MAD/FMA? (click to show text)</summary>
+   
+   <p style="background:gray;padding: 1em;">
+   TL;DR: FMA (Fused multiply add) and MAD/MADD (multiply-add) are a specific instuction in a processor
+   which allows to performa a multiplication followed by an add in a single instruction.
+   Having that instruction baked in hardware allows to achieve two results, higher performance
+   due to performaing the operation in a single instruction and less instruction/fetch and decoding
+   down the cpu pipeline.
+   </p>
+   
+   <p style="background:gray;padding: 1em;">
+   Proper explanation:
+   <a href="https://en.wikipedia.org/wiki/Multiply%E2%80%93accumulate_operation" target="_blank">FMA on wikipedia</a>
+   <p>
+   
+   
+</details>
+
 The other day I was working on optimizing an HLSL shader and came across a source code line like this:
 
 ```hlsl
 result.xy = (myValue.xy + 1.0f) * 0.5f;
 ```
 
-After having watched the great GDC videos 
-[[1](https://www.gdcvault.com/play/1020352/Low-Level-Shader-Optimization-for)]
-[[2](https://www.gdcvault.com/play/1017786/Low-Level-Thinking-in-High)] 
-from [Emil Persson](https://twitter.com/_Humus_) the first thing that came to mind was, ***will this MAD/FMA***? 
+After having watched the great GDC videos <a href="https://www.gdcvault.com/play/1020352/Low-Level-Shader-Optimization-for" target="_blank">[1]</a> <a href="https://www.gdcvault.com/play/1017786/Low-Level-Thinking-in-High" target="_blank">[2]</a> from <a href="https://twitter.com/_Humus_" target="_blank">Emil Persson</a> the first thing that came to mind was, ***will this MAD/FMA***? 
 
 The first step was, of course, to go and check the intermediate representation, I could have done it directly
-from Unity, but I decided to do it from the really cool new [NSight Graphics](https://developer.nvidia.com/nsight-graphics) tool that I use on a daily
+from Unity, but I decided to do it from the really cool new <a href="https://developer.nvidia.com/nsight-graphics" target="_blank">NSight Graphics</a> tool that I use on a daily
 basis for optimization/debugging, and this was the result:
 
 ![originalIntermediate](../images/01_madd/originalIntermediate.jpg)
