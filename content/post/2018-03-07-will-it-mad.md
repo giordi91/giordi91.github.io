@@ -24,13 +24,16 @@ tags : ["disassembly","optimizations","shaders","gpu"]
    
 </details>
 
+From this point on I will refer to such instruction as FMA.
+
+
 The other day I was working on optimizing an HLSL shader and came across a source code line like this:
 
 ```hlsl
 result.xy = (myValue.xy + 1.0f) * 0.5f;
 ```
 
-After having watched the great GDC videos <a href="https://www.gdcvault.com/play/1020352/Low-Level-Shader-Optimization-for" target="_blank">[1]</a> <a href="https://www.gdcvault.com/play/1017786/Low-Level-Thinking-in-High" target="_blank">[2]</a> from <a href="https://twitter.com/_Humus_" target="_blank">Emil Persson</a> the first thing that came to mind was, ***will this MAD/FMA***? 
+After having watched the great GDC videos <a href="https://www.gdcvault.com/play/1020352/Low-Level-Shader-Optimization-for" target="_blank">[1]</a> <a href="https://www.gdcvault.com/play/1017786/Low-Level-Thinking-in-High" target="_blank">[2]</a> from <a href="https://twitter.com/_Humus_" target="_blank">Emil Persson</a> the first thing that came to mind was, ***will this FMA***? 
 
 The first step was, of course, to go and check the intermediate representation, I could have done it directly
 from Unity, but I decided to do it from the really cool new <a href="https://developer.nvidia.com/nsight-graphics" target="_blank">NSight Graphics</a> tool that I use on a daily
@@ -43,7 +46,7 @@ Personally I am not a big fan of intermediate representation, and this is becaus
 do different optimizations at different point of the compilation stages.
 Nowadays, a lot of optimization happens
 between the translation from [IR](https://en.wikipedia.org/wiki/Intermediate_representation) 
-to machine code, so the fact that it doesn't generate a MAD/FMA doesn't
+to machine code, so the fact that it doesn't generate a FMA doesn't
 necessarely means it won't generate it in the abovementioned code, later we are actually gonna look at some machine code.
 
 The question now is, can we do it better? (even in IR?).
@@ -83,17 +86,17 @@ being generated. Let see what we got:
 ![amdOptimized](../images/01_madd/amdOptimized.jpg)
 
 As we can see we got the same exact behaviour of the IR. Once we re-organized the source code line,
-we got MAD/FMA being generated.
+we got FMA being generated.
 
 That is it, end of story..... or ***IS IT?***
 
 I have not been completely honest in the results I got, on my first test I have gotten AMD to generate MADs
 for both cases, thinking to myself: clang is awesome. Then I started working on this
-blog posting and generating the screenshots, and something odd happened, I started getting MAD/FMA for 
+blog posting and generating the screenshots, and something odd happened, I started getting FMA for 
 both cases even in HLSL IR.
 
 I was puzzled, I was sure I was getting ADD/MUL instruction for the original case, how come now I am getting
-MAD/FMA?
+FMA?
 Took me a little to figure out what was going on there, I actualy stumbled on it by chance.
 Have a look at those two pieces of code and corresponding disassamblies:
 
@@ -107,7 +110,7 @@ Have a look at those two pieces of code and corresponding disassamblies:
 
 We are still using the "un-optimized" version of the code, for both examples A and B. The only 
 difference is that we initalized the col variable. To be fair, we don't need to completely initalize
-the float4, we could just initialize the zw value and will start generating MAD/FMA.
+the float4, we could just initialize the zw value and will start generating FMA.
 If we inspect the intermediate representation we see that the actual declaration of the output
 changes based on how many channels of the float4 are initialized:
 
