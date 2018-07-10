@@ -73,7 +73,7 @@ machine code it will generate.
 At that point in time I did not have an AMD gpu in my system, so I needed to find a way to generate 
 that code without an AMD driver and or GPU in my system.
 After trying several tools from GPUOpen.com I was not able to achieve my goal, so I turned to twitter, 
-I got pointed out to this great tool: <a href="https://github.com/jbarczak/Pyramid target="_blank">Pyramid</a>.
+I got pointed out to this great tool: <a href="https://github.com/jbarczak/Pyramid" target="_blank">Pyramid</a>.
 This tool worked out of the box and actually allowed me to see several different disassemblies for AMD cards
 being generated. Let see what we got:
 
