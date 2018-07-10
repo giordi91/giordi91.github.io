@@ -73,7 +73,7 @@ After trying several tools from GPUOpen.com I was not able to achieve my goal, s
 I got pointed out to this great tool:
 
 https://github.com/jbarczak/Pyramid
-
+<a href="https://github.com/jbarczak/Pyramid target="_blank">Pyramid</a>
 This tool worked out of the box and actually allowed me to see several different disassemblies for AMD cards
 being generated. Let see what we got:
 
@@ -91,7 +91,7 @@ we got MAD/FMA being generated.
 That is it, end of story..... or ***IS IT?***
 
 I have not been completely honest in the results I got, on my first test I have gotten AMD to generate MADs
-for both cases, thinking to myself: the clang is awesome. Then I started working on this
+for both cases, thinking to myself: clang is awesome. Then I started working on this
 blog posting and generating the screenshots, and something odd happened, I started getting MAD/FMA for 
 both cases even in HLSL IR.
 
