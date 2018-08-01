@@ -5,23 +5,23 @@
 
 <body>
 <div class="main">
-<header>
+    <header>
 
-<div class="header-bar">
+        <div class="header-bar">
 
-  <nav>
-    <div class="siteTitle">
-      <a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>
-    </div> <!--siteTitle-->
+            <nav>
+                <div class="siteTitle">
+                    <a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>
+                </div> <!--siteTitle-->
+                {{ $currentPage := . }}
+                {{ range .Site.Menus.main }}
+                <a class="nav-item{{if or ($currentPage.IsMenuCurrent "main" .) ($currentPage.HasMenuCurrent "main" .) }} active{{end}}" href="{{.URL}}"><div class="nav-item-title">{{ .Name }}</div></a>
+                {{ end }}
 
-    {{ $currentPage := . }}
-    {{ range .Site.Menus.main }}
-    <a class="nav-item{{if or ($currentPage.IsMenuCurrent "main" .) ($currentPage.HasMenuCurrent "main" .) }} active{{end}}" href="{{.URL}}"><div class="nav-item-title">{{ .Name }}</div></a>
-    {{ end }}
+            </nav>
+        </div>
 
-  </nav>
-</div>
-
-  {{ partial "social-links.html" . }}
-
-</header>
+        {{ partial "social-links.html" . }}
+        {{ partial "mathjax_support.html" . }}
+		
+    </header>
