@@ -10,7 +10,7 @@ googleAnalytics = ""
 disqusShortname = "aprogrammerscave"
 
 SectionPagesMenu = "main"
-
+canonifyURLs = true
 # use Chroma for syntax highlight
 pygmentsStyle = "native" # other dark style options: vim, fruity, monokai
 # enable syntax highlight for code blocks
