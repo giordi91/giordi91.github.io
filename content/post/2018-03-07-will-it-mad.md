@@ -3,6 +3,7 @@ date: 2018-07-01
 linktitle: HLSL Will it MAD/FMA 
 title: "HLSL: Will it MAD/FMA ?"
 tags : ["disassembly","optimizations","shaders","gpu"]
+images: [../images/01_madd/originalIntermediate.jpg]
 ---
 
 <details> 
