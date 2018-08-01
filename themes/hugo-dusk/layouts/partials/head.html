@@ -13,7 +13,8 @@
 {{ template "_internal/google_news.html" . }}
 {{ template "_internal/schema.html" . }}
 
-<link rel="stylesheet" href="css/layout.css" />
+<script async src="{{ "dist/app.bundle.js" | relURL }}"></script>
+<link rel="stylesheet" href="dist/main.css" />
 <style type="text/css">
 {{ partial "theme-colors.css" . | safeCSS }}
 </style>
