@@ -1,9 +1,8 @@
 body {
-  font-family: "Arial", Gadget, sans-serif;
+  font-family: 'Arial', Gadget, sans-serif;
   counter-reset: heading;
   margin: 0;
   padding: 1em 0.5em 0.5em 0.5em;
-
 }
 
 .main {
@@ -12,8 +11,8 @@ body {
 }
 
 img {
-  max-width: 42em;
-  display: block;
+  max-width: 100%;
+  display: flex;
   margin-left: auto;
   margin-right: auto;
 }
@@ -44,27 +43,52 @@ p {
   padding-bottom: 0.5em;
 }
 
-h1 { font-size: 2em;
-     font-weight: normal;
+h1 {
+  font-size: 2em;
+  font-weight: normal;
 }
-h2 { font-size: 1.5em;
-     font-weight: normal;
+h2 {
+  font-size: 1.5em;
+  font-weight: normal;
 }
-h3 { font-size: 1.17em;
-     font-weight: normal;
+h3 {
+  font-size: 1.17em;
+  font-weight: normal;
 }
-h4 { font-size: 1.12em;
-     font-weight: normal;
+h4 {
+  font-size: 1.12em;
+  font-weight: normal;
 }
-h5 { font-size: .83em;
-     font-weight: normal;
+h5 {
+  font-size: 0.83em;
+  font-weight: normal;
 }
-h6 { font-size: .75em;
-     font-weight: normal;
+h6 {
+  font-size: 0.75em;
+  font-weight: normal;
 }
 
-a:hover, a:active, a:focus {
+a:hover,
+a:active,
+a:focus {
   outline: 0;
+}
+a {
+  /* These are technically the same, but use both */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
 }
 
 header {
@@ -73,6 +97,9 @@ header {
 }
 
 /* navigation  */
+#TableOfContents {
+  text-align: initial;
+}
 nav {
   text-align: center;
   display: -webkit-flex;
@@ -103,11 +130,11 @@ pre {
 }
 
 code {
-  white-space: pre-wrap;       /* Since CSS 2.1 */
-  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-  white-space: -pre-wrap;      /* Opera 4-6 */
-  white-space: -o-pre-wrap;    /* Opera 7 */
-  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+  white-space: pre-wrap; /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
 
   line-height: 1.4em;
 }
@@ -117,10 +144,10 @@ blockquote {
   padding-left: 1em;
 }
 
-th, td {
+th,
+td {
   padding: 0.5em;
 }
-
 
 /* site title  */
 .siteTitle {
@@ -149,27 +176,27 @@ th, td {
   text-align: center;
 }
 
-.post .content h1{
+.post .content h1 {
   margin: 1em 0em;
 }
 
-.post .content h2{
+.post .content h2 {
   margin: 1em 0em;
 }
 
-.post .content h3{
+.post .content h3 {
   margin: 1em 0em;
 }
 
-.post .content h4{
+.post .content h4 {
   margin: 1em 0em;
 }
 
-.post .content h5{
+.post .content h5 {
   margin: 1em 0em;
 }
 
-.post .content p{
+.post .content p {
   margin: 0em 0em;
 }
 
@@ -356,7 +383,7 @@ th, td {
 }
 
 .rmore {
-  white-space:nowrap; 
+  flex-space: nowrap;
   padding: 0 0 0 0.3em;
 }
 
@@ -410,12 +437,11 @@ th, td {
 }
 
 .sitemap {
-    margin: auto;
-    width: 50%;
+  margin: auto;
+  width: 50%;
 }
 
 @media only screen and (min-width: 400px) {
-
   nav {
     flex-flow: row wrap;
   }
@@ -453,4 +479,3 @@ th, td {
     font-size: 0.75em;
   }
 }
-
