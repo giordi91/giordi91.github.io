@@ -332,3 +332,7 @@ The real reason for which I made this post is to have it as a reference I
 can point the user to for future tutorials, more specifically I used parallel
 transport to generate a stable frame along hairs for real-time simulation
 keep an eye out for that!!
+
+Here the {{<target-blank "https://github.com/giordi91/Unity-Tutorials/tree/master/04_parallel_transport" "link">}} to the Unity project.
+
+If you find it useful don't forget to share on social media!
