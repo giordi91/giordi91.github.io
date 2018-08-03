@@ -8,11 +8,13 @@ toc : true
 tocname: "Table of contents:"
 ---
 
+**TL;DR**: How to generate a stable orientation along a curve, math
+and Unity implementation.
+{{<target-blank "Here""https://github.com/giordi91/Unity-Tutorials/tree/master/04_parallel_transport">}} the repository with hall the code and Unity project.
+
 # Introduction
-Today in this blog post I would like to discuss a technique called
-Parallel transport.
 Parallel transport is a technique that allows computing a moving frame
-(a 3d matrix defining a coordinate system) down the curve. Here is an example:
+(a 4x4 matrix defining a coordinate system) down the curve. Here is an example:
 ![parallel](../images/03_parallel_transport/parallel_transport.jpg)
 
 The computation starts on the top left of the image, where the gizmo is,
@@ -51,11 +53,11 @@ referencing many game objects, each of those game object will be a point along
 a discrete curve, meaning a curve defined by a series of points and segments
 instead of a mathematical function.
 Let's start by creating all the needed game objects,
-one named "curveDrawer" and many others called "curvePoint#".
+one named `curveDrawer` and many others called `curvePoint#`.
 
 ![hierarchy](../images/03_parallel_transport/hierarchy.jpg)
 
-Next, let's add a new script called ParallelTransport to the curveDrawer
+Next, let's add a new script called ParallelTransport to the `curveDrawer`
 object, we are going to add several parameters, the most important of all
 the GameObjects array.
 
@@ -91,7 +93,7 @@ set your project to use C# .NET 4.x in the player settings** .
 
 # Implementation
 
-Let's get started with the Update() method of the component,
+Let's get started with the `Update()` method of the component,
 the first step in the update is to extract the positions from our game objects:
 
 ```C#
@@ -142,7 +144,7 @@ for (int i = 0; i < objLen-1; ++i)
 ```
 
 For each segment of the curve, (index i to index i+1),
-we call the *computeFrame* function,
+we call the `computeFrame` function,
 next we extract the Y axis from the matrix, which I decided to be
 the up vector of the frame.
 In my implementation I decided to have the X axis to be pointing down the curve,
@@ -155,11 +157,11 @@ to not introduce unwanted negate scales.
 up = frames[i].c1.xyz;
 ```
 The above line of code is doing nothing more to access the second
-column **c1** , being a *float4* we extract the first 3 components
-with the property ".xyz" (I hope you now can see the similarities
+column **c1** , being a `float4` we extract the first 3 components
+with the property `.xyz` (I hope you now can see the similarities
 with shader languages).
 
-This is all good and fancy but we did not look at the *computeFrame*
+This is all good and fancy but we did not look at the `computeFrame`
 function yet! This is the core of the whole process, lets dive in:
 
 ```C#
@@ -180,7 +182,7 @@ function yet! This is the core of the whole process, lets dive in:
 ```
 
 The first thing we do is to extract the vector between our two points,
-where end is the point **i+1** and start is the point at index **i**,
+where end is the point $i+1$ and start is the point at index $i$,
 after that we normalize it.
 What we need to do next is to create a vector that is perpendicular to both
 our up vector and our aim vector, the operation to do so is the
@@ -218,7 +220,7 @@ I grabbed the formula to generate a
 {{<target-blank "https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_and_angle" "a rotation matrix from an axis and an angle">}}
 and used to multiply our frames with an increasing angle.
 
-Here below the full code:
+Below the full code:
 
 ```C#
 using System.Collections;
