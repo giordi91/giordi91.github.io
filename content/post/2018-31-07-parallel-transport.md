@@ -18,9 +18,9 @@ Parallel transport is a technique that allows computing a moving frame
 ![parallel](../images/03_parallel_transport/parallel_transport.jpg)
 
 The computation starts on the top left of the image, where the gizmo is,
-then move sequentially down the curve, as you can see the frame is aligned
-nicely along the curve, one property (wanted or not) of
-parallel transport is the natural twist the frame has following down the curve;
+then move sequentially down the curve. The frame is aligned
+nicely along the curve. One property (wanted or not) of parallel transport
+is the natural twist the frame has following down the curve.
 You can imagine it as the frame starts to bend inward if a curve has a spiral form.
 
 The main idea is simple, you start from a given up vector,
