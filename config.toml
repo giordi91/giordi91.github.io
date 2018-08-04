@@ -43,6 +43,10 @@ pygmentsCodeFences = true
   description = "A-programmer's-cave"
 
 [params]
+  #globals
+  tocname= "Table of contents:"
+
+  #social
   email = "myemail"
   github = "giordi91"
   #gitlab = "gitlab id"

@@ -3,8 +3,10 @@
 <article class="post">
     <h1 class="title"> {{ .Title }} </h1>
 		{{ if .Params.toc }}
-		{{.Params.tocname}}
-		{{ .TableOfContents }}
+            {{with .Site.Params.tocname}}
+		        {{.}}
+            {{end}}
+		    {{ .TableOfContents }}
 		{{ end }}
     <div class="content"> {{ .Content }} </div>
 
