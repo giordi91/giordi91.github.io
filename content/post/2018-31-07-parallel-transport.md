@@ -36,13 +36,24 @@ that the delta won't be too big causing the cross product to fail.
 
 Written in mathematical terms will be something like this:
 $$ \begin{align}
-   \vec{x\_i} &= P\{i+1} - P\{i+1} \\\\\\
+   \vec{x\_i} &= P\_{i+1} - P\_{i} \\\\\\
    \vec{z\_i} &= \vec{x\_i} \times \vec{y\_{i-1}} \\\\\\
    \vec{y\_i} &= \vec{z\_i} \times \vec{x\_{i}}
    \end{align} $$
 
 All the vectors are normalized, either at each steps or at the end, to keep notation less cluttered
-the normalization was omitted.
+the normalization was omitted and $\times$ operator is the cross product.
+
+
+<details>
+  <summary>SPOILER: Arrow above the variable? (click to show text)</summary>
+   <p style="background:gray;padding: 1em;">
+   In case you were wondering what the arrow above the variables means is a standard notation to
+   represent a vector variable/quantity. Other notations I have seen around are with a bold or underlined
+   variables.
+   </p>
+</details>
+
 
 That was an overview, let's dive into the actual code! I used unity to demonstrate the concept, if you are not interested in Unity details skip the next section.
 
