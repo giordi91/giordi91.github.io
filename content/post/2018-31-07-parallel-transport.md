@@ -10,7 +10,7 @@ tocname: "Table of contents:"
 
 **TL;DR**: How to generate a stable orientation along a curve, math
 and Unity implementation.
-{{<target-blank "Here""https://github.com/giordi91/Unity-Tutorials/tree/master/04_parallel_transport">}} the repository with hall the code and Unity project.
+{{<target-blank "Here""https://github.com/giordi91/Unity-Tutorials/tree/master/04_parallel_transport">}} the repository with all the code and Unity project.
 
 # Introduction
 Parallel transport is a technique that allows computing a moving frame
