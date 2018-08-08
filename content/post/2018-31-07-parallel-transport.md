@@ -48,7 +48,7 @@ the normalization was omitted and $\times$ operator is the cross product.
 <details>
   <summary>SPOILER: Arrow above the variable? (click to show text)</summary>
    <p style="background:gray;padding: 1em;">
-   In case you were wondering what the arrow above the variables means is a standard notation to
+   In case you were wondering what the arrow above the variables means, it is a standard notation to
    represent a vector variable/quantity. Other notations I have seen around are with a bold or underlined
    variables.
    </p>
