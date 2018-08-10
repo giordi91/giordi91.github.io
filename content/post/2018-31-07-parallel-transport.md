@@ -17,7 +17,7 @@ Parallel transport is a technique that allows computing a moving frame
 (a 4x4 matrix defining a coordinate system) down the curve. Here is an example:
 ![parallel](../images/03_parallel_transport/parallel_transport.jpg)
 
-The computation starts on the top left of the image, where the gizmo is,
+The computation starts on the top right of the image, where the gizmo is,
 then move sequentially down the curve. The frame is aligned
 nicely along the curve. One property (wanted or not) of parallel transport
 is the natural twist the frame has following down the curve.
