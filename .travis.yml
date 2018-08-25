@@ -6,11 +6,11 @@ services:
   - docker
 
 before_install:
-  - docker pull yanqd0/hugo:latest
+  - docker pull yanqd0/hugo:0.47.1
 
 script:
   - set -e
-  - docker run --rm -v $PWD:/srv/hugo yanqd0/hugo:latest hugo
+  - docker run --rm -v $PWD:/srv/hugo yanqd0/hugo:0.47.1 hugo
 
 # Deploy to GitHub pages
 deploy:
