@@ -57,6 +57,7 @@ mapped resource (your "constant buffer"), and trying to copy my matrix there eve
 ***That wont work***
 
 
+#multiple dxil libraries
 
 
 
