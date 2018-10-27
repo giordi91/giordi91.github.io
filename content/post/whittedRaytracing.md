@@ -9,7 +9,7 @@ toc : true
 
 <p style="background:gray;padding: 1em;">
 A simple, possibly correct, Whitted raytracer in unity, using the new Job system to get
-realtime feedback on CPU.
+real-time feedback on CPU.
 </p>
 
 
@@ -20,13 +20,19 @@ realtime feedback on CPU.
 
 Hi everyone and welcome to another post, today I would like to talk about a quick experiment I did
 in Unity 2018, lately I am focusing a lot more on raytracing and decided to start from the basics.
-The first seminal paper is the paper from Turne Whitted called: 
+The first seminal paper is the paper from Turner Whitted called: 
 {{<target-blank "An improved illumination model for Shaded Display" "http://artis.imag.fr/Members/David.Roger/whitted.pdf">}}.
 
 I decided to do it in Unity, for two reasons, first of all it would give me a good starting point, I would not 
 need to have my own sandbox for rendering etc. Although I have one, it would have required me some more
 work to get it up and running. The second reason was I wanted to keep it on CPU to make it simple, also
-unity has a great new multithreading system to help me speed up the tracing. It was a win win situation.
+unity has a great new multi-threading system to help me speed up the tracing. It was a win win situation.
+
+This blog post is not going to be about the details of the 
+Whitted raytracer, there is a great 
+{{<target-blank "scratch pixel" "https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-overview/light-transport-ray-tracing-whitted">}}.
+ article about it and also the paper itself is 
+fairly straight forward.
 
 # Unity plumbing 
 
@@ -72,7 +78,7 @@ The inspector would do nothing more than just call a function in the component:
 As you might have expected there are some simple step, initialize allocates all the memory, 
 copies the background texture into an array etc. Render kicks the job system, more on this later,
 then we copy the content of the render texture on the output render texture and we clean all the 
-allocated memory. The job system lets us use native containters but their lifetime is up to us,
+allocated memory. The job system lets us use native containers but their lifetime is up to us,
 we need to release the memory manually when we are done.
 
 The only downside is that to properly have it display and trigger when not in play mode, I need 
@@ -88,7 +94,7 @@ class WhittedRaytracer: MonoBehaviour
 ```
 
 Unluckily this still gives some issues sometimes when not fired properly Unity throws some errors
-that some memory has not been dellocated, I did not investigate if those are false positives, the 
+that some memory has not been deallocated, I did not investigate if those are false positives, the 
 start method should not be called normally, unless you recompile the component. Not ideal, but for
 prototyping was more than fine.
 
@@ -114,24 +120,32 @@ Of course you still also need the update:
 ```
 
 # The job system
-In order to use the job system you will need several packages:
+In order to use the job system you will need several packages, this
+is my manifest.json
 
-Packages:
-* Entities
-* Matematics
-* ADD MISSING ONES
+```json
+{
+  "dependencies": {
+    "com.unity.entities": "0.0.12-preview.18",
+    "com.unity.package-manager-ui": "1.9.11",
+    "com.unity.modules.imgui": "1.0.0",
+    "com.unity.modules.ui": "1.0.0",
+    "com.unity.modules.uielements": "1.0.0"
+  }
+}
+```
 
 From the list you might have also noticed I added the Mathematics package,
 this is because it allows me to use datatypes which mirrors the HLSL
-one, allows to use swizzles etc, it is so nice to use. It is supposedly
+one, allows to use swizzels etc, it is so nice to use. It is supposedly
 work really well with the job system/ ECS.
 
 Once you are ready to go, you are going to need to declare a new job,
 I do that inside the component class. This structure is what will allow
 the job system to spawn multiple tasks and execute them. I suppose
 it works similarly to how TBB (and I suppose the whole thing is built
-on top of TBB), where for a parallel for, you build a functor, basicall
-a class, stuct with a () operator. That struct is copied many times and 
+on top of TBB), where for a parallel for, you build a functor, basically
+a class, struct with a () operator. That struct is copied many times and 
 execute on different threads, on different threads, in parallel.
 
 Here is how you do it:
@@ -162,7 +176,7 @@ to implement the ***IJobParallelFor*** interface, and is mostly composed
 of two parts.
 The first part, the one that I call as the "header", is just a list 
 of data that the job is going to use, not sure if you are forced to use
-NativeContainer, but I highly recomend so, that is where the Burst compiler 
+NativeContainer, but I highly recommend so, that is where the Burst compiler 
 shine the most.
 The second part is the Execute method, that is the function that is 
 going to be executed in parallel on multiple thread, the job system 
@@ -170,12 +184,12 @@ will provide you with an index ***i***, which identify the "entity"
 you should be processing.
 
 A small note on native containers, the native containers allocate
-memory in c++ land, as such they need to be realeased manaully, 
+memory in c++ land, as such they need to be released manually, 
 the garbage collector does not know about that memory and won't
 manage it, which is good for us. Being memory allocated on the native side, 
-it also mean that if you are doing a native plugin, you can use 
-a native containter to allocate memory in c# and just toss a pointer
-in the native plugin, and will be valid memory. To do so you need 
+it also mean that if you are doing a native plug-in, you can use 
+a native container to allocate memory in c# and just toss a pointer
+in the native plug-in, and will be valid memory. To do so you need 
 to disable a couple of features.
 
 TODO EXPLAIN HOW TO GET MEMORY POINTER.
@@ -203,78 +217,94 @@ pass the link to your arrays and schedule the job for execution.
 ```
 
 ## A task in the job system
-***WARNING: Massive over semplification of multithreading explanation
+***WARNING: Massive over simplification of multi-threading and memory explanation
 incoming***
 
 ### Granularity
 When you schedule a job, you pass in a granularity (TBB term), that 
-value is basically a chunk size, you might have been led to believe
-that each of our entities in the job will be process on a seprated thread
-as indipendent object. That is not the case, what the job system will do
-is to chunk N elements toghether into a single task, in this case we 
+value is a chunk size, you might have been led to believe
+that each of our entities in the job will be process on a separated thread
+as independent. That is, however, is not the case, what the job system will do
+is to chunk N elements together into a single task, in this case we 
 passed a granularity of 512, the job system will split our array into
-512  chunks and assign each chunk to a thread for execution. 
+512 sized chunks and assign each chunk to a thread for execution. 
 
-You might be wondering why is this the case? There are several reason
-and will try my best to summarize them here. Each time you spawn a task
-and you schedule it to a thread, there is an overhead, the job system 
-needs to manage it and takes a bit of time to be copied to the thread and 
-to get started.
+You might be wondering why is this the case? There are several factors 
+and will try my best to summarize them here. 
+
+Each time you spawn a task and you schedule it to a thread, 
+there is an overhead associated with that, the job system 
+needs to manage it,schedule it, copy it to the relative thread all that takes
+time.
 If in your task you are doing a simple addition, like moving a space
 shift forward in space, the total time of your execution task might be
-90% multithreading overhead and 10% actual maths. In order to avoid that
+90% multi-threading overhead and 10% actual maths. In order to avoid that
 the normal approach is to process a chunk of N elements to that the 
-multithreading overhead is amorthized.
+multi-threading overhead is amortized.
 
 ### How big should a task be?
 
 At this point you might wonder, how big should a task be? Why don't 
 I just make as many task as many cores/threadsI have? 
 
-Unluckily life is not that simple, although you might have as many theads
+Unluckily life is not that simple, although you might have as many threads
 as cores (logical or physical cores) in your thread pool, you still have no 
 guarantee that the OS will schedule all of them, or they will run and complete
 a task at the same time. The OS might decide to stop one thread at any
-point to check if ther is an update for Word or Excel, that you absolutely
-have to get, so your task will be stalled for a while, and all other thread 
-will need to wait for the last stask to be done. This is called draining the 
+point to check if there is an update for Word or Excel, that you absolutely
+have to get, your task will be stalled for a while, and all other thread 
+will need to wait for the last task to be done. This is called draining the 
 pipeline, where some threads might be stalled waiting for the whole task to be done.
 Again, the whole deal is more complex than this, with task stealing pools etc,
 but this simplified model should allow you to make the right decision.
 
 As of now we know that huge tasks and super small tasks are not idea,so how big should
 a task be? There is no right answer, the right answer is: "big enough to have decent amount 
-of work available withouth massive pipeline drain".
+of work available without massive pipeline drain".
 
-The only way to be 100% sure is to bruteforce benchmark all the sizes
-and see what gives the best result, although might take a bit of time, 
+The only way to be 100% sure to pick the best value is to brute-force 
+benchmark all the sizes and see what gives the best result, although might take a bit of time, 
 you will learn with experience to "gut feeling pick" a good enough size,
 don't  lose your sleep on it, if your task is doing a lot of work you might 
 want a small number, 64 or so, if you are doing little work you might want
 a bigger chunk. In my case 512 was working well enough.
 
+On GPU this is more important, and often people brute force the block size,
+timing it and getting the one that yield best result for their problem size.
+Although on GPU you only benchmark power of two between 8 to 1024 usually.
+
 ### Memory access
 
-The second big thing is , let say you are processing elemnt N, N+1 all the way
-to N+4. The first thread gets in and loads a cache line containing object
+Another big factor is memory accesses. Let say you are processing element N, 
+N+1 all the way to N+4. The first thread gets in and loads a cache line containing object
 N. The second thread might possibly do the same and load a cache line containing
-N+1. This might be very inefficient since we loaded effecttively the same
-cache line twice, for processing one element, if you have been following the 
+N+1. This might be very inefficient since we loaded effectively the same
+cache line twice (and corresponding cache miss), for processing one element, if you have been following the 
 whole data oriented design revolution unity is making, you might already know
 that accessing elements linearly in memory is the best way to go, for several
-reason, once you load a cache line, the N+1 element will be alredy in cache
+reason. Once you load a cache line, the N+1 element will be already in cache
 and you don't need to wait a memory fetch, the processor might see your pattern
-and automatically prefetch memory for you and your memory is already in cache
-when you will need it. All this togheter makes a chunking approach for task 
-the prefarable way of working. 
+and automatically pre-fetch memory for you and your memory is already in cache
+when you will need it. All this together makes a chunking approach for task 
+the preferable way of working. 
 
 As I warned earlier all this explanation is over simplified to make it 
-easily digestible, you can probalby write a blog series on this or even a book,
+easily digestible, you can probably write a blog series on this or even a book,
 normally there is a lot more going on, like cache line invalidation across cores,
 L3 cache shared among all the cores etc. As a rule of thumb, you want to 
 access memory linearly and use 100% of the data in a cache line.
 
 ## Job handle
+
+Back to our job we scheduled, as you might have noticed we got back a handle
+from unity, that handle is used for several things, Unity uses it internally
+to track data dependencies. On the user side that handle is used to check that
+the job has completed. The Unity suggestion is to schedule early
+close late. This mean you should not force the job to finish immediately after
+you scheduled, you should maybe do that in late update or even the next frame,
+the first thing you check at the beginning update is that the previous frame
+is done and then you move on as usual to schedule the new job.
+
 # Performance 
 
 
