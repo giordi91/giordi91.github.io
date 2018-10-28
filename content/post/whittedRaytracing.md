@@ -109,7 +109,8 @@ callback:
     }
 ```
 
-Of course you still also need the update:
+Of course you still also need the update if you want to move the camera in 
+play mode, otherwise you can omit that, and avoid all the errors:
 ```c#
 
     public void Update()
@@ -118,6 +119,24 @@ Of course you still also need the update:
         Graphics.Blit(m_BackbufferTex, outTexture);
     }
 ```
+
+Finaly one last bit is to copy your resulting image to a GPU texture, there
+is a small trick you can do which is the following:
+
+```c#
+unsafe { m_BackbufferTex.LoadRawTextureData((IntPtr)pixels.GetUnsafeReadOnlyPtr(), pixels.Length * 16); }
+m_BackbufferTex.Apply();
+```
+
+To get the unsafe pointer(more on this later), of the native container you 
+need to add the using directive:
+
+```c#
+using Unity.Collections.LowLevel.Unsafe;
+```
+You probably also need to enable unsafe code in the Unity editor, in player
+settings.
+
 
 # The job system
 In order to use the job system you will need several packages, this
@@ -307,9 +326,72 @@ is done and then you move on as usual to schedule the new job.
 
 # Performance 
 
+For now I won't be sharing my code, first of all I am not 100% sure the code
+is correct, as you can see from the image the first ball feels like solid 
+glass, instead of thing glass. By talking to some colleagues and friends,
+thin materials are always hard to deal with and often involves tricks.
 
+Either way this won't stop me in talking a little bit about performance and how
+the Unity Job system is performing. I love the job system, but the fact that
+job system is handing the multi-threading + AVX, and c# doesn't allow me to 
+disassemble to see the instructions, a lot of the fun in optimizing is gone 
+(to note that Burst, does let you see all the disassembly you might want, even
+C# IR, LLVM IR, machine code etc, it is just hard to act on it afterwards.)
 
+Here below a gif of the raytracer in action:
 
+![whitted2](../images/06_whitted/whitted.gif)
+
+In the GIF we can see that my 8700k (OCed to 5.0 ghz), is being stressed 
+quite well on all 12 threads, by looking at the performance we get also 
+a whopping 82~ FPS!! 
+
+My next question to the user would be where do you think the bulk of 
+the performance is coming from? Multi-threading or else?
+
+You might have seen me mentioning the burst compiler, in case you did not
+know, burst is the new unity c# compiler, where the team has imbued as much
+unity knowledge as possible into the compiler to try to extract as much
+speed as they can from the code which gets compiled to native, it works really
+well with ECS too.
+
+In my specific case we get this rough timing:
+
+Timings:
+* Multi-threading : 2.3-2.6 FPS
+* Multi-threading + Burst: 82~ FPS
+
+As you can see the real hero right now is the burst compiler, it can 
+squeeze so much extra performance from the code that is not even funny,
+the reason why I think is the case, (some guessing involved, I might be wrong),
+is because unless you use burst, your code is not going native, so you might
+still get garbage collector issues and general c# slowdown. The code is 
+also going recursive, which doesn't really put me at ease too much in c#.
+Finally Burst is also able to go wide with AVX, I checked the disassembly 
+and there are tons of AVX/AVX2 instructions.
+
+Now you might understand my excitement when I wanted to try this on a Ryzen
+2700x, 8 cores 16 threads, not over-clocked (yet). Some weird result were up,
+mostly it was not able to saturate the CPU, I would only get around 62% overall 
+utilization, although still getting faster FPS, around 90, which is impressive
+since when all cores are doing work the cpu clocks at around 4.03 ghz.
+
+To try to figure out what was up, I had a look at the profiler, Nothing weird
+as far as I could see, only the copy of the texture was taking a bit of time
+so I tried to remove that, I got around 100 FPS and 70% utilization.
+
+The reason why I was expecting 100% utilization is because  there is not a frame
+limiter in Unity, so even if one frame was not enough to saturate the cpu,
+i would expect one frame after the other to be able to do so. Of course, is 
+naive of me to think so, after all the rest of the unity frame is still running
+so there might be other bottlenecks around.
+
+Next I would like to try to add some soft shadows, that would allow me to 
+to shoot a lot more rays and trying to have a heavier frame. I will also 
+try to have a bigger frame to render and make the spheres much bigger, so to
+generate a lot more work for the CPU and see what I get!
+
+That is it for now!
 
 
 
