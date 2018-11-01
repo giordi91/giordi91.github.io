@@ -120,7 +120,7 @@ play mode, otherwise you can omit that, and avoid all the errors:
     }
 ```
 
-Finaly one last bit is to copy your resulting image to a GPU texture, there
+Finally one last bit is to copy your resulting image to a GPU texture, there
 is a small trick you can do which is the following:
 
 ```c#
