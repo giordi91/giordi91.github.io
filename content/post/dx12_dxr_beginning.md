@@ -5,6 +5,7 @@ title: "DX12 and DXR: the second step"
 tags : ["realtime","raytracing","gpu"]
 tocname: "Table of contents:"
 toc : true
+draft : true
 ---
 
 <p style="background:gray;padding: 1em;">
