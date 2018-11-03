@@ -5,3 +5,4 @@ import './codeblocks.js';
 import './nojs.js';
 import './scrolldir.js';
 import './smoothscroll.js';
+import './vue.js';

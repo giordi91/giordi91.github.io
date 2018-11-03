@@ -12,16 +12,11 @@ You just applied gamma correction to your real-time application
 and everything looks too bright? De-gamma!
 </p>
 
-
-<div class="img-comp-container">
-  <div class="img-comp-img">
-    <img src="../images/08_gamma/noGamma.jpg" width="300" height="200">
-  </div>
-  <div class="img-comp-img img-comp-overlay">
-    <img src="../images/08_gamma/correctGamma.jpg" width="300" height="200">
-  </div>
+<div class='vue'>
+  <vue-compare-image 
+		left-image="/images/08_gamma/noGamma.jpg" 
+		right-image="/images/08_gamma/correctGamma.jpg" />;
 </div>
-
 
 # Introduction
 
@@ -63,13 +58,4 @@ pass, that explain the super white and washed out result.
 Here you can see the original frame after I compensated the color
 textures for the gamma correction, and the final gamma corrected
 frame. As you can see the not gamma corrected frame is super dark.
-
-<div class="img-comp-container">
-  <div class="img-comp-img">
-    <img src="../images/08_gamma/noGamma.jpg" width="300" height="200">
-  </div>
-  <div class="img-comp-img img-comp-overlay">
-    <img src="../images/08_gamma/correctGamma.jpg" width="300" height="200">
-  </div>
-</div>
 
