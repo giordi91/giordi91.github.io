@@ -5,6 +5,7 @@ title: "De-gamma your texture kid!"
 tags : ["realtime","gpu"]
 tocname: "Table of contents:"
 toc : true
+draft : true
 ---
 
 <p style="background:gray;padding: 1em;">
