@@ -5,7 +5,6 @@ title: "Never trust the compiler pt1"
 tags : ["disassembly","c++","cpu"]
 tocname: "Table of contents:"
 toc : true
-draft : true
 ---
 
 <p style="background:gray;padding: 1em;">

@@ -26,9 +26,10 @@ the
 {{<target-blank "Nvidia solid wireframe shader" "http://developer.download.nvidia.com/SDK/10/direct3d/Source/SolidWireframe/Doc/SolidWireframe.pdf">}}.
 
 Although I do plan to go an verify those claims for myself, I did not get around to do so yet,
-maybe this will be the time? Who knows. The TL;DR about geometry shaders is that they map quite bad to the modern pipeline, the not known amount of geometry generated and and how the pipeline
+maybe this will be the time? Who knows. The TL;DR about geometry shaders is that they map quite bad to 
+the modern pipeline, the not known amount of geometry generated and how the pipeline
 is implemented is not really a good fit, in this
-{{<target-blank "blog post" "http://www.joshbarczak.com/blog/?p=667">}}.
+{{<target-blank "blog post" "http://www.joshbarczak.com/blog/?p=667">}}
 from  Joshua Barczak you can find
 a detail discussion on Geometry shaders.
 
@@ -38,7 +39,7 @@ Don't get me wrong, I am not saying don't use geometry shader at all, I am sayin
 
 The next question, naturally, would be "What are those alternatives?". It would be bad of me if I suggest not to go with geometry shaders and don't offer any alternative.
 
-As far as I know we do have few alternatives which are:
+As far as I know, we have few alternatives:
 
 - Instancing
 - Vertex Shader
@@ -49,7 +50,7 @@ As far as I know we do have few alternatives which are:
 Instancing is a popular option when you have a lot of geometry to render, the idea being,
 you kick the render for a lot of grass blades, and in the vertex shader you use a per instance matrix
 to place your mesh in the world.
-If your mesh needs to be deformed, you either need to be able to do the simulation for yoru vertex in the vertex shader, which might limit some options or bind a buffer
+If your mesh needs to be deformed, you either need to be able to do the simulation for your vertex in the vertex shader, which might limit some options or bind a buffer
 with the result of the simulation and fetch the data manually using the vertexID and InstanceID provided.
 
 This is certainly a valid approach, but there is quite a bit of overhead for each geometry if you render a small geometry that overhead might dominate the cost of the render.
@@ -62,8 +63,8 @@ The main idea is that you kick the render of as many vertices you need, then use
 you have 10 blades of grass, and the blade of grass is made of 3 quads, each quad is 2 triangles made of 3 vertices, you then want to kick the render for 10*3*6 vertices.
 Once in the vertex shader, you want to expand a segment of the hair/grass (2 points), into a camera facing billboard, (2 triangles/6 points).
 
-Lets have a look how I was doing it in Unity for a hair shader.
-Here it is my update method of the monobehaviour:
+Let's have a look at how I was doing it in Unity for a hair shader.
+Here it is my update method of the Monobehaviour:
 
 ```c#
 	void Update () {
@@ -175,8 +176,8 @@ After my first experiment I got something like this:
 
 On the left the edit view, with  the hair segment (started with a simple two segment hair), on the right the actual expanded hair.
 
-The main issue is that we get a crack/break at each segment, ideally we would like to have
-the corners of the quads matching. With some extra math we can actually achieve this, this is the job of the function getTangent which average the two segments, taking care of whether we
+The main issue is that we get a crack/break at each segment, ideally, we would like to have
+the corners of the quads matching. With some extra maths we can actually achieve this, this is the job of the function getTangent which average the two segments, taking care of whether we
 are going out of bounds:
 
 ```c++
@@ -222,20 +223,22 @@ And finally plugged in my hair simulation:
 
 ![hairExp](../images/09_hairExpansion/hairBallTassellated.gif)
 
-This technique is the same used by AMD for tress FX, you can see the amazing result
+This technique is the same used by AMD for Tress FX, you can see the amazing result
 by playing the rebooted Tomb Raider games. All this is done in vertex shader, with no
 overhead of instancing and no geometry shader clunkiness.
 
 With that said, is also true that might be increasingly harder to generate more complex geometries in vertex shader compared to the geometry shader, so this is not a silver bullet.
-As a final note on vertex shader, the reader might have notice that we are generating vertices multiple times, the vertices that are shared in the triangle, of course this is wasteful,
-unluckily I was forced to do this by unity, which does not allow me to use a triangle list for rendering. Having a triangle list, it would have solve the problem of the cracks in-between
+As a final note on vertex shader, the reader might have noticed that we are generating vertices multiple times, the vertices that are shared in the triangle, of course, this is wasteful,
+unluckily I was forced to do this by unity, which does not allow me to use a triangle list for rendering. Having a triangle list, it would have solved the problem of the cracks in-between
 segments too.
 
 ## Turing mesh shaders?
 
 Finally, I wanted to mention the new
 {{<target-blank "Nvidia Turing mesh shader" "https://www.youtube.com/watch?v=72lYVTlPfI8">}},
-this shader offers un-precedented level of flexibility when it comes to geometry rendering and done in a gpu-friendly way, exploiting the GPGPU/Compute side of it. The main idea is that you generate work directly on the gpu, you can process chunks of triangles and dynamically decide to cull them, generates more etc. All this is done in parallel, and you are not limited by the input assembler anymore. Main down side being it is only available through extensions, which makes integration in off the shelf engines like Unity
-a really high entry cost as amount of work needed to integrate. I am really looking forward to try it in my custom engine.
+this shader offers unprecedented level of flexibility when it comes to geometry rendering and done in a gpu-friendly way, exploiting the GPGPU/Compute side of it. 
+The main idea is that you generate work directly on the gpu, you can process chunks of triangles and dynamically 
+decide to cull them, generates more etc. All this is done in parallel, and you are not limited by the input assembler anymore. Main downside being it is only available through extensions, which makes integration in off the shelf engines like Unity
+a really high entry cost as an amount of work needed to integrate. I am really looking forward to trying it in my custom engine.
 
 This is it for now guys! See you next time.

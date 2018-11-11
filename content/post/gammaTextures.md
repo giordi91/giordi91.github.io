@@ -5,16 +5,15 @@ title: "De-gamma your texture kid!"
 tags : ["realtime","gpu"]
 tocname: "Table of contents:"
 toc : true
-draft : true
 ---
 
 <p style="background:gray;padding: 1em;">
 You just applied gamma correction to your real-time application
-and everything looks too bright? De-gamma!
+and everything looks too bright? De-gamma yout textures!
 </p>
 
 
-To wet your appetite, here it is a wrongly doubly gamma corrected picture
+To wet your appetite, here it is a wrongly doubly gamma corrected picture.
 
 ![intro](../images/08_gamma/wrongGamma.jpg)
 
@@ -22,16 +21,15 @@ To wet your appetite, here it is a wrongly doubly gamma corrected picture
 # Introduction
 
 I have been working on my dx11 toy engine for a while now, 
-and I got to the point of where I wanted to try to implement
+and I got to the point where I wanted to try to implement
 PBR. By following the 
-{{<target-blank "learn-opengl" "https://learnopengl.com/PBR/Theory">}}, 
-tutorial they mentioned
-that I was going to need to handle HDR, I went and upgraded
+{{<target-blank "learn-opengl" "https://learnopengl.com/PBR/Theory">}} 
+tutorial, they mentioned that I was going to need to handle HDR, I went and upgraded
 my deferred rendered to support it, and added a post processing
 pass to do tone mapping, and since I never did it, ***gamma*** correction.
 
 Although being horrible about judging colors, I quickly realized my
-image looked so washed out, way to "white".
+image looked so washed out and way to bright.
 
 I started debugging and the code looked solid, I mean ... doing
 a gamma correction is a pow operation, there are only so many
