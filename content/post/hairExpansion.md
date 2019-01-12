@@ -140,7 +140,7 @@ Which hair the vertex belongs to
 uint hairIndex = id / (hairSegments * 6);
 ```
 
-The local id of the vertex to respect of your hair:
+The local id of the vertex to repsect of your hair:
 ```c++
 uint vertexInHairIndex = id % (hairSegments * 6);
 ```
@@ -188,16 +188,16 @@ inline float3 getTangent(int segmentId, int vertexId, int vertexInHairIndex, int
     //computing the segment tan
     float3 currentTan = hairData[hairGlobalOffset + segmentId + 1] - hairData[hairGlobalOffset+ segmentId];
 
-    //this value is either 0 or 1, telling us which end of the segment
+    //this value is either 0 or 1, telling us which end of the semgment
     //we need to grab
     int vOffset = vertexOffset[vertexId];
 
 
-    //base id tells us whether we need to grab the tangent before the segment or
+    //base id tells us wheter we need to grab the tangent before the semgnet or
     //the one after
     int baseId = vOffset == 1 ? segmentId +1: segmentId - 1;
 
-    //we need to patch the value to take into account if we are at the start of the segment
+    //we need to patch the value to take into account if we are at the start of the semgent
     //or at the end
     baseId = vertexInHairIndex < 2 ? segmentId : baseId;
     baseId = vertexInHairIndex == 3 ? segmentId : baseId;
@@ -236,8 +236,8 @@ segments too.
 
 Finally, I wanted to mention the new
 {{<target-blank "Nvidia Turing mesh shader" "https://www.youtube.com/watch?v=72lYVTlPfI8">}},
-this shader offers unprecedented level of flexibility when it comes to geometry rendering and done in a GPU-friendly way, exploiting the GPGPU/Compute side of it. 
-The main idea is that you generate work directly on the GPU, you can process chunks of triangles and dynamically 
+this shader offers unprecedented level of flexibility when it comes to geometry rendering and done in a gpu-friendly way, exploiting the GPGPU/Compute side of it. 
+The main idea is that you generate work directly on the gpu, you can process chunks of triangles and dynamically 
 decide to cull them, generates more etc. All this is done in parallel, and you are not limited by the input assembler anymore. Main downside being it is only available through extensions, which makes integration in off the shelf engines like Unity
 a really high entry cost as an amount of work needed to integrate. I am really looking forward to trying it in my custom engine.
 

@@ -25,20 +25,20 @@ and I got to the point where I wanted to try to implement
 PBR. By following the 
 {{<target-blank "learn-opengl" "https://learnopengl.com/PBR/Theory">}} 
 tutorial, they mentioned that I was going to need to handle HDR, I went and upgraded
-my deferred rendered to support it, and added a post processing
+my deferred renderer to support it, and added a post processing
 pass to do tone mapping, and since I never did it, ***gamma*** correction.
 
 Although being horrible about judging colors, I quickly realized my
-image looked so washed out and way to bright.
+image looked very washed out and way to bright.
 
 I started debugging and the code looked solid, I mean ... doing
 a gamma correction is a pow operation, there are only so many
-ways you can fuck it up.
+ways you can mess it up.
 
 Running out of options I reached out to the amazing 
 {{<target-blank "Alan Wolfe" "https://twitter.com/Atrix256">}}, 
-he has been helping me in my game-dev epic fails since years now, 
-since that time I was trying to load file in parallel from a 
+who has been helping me in my game-dev epic fails for years now, 
+since the time I was trying to load file in parallel from a 
 mechanical drive (super smart idea, I know right?).
 
 He looked at the two pictures before and after and asked me
@@ -46,7 +46,7 @@ are you correcting your textures when you read them? Meaning,
 are you transforming from gamma to linear space?
 
 Short answer: no, in this case we are talking about albedo
-textures only, makes no sense to correct normal maps  (unless you know
+textures only, it makes no sense to correct normal maps  (unless you know
 they have been gamma corrected.)
 
 This made me realize I was basically gamma correcting twice,
@@ -66,9 +66,9 @@ frame. As you can see the not gamma corrected frame is super dark.
 
 ***apologies for the different size of the bunnies in the comparison***
 
-To make sure that I am not actually making things wrong I decided to compare the actual 
+To make sure that I am not actually doing things wrong I decided to compare the actual 
 correct frame with the original skybox texture and bunny texture 
-(ps: the texture I was using for the bunny made no sense but that is not the point)
+(ps: the texture I was using for the bunny made no sense, it was a random one, but that is not the point)
 
 Here below we have the correct gamma compared with the albedo textures
 
@@ -79,6 +79,9 @@ Here below we have the correct gamma compared with the albedo textures
 		right-image="/images/08_gamma/skybox.jpg" />
 </div>
 
+<br><br>
+
+
 It is a bit harder to see on the rabbit due to illumination:
 
 <div class='vue'>
@@ -87,9 +90,10 @@ It is a bit harder to see on the rabbit due to illumination:
 		right-image="/images/08_gamma/armorColor.jpg" />
 </div>
 
+<br><br>
 
 But if we go ahead and compare the same albedo with the wrong gamma we could clearly
-that the result was afwully bright:
+that the result was awfully bright:
 
 
 <div class='vue'>
@@ -98,6 +102,7 @@ that the result was afwully bright:
 		right-image="/images/08_gamma/skybox.jpg" />
 </div>
 
+<br><br>
 It is a bit harder to see on the rabbit due to illumination:
 
 <div class='vue'>
@@ -106,18 +111,20 @@ It is a bit harder to see on the rabbit due to illumination:
 		right-image="/images/08_gamma/armorColor.jpg" />
 </div>
 
+<br><br>
 
-Now, keep in mind you would have the same issue with every color that you might pick at screen,
-from a color picker widget for example, you are picking a color which is gamma corrected, so you
-might want to linearize it when you set it on the shader.
+Now, keep in mind you would have the same issue with every color that you might pick from the screen,
+from a color picker widget for example(color wheel to change light color). 
+When you do so, you are picking a color which is gamma corrected, so you
+might want to linearize before passing it to the shader.
 
-If you are curious in how you can make sure your texture gets gamma corrected is faitly simple,
-the first way is to correct your texture and save them in linear, linaerize them at runtime and or 
-use a gamma texture format and let the hardware convert to linear when you smaple the texture.
+If you are curious in how you can make sure your texture gets gamma corrected is fairly simple,
+the first way is to correct your texture and save them in linear, linearize them at runtime and or 
+use a gamma texture format and let the hardware convert to linear when you sample the texture.
 
-In my engigine I spend already way to much time reading resources in an not optimal way, so 
-I decided to not add an extra linearization pass on top of it, and went with the easy way to set 
-a gamma corrected format, I just had to change my texutre description format from:
+In my engine I spend already way to much time reading resources in an non-optimal way, so 
+I decided to not add an extra linearizion pass on top of it, and went with the easy way to set 
+a gamma corrected format, I just had to change my texture description format from:
 
 ```c++
 DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -138,4 +145,9 @@ input albedo, and the gamma corrected frame on the right:
 		left-image="/images/08_gamma/noGamma.jpg" 
 		right-image="/images/08_gamma/correctGamma.jpg" />
 </div>
+
+
+Edit:
+I recently found this amazing article about gamma correction, highly recommend:
+{{<target-blank "What every coder should know about gamma" "http://blog.johnnovak.net/2016/09/21/what-every-coder-should-know-about-gamma/">}}, 
 
