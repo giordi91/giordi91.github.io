@@ -44,12 +44,12 @@ and in the next post we will have a look in how to optimize the computation.
 
 ## Find instances in the scene
 
-The first prototype we did was  to spawn matrices for the objects in a grid, although a nice and easy way to get something going,
-it does not represent a real use case scenarios. In the future we plan to use USD to manage our scene, 
-so we can find and read those instances directly from  a USD stage. 
+The first prototype we did was to spawn matrices for the objects in a grid, which is a nice and easy way to get something going but 
+does not represent a real use case scenario. In the future, we plan to use USD to manage our scene, 
+so we can find and read those instances directly from a USD stage. 
 For the time being, we had to scan the scene at start up and get all the objects that had a custom instancing component.
 
-Once the object were found we wrapped them into a Renderable class, 
+Once the objects were found we wrapped them into a Renderable class, 
 which is in charge of drawing a single set of instances, something on the lines:
 
 ```c#
@@ -64,7 +64,7 @@ public class Renderable
 	...
 
 ```
-The Renderable class is in charge to collect and make the instances data easier to access and manage.
+The Renderable class is in charge of collecting and making the instances data easier to access and manage.
 Dealing with nodes in the scene has a couple of down-sides, in the first place all those game objects 
 make the editor harder to deal with, slow and with hangs. Scanning the scene at start up adds extra time
 before the game starts. Dealing with a USD scene directly we would not have to create the unity nodes at all.
@@ -93,24 +93,24 @@ The algorithm works in three steps:
 * Compact - use the compute address to copy the matrix at its final destination.
 
 All this can be achieved with compute shaders (more on this later), 
-you just need to load all the needed data (frustum, matrices) in Unity's  Compute buffers, bind them and kick the shader.
+you just need to load all the needed data (frustum, matrices) in Unity's Compute buffers, bind them and kick the shader.
 
 ## Perform the render
 
 We now have an array of matrices representing the position of the meshes we want to render. 
 A naive approach to render them would be to download such matrices on the CPU and call a DrawMeshInstanced method.
 
-That will work for sure, but would be extremely inefficient, every time you perform a CPU-GPU synchronization, 
-you lose a lot of performance, it is extremely slow to read back from the GPU and you will be stalling the queued GPU
+That will work for sure, but would be extremely inefficient as every time you perform a CPU-GPU synchronization, 
+you lose a lot of performance. It is extremely slow to read back from the GPU and you will be stalling the queued GPU
 frames, the GPU will go idle with no work to be done.
-Usually the cost can be amortize at the cost of latency, where you will use your result few frame later and try to 
+Usually the cost can be amortized at the cost of latency, where you will use your result few frames later and try to 
 compensate for the camera movement, this is how CPU occlusion query worked for example.
 
 Luckily this is such a common problem that there is a built in solution in the graphics API. 
 It is called indirect rendering, where during the GPU computation, you know exactly how many elements survived and need to be
 rendered, so you will just write the arguments for the render call in a small GPU buffer and just tell the driver to render
 the geometry and fetch the configuration from such buffer.
-IN this way there is no need to sync the CPU and GPU, the GPU is able to generate autonomsuly extra work for itself.
+In this way there is no need to sync the CPU and GPU, the GPU is able to generate autonomsuly extra work for itself.
 Lets have a look at how we can do that in unity.
 ```c#
 foreach (var r in Renderables)
@@ -176,26 +176,26 @@ in place some restrictions like no scaling etc you can compute it more cheaply. 
 # The good, the bad and the ugly
 
 At this point we have a basic prototype of GPU culling, but does it work? How does it perform?
-We tested the culling on a real scene, an outdoor set where we had around four hundred thousands threes, 
-grouped in four different instancing group of hundred thousands instances each. 
+We tested the culling on a real scene, an outdoor set where we had around 400,000 trees, 
+grouped in four different instancing group of 100,000 instances each. 
 
-The regular unity framerate was around 10-12 FPS, the GPU culling version was around 2500FPS. 
+The regular Unity framerate was around 10-12 FPS, the GPU culling version was around 2500FPS. 
 That is not a bad speed up! Don't get too focused on performance right now, we will discuss this at length 
 in the next post. 
-The major speed up did not only come from the rendering side, but from unity not having to handle that many
+The major speed up did not only come from the rendering side, but from Unity not having to handle that many
 components and the GPU culling.
 
 This is really promising, unluckily is only one side of the story. There is a major issue with this system, 
-and weirdly enough is the problem is shadowing.
-When unity performs the culling, it does also compute which geometry ends up in which shadow cascade, 
+and weirdly enough, the problem is shadowing.
+When Unity performs the culling, it also computes which geometry ends up in which shadow cascade, 
 and will only submit the necessary geometries to the render of each shadow cascade. 
 
-When using DrawMeshInstanced/Indirect, unity has no idea of what is being rendered or where is located, so the full
+''''''When using DrawMeshInstanced/Indirect, Unity has no idea of what is being rendered or where it is located, so the full
 geometries will be rendered for each shadow cascade, with the default 4x cascade, we are submitting more than a million threes,
-we are rendering four times the amount of geometry we normally would.
+we are rendering four times the amount of geometry we normally would.'''''''''
 
-As far as we are aware in the normal rendering pipeline there is no way to fix it. The solution might be a 
-{{<target-blank "custom scritable render pipeline (SRP)" "https://docs.unity3d.com/Manual/ScriptableRenderPipeline.html">}}
+As far as we are aware, in the normal rendering pipeline, there is no way to fix it. The solution might be a 
+{{<target-blank "custom scriptable render pipeline (SRP)" "https://docs.unity3d.com/Manual/ScriptableRenderPipeline.html">}}
 or modifying the Unity's built in HD rendering pipeline.
 The SRP is the new Unity way of rendering, it completely exposes to the user the render loop, upon inspection, we were able
 to find where unity renders the cascade shadows map and we should be able to hook up in there, perform culling on a per cascade
