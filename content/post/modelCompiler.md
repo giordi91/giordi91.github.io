@@ -161,7 +161,7 @@ A generic function will write down that blob of data.
 
 ## Reading the binary file
 
-Finally reading the file will be quite simple here some simple code I used for testing in my old dx11 engein:
+Finally reading the file will be quite simple here some simple code I used for testing in my old dx11 engine:
 
 
 ```c++
@@ -201,5 +201,7 @@ That is it! The compiler is growing already, I currently have a shader compiler 
 to compiler Shader model 6 shaders. I will write a small blog post about that next, since it gave me a bit
 of trouble to get it to work.
 
+Feedbacks are more than welcome! I would love to hear from experience game engine developers on how they 
+approached similar issues!
 See you next time!
 
