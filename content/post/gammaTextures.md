@@ -56,7 +56,7 @@ that explains the super white and washed out result.
 
 Here you can see the original frame after I compensated the color
 textures for the gamma correction, and the final gamma corrected
-frame. As you can see the not gamma corrected frame is super dark.
+frame. As you can see the difference is quite staggering.
 
 <div class='vue'>
   <vue-compare-image 
