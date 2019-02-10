@@ -5,7 +5,7 @@ title: "Game engine resource compiler architecture"
 tags : ["realtime","engine"]
 tocname: "Table of contents:"
 toc : true
-draft : true
+draft : false
 ---
 
 <p style="background:gray;padding: 1em;">
