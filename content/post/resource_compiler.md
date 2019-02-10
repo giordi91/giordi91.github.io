@@ -1,7 +1,7 @@
 ---
 date: 2019-01-12
 linktitle: resource  compiler
-title: "Game engine resource compiler architecture"
+title: "Game engine resource compiler architecture."
 tags : ["realtime","engine"]
 tocname: "Table of contents:"
 toc : true
@@ -16,24 +16,22 @@ Planning the architecture for my first game engine resource compiler
 
 # The ugly model loader
 
-If you are not interested in how I ended up with a crappy model loader, 
+If you are not interested in how I ended up with a crappy model loader,
 jump to the resource compiler section.
 
-Since I started working with OpenGL, almost five years ago, I wrote a super simple 
-and ugly model obj loader. The main issue was that  {{<target-blank "tinyobj loader" "https://github.com/syoyo/tinyobjloader">}} 
-would give me back multiple index buffers, one per geometry attribute. Inexperienced 
-and eager to get something at screen like I was, led me to simply "smush"(technical term) the
-mesh attribute into a single array, and the index buffer became a monotonic increasing 
+Since I started working with OpenGL, almost five years ago, I wrote a super simple and ugly model obj loader. The main issue was that  {{<target-blank "tinyobj loader" "https://github.com/syoyo/tinyobjloader">}}
+would give me back multiple index buffers, one per geometry attribute. Inexperienced
+and eager to get something on the screen like I was, led me to simply "smush"(technical term) the
+mesh attribute into a single array, and the index buffer became a monotonic increasing
  array like : [1,2,3,4....N];
 
- Here below a quick gif of my qt/OpenGL viewer at the time:
+ Here below a quick gif of my Qt/OpenGL viewer at the time:
 
 ![intro](../images/10_resource_compiler/firstOpengl.gif)
 
- As you can imagine, doing that makes the index buffer useless, there is 
+ As you can imagine, doing that makes the index buffer useless, there is
  not a single duplicated index, meaning no vertex cache hits.
- That piece of code, was copy-pasted all over my graphics projects, almost untouched
- for 5 years. My latest DirectX demos, still run this ugly piece of code:
+ That piece of code was copy-pasted all over my graphics projects, almost untouched for five years. My latest DirectX demos, still run this ugly piece of code:
 
 ```c++
 for (int i = 0; i < sz; ++i) {
@@ -69,54 +67,54 @@ idx[i] = i;
 ```
 Other than being ugly and slow to render, it was also very slow in reading/loading the resources.
 Even for a single skinned character, it would take tens of seconds to load. To the extent that
-in my dx11 engine I added an async resource loader.
+in my dx11 engine, I added an async resource loader.
 
 ![intro](../images/10_resource_compiler/asyncload.gif)
 
 You can see from the gif the pieces of geometry popping on screen, don't get me wrong
-it was a good a good exercise, but did not solve the underlying problem, that my model
+it was a good exercise but did not solve the underlying problem, that my model
 loading was crap.
 
 
-Backtracking a little bit, although in 2018 I bit focused on graphics, my
-2019 resolution was to have as main focus graphics, stopping any other side projects.
-This leave me with two grafics projects my DX11 and DX12 engines.
+Backtracking a little bit, although in 2018 I focused on graphics a bit, my
+2019 resolution was to have graphics as main focus, stopping any other side projects.
+This left me with two graphics projects my DX11 and DX12 engines.
 
-My DX11 engine, is mostly a bunch of code used to get stuff on screen as fast as possible
-for the programmer. My DX12 engine, still in early stage, want's to be
+My DX11 engine is mostly a bunch of code used to get stuff on screen as fast as possible
+for the programmer. My DX12 engine, still in early stage, wants to be
 a proper engine. I'm trying to get a decent architecture.
 The implementation of a graphics technique is going to happen in my DX11 engine, until
 my DX12 engine will be able to stand on its legs.
 
 # The resource compiler
 
-Willing to have a decent architecture for my DX12 engine, made me not only
-fixing my model loader, but to also have a proper resource compiler, to compile down 
-the resource to binary, ready to go straight on the GPU at no extra processing needed.
+The need for a decent DX12 engine architecture, made me
+fix my model loader, and have a proper resource compiler to process
+the resources down to binary, ready to go straight on the GPU at no extra processing needed.
 
-I decided to sit for a while and try to architect how the model loader would be.
-Here what I came up with:
+I decided to sit on it for a while and try to architect how it would look like.
+Here it is what I came up with:
 
 ![intro](../images/10_resource_compiler/resourceCompiler.jpg)
 
-Let me try to explain it in a bit more detail now that you have seen a visual 
+Let me try to explain it in a bit more detail now that you have seen a visual
 representation of it.
 
-There is a core library for the resource compiler, the library will define several
+There is a core library for the resource compiler; the library will define several
 factors like the interface of the plug-ins (more on that later), how to deal with binary
-files and so on.
+files, and so on.
 
 This library will then be used in the resource compiler application, which will be in
 charge of discovering and registering plug-ins, read-in arguments from command line and
 dispatch everything to the correct plug-in.
 
-Now you may wondering, what are those plug-ins I am talking about? Rather than go with a "monolithic"
+Now you may be wondering, what are those plug-ins I am talking about? Rather than go with a "monolithic"
 approach, I decided to break it down a little and make it more modular. Each
-plug-in will be in charge of processing one type of file, for example models, 
+plug-in will be in charge of processing one type of file, for example, models,
 images, skin data.
 
 In reality, I will create small files descriptions of a whole asset, containing
-shader, animations etc, the compiler will unpack such description and dispatch each
+shader, animations, etc, the compiler will unpack such description and dispatch each
 resource to the correct plug-in.
 
 The only thing the plug-in needs to do is to export a function called
@@ -124,10 +122,10 @@ The only thing the plug-in needs to do is to export a function called
 ```c++
 extern "C"
 {
-	bool RC_PLUGIN pluginRegisterFunction(PluginRegistry *registry);
+    bool RC_PLUGIN pluginRegisterFunction(PluginRegistry *registry);
 }
 ```
-The compiler executable will try to look for all the dlls 
+The compiler executable will try to look for all the dlls
 inside a plug-in folder and load as well as execute such function.
 
 ```c++
@@ -167,7 +165,7 @@ Where processModel() is of type:
 ```c++
 typedef bool (*ResourceProcessFunction)(const std::string &assetPath,
                                         const std::string &outputPath
-										const std::string &args);
+                                        const std::string &args);
 ```
 I am not sure on how I want to handle the args for the plug-in, whether I prefer to pre-process
 them outside or inside. For the main resource compiler I am using {{<target-blank "cxxopts" "https://github.com/jarro2783/cxxopts">}}
@@ -181,7 +179,7 @@ The args are fed to the compiler, the compiler will use the plug-in name to acce
 registry, and dispatch the plug-in args to the correct plug-in function which will
 generates one or more files.
 
-In the next blog post I will go a bit more in details on the modelCompilerPlugin and
+In the next blog post, I will go a bit more in details on the modelCompilerPlugin and
 how I am dealing with the binary file.
 Any comments and feedback are more than welcome! I am sure this can be improved
 big time!
