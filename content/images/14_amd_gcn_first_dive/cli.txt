@@ -1,0 +1,1 @@
+rga temp.hlsl -f PS -s hlsl --isa out.txt --il ir.txt -I E:\WORK_IN_PROGRESS\C\SirEngineThe3rd\data\shaders\rasterization -p ps_5_0 -c gfx900 --intrinsics -a analisys.txt
