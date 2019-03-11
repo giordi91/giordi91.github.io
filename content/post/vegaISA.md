@@ -2,7 +2,7 @@
 date: 2019-03-10
 linktitle: vega ISA 
 title: "AMD GCN ISA: a first dive"
-tags : ["realtime","engine"]
+tags : ["shader","assembly","gpu"]
 tocname: "Table of contents:"
 toc : true
 draft : true
@@ -17,18 +17,21 @@ You want to learn more about GCN but where to start?
 
 # Where to start 
 
-I always liked getting my hands dirty when coding, optimizing, disassembling etc. When trying to do that on GPU
-well result is mixed and often hard to do because the information is not available, you can't really see the machine code
-etc. That is more or less true depending on the API you are using, you can for example see cuda disassambling but you don't
-have the ISA to know instructions and or arguments/registers, in DirectX you can often only see the IR from the D3DCompiler.
+I always liked  optimizing and disassembling code. 
+When trying to do that on GPU the result is mixed, It is often hard to do because the information 
+is simply not available (on PC), you can't really see the machine code easily. 
+That is more or less true depending on the API you are using, you can for example 
+see Cuda disassembly but you don't have the ISA to understand the instructions and/or arguments/registers, 
+in DirectX you can often only see the IR from the D3DCompiler, which might be quite far from the final
+machine code.
 
-In my case I am interested in optimizing my DirectX shaders, seeing the landscape the only solution I had was to buy an AMD
-card and work on it. AMD has always been super open on the architecture and tooling. There is a public ISA and a lot 
-of tools for developers on PC, you can disassamble and get a lot of information about your shaders. 
-I went ahead I picked up a Vega 64. Ok I have the hardware now what?
+In my case I was interested in optimizing my DirectX shaders, by looking at the landscape the only 
+solution I had was to buy an AMD card and work on it. AMD has always been super open on the architecture and tooling. 
+There is a public ISA and a lot of tools for developers on PC, you can disassemble and get a lot of information out of your shaders. 
+I went ahead I picked up a Vega 64, but now that you have the hardware whare do you start? 
 
 # What to study? 
-Next we have to get our hands on some material we can actually learn from and study. The first two stops are this two
+We have to get our hands on some material we can actually learn from and study. The first two stops are these
 amazing presentations, packed with knowledge:
 
 {{<target-blank "Digital Dragons 2014 - Michal Drobot" "https://www.youtube.com/watch?v=Bmy3Tt3Ottc&t=10s">}}
@@ -41,23 +44,23 @@ and
 This should give you a enough to get your way around a bit more, next you need to inspect the 
 {{<target-blank "Vega ISA" " https://developer.amd.com/wp-content/resources/Vega_Shader_ISA_28July2017.pdf">}}.
 
-I personally found is good to keep all of the ISA pdfs at hand, some explain a bit more than others, if there is something you 
+I personally found that is good to keep all of the ISA pdfs at hand not only the Vega one, some explain a bit more than others, if there is something you 
 don't understand from one ISA pdf you can probably figure out from a previous guide. 
-We got the hardware, some knowledge now what? Well, we now need to start look at some code!
+We are all set to start looking at some code.
 
 # The tooling
-Our main goal now is how to generate the disassembly or gather any useful information about it? One of the thing I did not 
+Our main goal now is how to generate the disassembly and gather any useful information. One of the thing I did not 
 like from AMD was that their software stack was all over the place, so many tools, many discontinued/deprecated, It might
- a bit hard to navigate this, so here below a list of all the tools I ended up using and for what reason.
+ a bit hard to navigate all this, so here below a list of all the tools I ended up using and for what reason.
 
 ## Radeon GPU Analizer 
 
-The first tool in our bag is the {{<target-blank "Radeon GPU Analyzer" "https://github.com/GPUOpen-Tools/RGA">}}. 
+The first tool in our tool-bag is the {{<target-blank "Radeon GPU Analyzer" "https://github.com/GPUOpen-Tools/RGA">}}. 
 The tool deals with both OpenCL and graphics, but the UI only deals with OpenCL, if you want to do graphics stuff you 
 need to use the CLI. The tool is amazing for OpenCL, it shows relationship between source code lines and assembly lines,
 I really hope the UI functionality and source-code/assembly lines linking will be ported to graphics soon. (hint hint AMD!).
 
-To use from CLI we need to do something along this lines
+To use from CLI we need to do something along these lines
 ```bash
 rga temp.hlsl -f PS -s hlsl --isa out.txt --il ir.txt -I E:/WORK_IN_PROGRESS/C/SirEngineThe3rd/data/shaders/rasterization -p ps_5_0 -c gfx900 --intrinsics -a analisys.txt
 ```
@@ -75,38 +78,39 @@ Here a screen shot of a pixel shader:
 If you want to know more I highly recommend the official   {{<target-blank "guide" "https://www.youtube.com/watch?v=eE9Oomlm8V0">}}.
 
 ## CodeXL
-The next workhorse in our toolset is {{<target-blank "CodeXL" "https://github.com/GPUOpen-Tools/CodeXL">}}.
+The next workhorse in our tool-set is {{<target-blank "CodeXL" "https://github.com/GPUOpen-Tools/CodeXL">}}.
 The software is quite similar to RGA, it has a lot of overlap, not sure what AMD plans for it but I would foresee CodeXL
 to merge into RGA. It is a bit silly to have several similar tools around.
-CodeXL works with the UI as such is easier to use than RGA, the disassembly offers some nice visualization where you 
-also get the cost of instructions in cycles and what type of instructions is.
+CodeXL works with the UI and as such is easier to use and iterate than RGA, the disassembly offers some nice visualization where you 
+also get the latency of instructions in cycles and what type of instructions it is.
 
 ## Pix
 Next in the pipeline is {{<target-blank "Pix" "https://blogs.msdn.microsoft.com/pix/2019/02/01/pix-1901-28/">}}.
-Pix is an amazing graphics debugger, and I use it on a daily basis. This is by now my go to for DirectX 12 code. 
+Pix is an amazing graphics debugger, and I use it on a daily basis. This is  my go to for DirectX 12 code. 
 Among the usual goodies for debugging it can show us the disassembly of our shader (thanks a cooperating AMD driver):
 
 ![intro](../images/14_amd_gcn_first_dive/pixDis.png)
 
-But can also show us a **LOT** of counters, as far as I know this is the only tool that does that (possibly along RenderDoc).
+It can also shows  a **LOT** of counters, as far as I know this is the only tool that does that (possibly along RenderDoc).
 Those counters can be essential to understand the bottlenecks in your shader, if you are memory bound ALU bound etc.
+
 The downside is that is fairly hard to deal with those counter, they are shown in columns where you end up scrolling a lot.
 Personally I think that for now NSight Graphics nailed it quite well with the SOLs (speed of light) way of optimizing, I hope 
 AMD will go down a similar path, they already have the data they just need to present it better IMHO.
 
 ![intro](../images/14_amd_gcn_first_dive/pixCounters.png)
 
-Finally you can also see the same kind of occupancy graph you see in RGP, AMD is the only IVH I managed to get that graph in
-pix out of (just ignore the horrible stalls :D):
+Finally you can also see the same kind of occupancy graph you see in RGP, AMD is the only IVH I managed to get such graph in
+Pix (just ignore the horrible stalls :D):
 
 ![intro](../images/14_amd_gcn_first_dive/pixOccupancy.png)
 
-# Disassambly
-After the tooling detour we are finally ready to start looking at some disassembly, I will be using mostly CodeXL.
-For a first example I decided to have a look at my super simple procedural background. The reason why I decided to look at it 
-is because it is extremely simple and would not be too overwhelming and easier to understand what the disassembly was doing.
+# The code 
+After this tooling detour we are finally ready to start looking at some disassembly, I will be using CodeXL mostly.
+As a first example I decided to have a look at my super simple procedural background/sky. The reason why I decided use it 
+is because it is extremely simple it will not be too overwhelming and easier to understand what the disassembly is doing.
 
-Here a picture of the actual background, heavily inspired by the default Unity background, 
+Here a picture of the actual background,it is heavily inspired by the default Unity background, 
 mostly because I am used to look at it:
 
 ![intro](../images/14_amd_gcn_first_dive/bg.png)
@@ -150,9 +154,194 @@ float4 PS(FullScreenVertexOut pin) : SV_Target
 ```
 
 This was the  simplest version of the shader, the first one I used to get it to work. As you might have noticed I am using
-shader model 6.0, unluckily AMD toolings do not support that shader model, and for disassambling I will need to remove 
-those features like ConstantBuffers<>.
+shader model 6.0, unluckily AMD tooling do not support that shader model, and for disassembling I will need to remove 
+features like ConstantBuffers<>.
 
-Before making any assumptions about how good or bad this code is (I know you have been looking at that branch!), let
+Before making any assumptions about how good or bad this code is (I know you have been looking at that branch!), let us
 see what CodeXL has to say about it.
+
+
+# Disassembly
+
+## A first implementation
+Here the first result from CodeXL:
+
+![intro](../images/14_amd_gcn_first_dive/01_start.png)
+
+The above is not the full code, there are few instructions at the bottom that are missing, you can check the 
+full original listing   {{<target-blank "here" "../images/14_amd_gcn_first_dive/01_start.csv">}}.
+
+Before looking at the disassembly let us have a quick look at the statistics:
+
+![intro](../images/14_amd_gcn_first_dive/01_stats.png)
+
+As expected, register pressure wise we are in good shape, but  the shader is
+extremely simple, and we are using a lot of registers not the less, that should remind us that register
+pressure is a big deal, although is something I never worried too much before, mostly because I have no 
+way to know how many register I was using.
+
+Lets try to concentrate on the assembly now. Right at the beginning we can see some interesting 
+instructions I was not expecting: ***V_INTERP_P[1,2]_F32***.
+
+![intro](../images/14_amd_gcn_first_dive/01_interp.png)
+
+From the ISA pdf, we know that those instructions are used to interpolate data that came from the
+vertex shader, in this case we are interpolating the clip space coordinate before using them.
+The source data lives in the LDS for faster read. 
+
+Although never spent too much time  thinking how the interpolation was done, I was naive enough 
+to believe that happened at the rasterizer stage, and in the pixel shader you would get the data pre-interpolated. 
+It is clearly not the case, reading the rasterizer part from
+{{<target-blank "A trip through the graphics pipeline" "https://fgiesen.wordpress.com/2011/07/06/a-trip-through-the-graphics-pipeline-2011-part-6/">}} 
+was also eye opening.
+
+Moving down we find the matrix multiplication with a lot of ADD, MULL and an interesting MAC.
+From looking at the ISA guide, the MAC instruction implements the following operation:
+
+![intro](../images/14_amd_gcn_first_dive/mac.png)
+
+Which is slightly different from the MAD one:
+
+![intro](../images/14_amd_gcn_first_dive/mad.png)
+
+The difference seems to be only in the fact the destination register is reused for the add part compared
+with the mad instruction which requires 3 source operand plus the destination. Not sure why this is the 
+case, possibly helps with reducing register usage. If anyone knows more I would love to know!
+
+Let us keep moving down the code, we see a lovely 16 cycle  reciprocal square root, that is used for
+the normalization of the vector. More on about it later.
+
+
+Next something really interesting is coming up:
+
+![intro](../images/14_amd_gcn_first_dive/01_clamp.png)
+
+It looks like  MUL instruction but with an extra clamp? What is it and where does it come from?
+This particular piece of information was covered in the Digital Dragons presentation, and it refers to
+input and output modifiers. 
+
+If not mistaken the short story is by not having to deal with IEEE floating point correctness, 
+the GPU is able to sneak int some extra operation for free either on input or output of 
+your instructions.  The ISA guide says this when referring to the output of instructions: 
+
+```
+When the VOP3 form is used, instructions with a floating-point result can apply an output modifier (OMOD field) 
+that multiplies the result by: 0.5, 1.0, 2.0 or 4.0. Optionally, the result can be clamped (CLAMP field) to the range [0.0, +1.0].
+```
+That is quite interesting! But where does it come from? In the code we are clamping
+our interpolation value with a saturate():
+
+```c++
+    float topLerpFactor = saturate(verticalGradient*topGradientDiffiusion);
+    float bottomLerpFactor = saturate(-verticalGradient*bottomGradientDiffusion);
+```
+
+Thanks to the output modifiers we are getting the saturate for free into a single instruction!
+This is not all, if you look closely you will also notice that one of the argument of the instructions
+does not come from a standard register but looks like a literal constant, interestingly enough the second
+saturate/clamp instruction does not use the same form, we don't see the 15.0 value directly in the 
+instruction:
+
+![intro](../images/14_amd_gcn_first_dive/01_clamp2.png)
+
+The reason for this comes from the fact GCN has some special register that are hard-coded to some common values
+like 0.0f, 1.0f, 2.0f , 0.5 ,4, 8 etc. If the compiler sees that value can actually use those special
+register directly, in the disassembly they show up as literal constant. This not only allows us to save
+a scalar register, it also allows to save a mov instruction to put such value in the register.
+
+Finally at the end of the program we have few extra instructions worth nothing (they were not visible
+in the first screenshot):
+
+![intro](../images/14_amd_gcn_first_dive/01_export.png)
+
+Those are packing instructions, that convert F32 values to F16 and send it to be exported 
+for being written to the RenderTarget, I assume EXP sends the value to ROPs.
+
+Phewww! That was quite a bit of stuff from a simple assembly dump! Fortunately, it is not over yet, there 
+are still few things I wish to try just for fun.
+
+## A first optimization pass
+
+I did not really need to optimize this shader, my simple application is heavily CPU bound, since the 
+graphics load is so little the card does not even bother to raise the cores frequency. The reason why I 
+am doing it is just to see the result in the assambly, I won't even bother it profiling. 
+
+The first thing that I thought of doing was so simplify the matrix multiplication to convert from
+clip space to world space, after all I am using only the Y component from the whole vector, this feels 
+a bit wasteful! Unluckily the vector normalization needs the full result from the matrix multiplication.
+Can I get away without normalizing? In order to see that I decided to remove the normalization and render 
+the error as color on screen:
+
+
+![intro](../images/14_amd_gcn_first_dive/error.png)
+
+The above error is scaled by a factor of 5.0f and is the worst case scenario when looking straight up and or down.
+Since the error shows up mostly when looking up and down, where the gradient would be the full sky color or ground
+we most likely  won't see any difference. Let us try drop the normalization and only use the y component:
+
+```c++
+    float worldDir = mul(float4(pin.clipPos, 0.0f, 1.0f), g_cameraBuffer.VPinverse).y;
+```
+
+How did the code change?
+
+![intro](../images/14_amd_gcn_first_dive/03_y_assembly.png)
+
+That is quite a bit less instructions at no visual difference. We also reduced quite a bit the number
+of registers used (not that was really necessary).
+
+![intro](../images/14_amd_gcn_first_dive/03_y_stats.png)
+
+## Rapid Packed Math
+
+The last thing I wanted to try, was to use Rapid Packed Math(RPM). RPM was a big feature for Vega, it boils down to FP16 operation
+which offers twice the throughput compared to the big brother FP32. This seems to be a great option to have if you are ALU bound
+and want to speed up your code, of course not everything can be computed at FP16.
+
+I decided to give it a go, I changed all my float in the code to half and.... nothing happened. 
+The output code was still exactly the same.
+By looking at the MSDN doc, it seems like half only exists for compatibility reasons. At compile time half is used as a float.
+At that point I was not sure how to use and/or enable RPM, I did not find anything int the AMD intrinsics extensions either.
+
+
+I then asked for help to {{<target-blank "Rohan mehalwal" "https://twitter.com/tigerfunk">}}, he is super nice totally give him a 
+follow! He pointed me to the right direction, where the right data type to use is "min16float".
+More info can be found {{<target-blank "here" "https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/using-hlsl-minimum-precision">}}, 
+the TLDR is, min16float will allow the compiler to use where it can the reduced precision, 
+but there is not hard guarantee you are going to get FP16 instructions.
+
+That is good enough! Let us substitute all the floats to min16float and see what happens 
+(you do have all the vector types available like min16float4 etc.), 
+to note, you cannot have min16float in variables coming in from constant buffers or vertex output etc. 
+Only in the body of your shader. Here the output result:
+
+![intro](../images/14_amd_gcn_first_dive/04_pk.png)
+
+The output is quite interesting, right away we can see we start to get FP16 operations:
+
+![intro](../images/14_amd_gcn_first_dive/04_pk_mul.png)
+
+There it seems to be also some special flags for preserving part of the register that might not be used,
+to note that those are not RPM instructions, they are only FP16. This might be due to the fact some 
+of the source arguments are from scalar registers? I am not exactly sure, if anyone knows more I would 
+like to know!
+
+Moving forward a little bit we start to see the first RPM instructions:
+
+![intro](../images/14_amd_gcn_first_dive/04_pk_mulpk.png)
+
+Finally something else got my eyes, at export times there seems to be quite a bit going on, let us have 
+a look:
+
+![intro](../images/14_amd_gcn_first_dive/04_pk_cvt.png)
+
+From the look of it, our final result gets up-casted to a F32 and then compacted and down-casted again 
+for export. Interestingly enough my render target is a R16G16B16A16_FLOAT render buffer, I would have
+hoped that even the packing instruction would be gone, I would have not expected to see the up-cast at all.
+Why that is the case I am not sure, might very well be the compressed 32 bit is different than my FP16
+so this little dance is necessary. I will try to poke some people around to see if I learn anything.
+
+At the end of the day I am not sure at all for this simple shader whether is worth or not to go to FP16,
+we might save some ALU operations but at the same time we are introducing up-castings at export time.
+
 
