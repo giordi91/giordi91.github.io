@@ -34,15 +34,14 @@ I went ahead I picked up a Vega 64, but now that you have the hardware, where do
 We have to get our hands on some material we can actually learn from and study. The first two stops are these
 amazing presentations, packed with knowledge:
 
-{{<target-blank "Digital Dragons 2014 - Michal Drobot" "https://www.youtube.com/watch?v=Bmy3Tt3Ottc&t=10s">}}
+* {{<target-blank "Digital Dragons 2014 - Michal Drobot" "https://www.youtube.com/watch?v=Bmy3Tt3Ottc&t=10s">}}
+* {{<target-blank "Powering the Next Generation of Graphics: The AMD GCN Architecture" "https://www.gdcvault.com/play/1019294/%7B$httpProtocol%7Dwww.gdcvault.com">}}
+* {{<target-blank "Matthäus G. Chajdas blog" "https://anteru.net/blog/2018/intro-to-compute-shaders/">}}
 
-and
-
-{{<target-blank "Powering the Next Generation of Graphics: The AMD GCN Architecture" "https://www.gdcvault.com/play/1019294/%7B$httpProtocol%7Dwww.gdcvault.com">}}
 
 <br><br>
 This should give you a enough to get your way around a bit more, next you need to inspect the 
-{{<target-blank "Vega ISA" " https://developer.amd.com/wp-content/resources/Vega_Shader_ISA_28July2017.pdf">}}.
+{{<target-blank "Vega ISA" "https://developer.amd.com/wp-content/resources/Vega_Shader_ISA_28July2017.pdf">}}.
 
 I personally found that it is good to keep all of the ISA pdfs at hand not only the Vega one as some explain a bit more than others. If there is something you 
 don't understand from one ISA pdf you can probably figure out from a previous guide. 
@@ -104,6 +103,15 @@ Finally you can also see the same kind of occupancy graph you see in RGP and AMD
 Pix (just ignore the horrible stalls :D):
 
 ![intro](../images/14_amd_gcn_first_dive/pixOccupancy.png)
+
+Edit: Latest version just added high resolution counter for all three major IHVs making even better!
+
+## Shader playground
+Last but not least  {{<target-blank "Shader playground" "http://shader-playground.timjones.io/">}}!
+This is the Godbolt compiler explorer equivalent for shader, it is amazing! It is as simple as it gets, 
+you put your shader and assembly is generated based
+on the compiler your picked. Just too good.
+
 
 # The code 
 After this tooling detour we are finally ready to start looking at some disassembly, I will be using CodeXL mostly.
