@@ -12,7 +12,7 @@ draft : true
 Converting an image and saving it to disk... with help of SIMD (SSE4,AVX2 ...), easy right?
 </p>
 
-![intro](../images/15_simd_compression/avx512Standard.png)
+![intro](../images/15_simd_compression/avx2Standard.png)
 <br><br>
 
 # The problem
