@@ -1,7 +1,7 @@
 ﻿---
 date: 2019-06-25
 linktitle: simd compaction 
-title: "SIMD Register compaction"
+title: "SIMD Register compaction PT1"
 tags : ["simd","cpu"]
 tocname: "Table of contents:"
 toc : true
@@ -151,30 +151,101 @@ Next we will be focusing on how to fix this.
 
 # Fixing the swizzle by ... SWIZZLING.
 
-```c++
- for (int i = 0; i < elementCount; i += 16) {
+I have been thinking about this and the only way I found to get the right result was to pre-swizzle your data then perform the compaction, in 
+this way you would end up with the right pixels. I am not sure this is the best course of action, if you have any other idea please let me 
+know!
 
-    __m128 dataReg1 = _mm_loadu_ps((data.data + i + 0));
-    __m128 dataReg2 = _mm_loadu_ps((data.data + i + 4));
-    __m128 dataReg3 = _mm_loadu_ps((data.data + i + 8));
-    __m128 dataReg4 = _mm_loadu_ps((data.data + i + 12));
+In order to figure out how it works I had to use pen and paper, first I started to see what is happening, how my register would be compacted
+in a top to bottom way, then I started bottom up with the resulted I wanted to see what my starting register would have to look like to get 
+the right result.
+Here below the manual working I did, with mandatory stain of coffee of course (this one is for AVX512 which we will 
+look later on, is just to give an idea).
 
-    __m128 resFloat1 = _mm_mul_ps(dataReg1, scale);
-    __m128 resFloat2 = _mm_mul_ps(dataReg2, scale);
-    __m128 resFloat3 = _mm_mul_ps(dataReg3, scale);
-    __m128 resFloat4 = _mm_mul_ps(dataReg4, scale);
+![intro](../images/15_simd_compression/manual.png)
 
-    __m128i resInt1 = _mm_cvtps_epi32(resFloat1);
-    __m128i resInt2 = _mm_cvtps_epi32(resFloat2);
-    __m128i resInt3 = _mm_cvtps_epi32(resFloat3);
-    __m128i resInt4 = _mm_cvtps_epi32(resFloat4);
+Let us look at a better picture drawn properly:
 
-    __m128i resInt16_1 = _mm_packs_epi32(resInt1, resInt2);
-    __m128i resInt16_2 = _mm_packs_epi32(resInt3, resInt4);
+![intro](../images/15_simd_compression/avx2Standard.png)
 
-    __m128i toWrite = _mm_packus_epi16(resInt16_1, resInt16_2);
-    _mm_storeu_si128((__m128i *)(outData + i), toWrite);
-  }
-}
+In the above picture each 256bit register is split in two chunks of 128 bits, in this case we have registers A,B,C,D. As you can see the compaction
+works 128bits of data at the times, each time we go down one level, the seize of the data halves, so twice as much data fits in our 256 bit register.
+
+This is what is happening in the case of the jagged image, what will we need to do in order to get the right result? Let us check the below image.
+
+![intro](../images/15_simd_compression/avx2Correct.png)
+
+I suggest to work out the image bottom up, by following the arrows. If you then check the top row, it is clear we need to mix the register in a way
+that first register holds the bottom part(bottom 128 bit) of A and C, the second register the top part of A and C and so on. 
+How do we achieve that in code?
+We could use extract and insert instructions but there is a more power full instruction, let us meet: ```_mm256_permute2f128_ps``` 
+
+The  {{<target-blank "permute instruction" "https://github.com/ssloy/tinyrenderehttps://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm256_permute2f128_ps&expand=1728,4082,4166r">}}
+let us pick which block of 128bit we want to pick from two register based on a int, this int is a 8 bit value, where the first 4bit, tell us which 128 block 
+will end up in the destination lower register and the second 4 bit in the integer will tell us which 128bit block will end up in the upper register.
+
+Here is the code to achieve our result:
+
 ```
+    __m256 shuffle1 = _mm256_permute2f128_ps(resFloat1, resFloat3, mask0);
+    __m256 shuffle2 = _mm256_permute2f128_ps(resFloat1, resFloat3, mask1);
+    __m256 shuffle3 = _mm256_permute2f128_ps(resFloat2, resFloat4, mask0);
+    __m256 shuffle4 = _mm256_permute2f128_ps(resFloat2, resFloat4, mask1);
+
+```
+You can map resFloat1 to A and so on. The only thing to figure out is this mask value:
+
+```
+  constexpr int mask0 = (2 << 4);
+  constexpr int mask1 = ((3 << 4) | (1));
+```
+
+In the first register shuffle1, we need to get the bottom part of A and C. Since we are passing in the A,C as argument the first 4 bit needs to be 0,
+so we get the bottom part of A, the other 4 bits need to be 2, in this way it will pick the bottom part of C, so the mask is (2<<4) | 0, but since the 
+or with zero is redundant we drop it.
+
+The second mask follows the same reasoning but everything is shifted by one since we need the upper part of the registers.
+
+The full code is :
+
+```
+ const __m256 scaleAVX2 = _mm256_set1_ps(255.0f);
+  constexpr int mask0 = (2 << 4);
+  constexpr int mask1 = ((3 << 4) | (1));
+  for (int i = 0; i < elementCount; i += 32) {
+
+    __m256 dataReg1 = _mm256_loadu_ps((data.data + i + 0));
+    __m256 dataReg2 = _mm256_loadu_ps((data.data + i + 8));
+    __m256 dataReg3 = _mm256_load_ps((data.data + i + 16));
+    __m256 dataReg4 = _mm256_load_ps((data.data + i + 24));
+    // scale by 255
+    __m256 resFloat1 = _mm256_mul_ps(dataReg1, scaleAVX2);
+    __m256 resFloat2 = _mm256_mul_ps(dataReg2, scaleAVX2);
+    __m256 resFloat3 = _mm256_mul_ps(dataReg3, scaleAVX2);
+    __m256 resFloat4 = _mm256_mul_ps(dataReg4, scaleAVX2);
+
+    __m256 shuffle1 = _mm256_permute2f128_ps(resFloat1, resFloat3, mask0); //A1C1
+    __m256 shuffle2 = _mm256_permute2f128_ps(resFloat1, resFloat3, mask1); //A2C2
+    __m256 shuffle3 = _mm256_permute2f128_ps(resFloat2, resFloat4, mask0); //B1D1
+    __m256 shuffle4 = _mm256_permute2f128_ps(resFloat2, resFloat4, mask1); //B2D2
+
+    // pack to 2x8 int32 to int 16
+    __m256i resInt16_1 = _mm256_packs_epi32(resInt1, resInt2);
+    __m256i resInt16_2 = _mm256_packs_epi32(resInt3, resInt4);
+
+    // pack to int 8
+    __m256i toWrite = _mm256_packus_epi16(resInt16_1, resInt16_2);
+    _mm256_storeu_si256((__m256i *)(outData + i), toWrite);
+  }
+
+```
+
+Let us run it and see what we get as output image:
+
+![intro](../images/15_simd_compression/correctFace.png)
+
+Finally! We reached our result!
+In the next part of the blog we are going to discuss what will happen if we use SSE4 and or AVX512 and also discussing some timings.
+
+See you next time!
+
 
