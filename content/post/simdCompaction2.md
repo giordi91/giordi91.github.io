@@ -27,7 +27,8 @@ When we go to AVX512, we can chew twice as much floats in one go, we can process
 to be able to use the same instructions just bumped from `_mm256` to `_mm512` you are in for a bad news.
 
 If we look at ```_mm512_permute4f128_ps ``` we can quickly see that you can only permute data inside a single 512 register, not across two 
-512 registers. I could not find an instruction to do that, the closet I could find is {{<target-blank "_mm512_permutex2var_ps" "https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm512_permutex2var_ps&expand=1728,4082,4166,4172,4280">}}.
+512 registers. I could not find an instruction to do that, the closet I could find is 
+{{<target-blank "_mm512_permutex2var_ps" "https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm512_permutex2var_ps&expand=1728,4082,4166,4172,4280">}}.
 
 That instruction lets you swizzle single values, not blocks of 128bits, it seems even more flexible, although I am curious to see if the latency of those 
 instructions is actually much higher, unluckily seems like Intel did not release the timings for this instruction.
@@ -200,4 +201,43 @@ Here the code, by now you should be super familiar with it:
 # Performance
 At this point my curiosity was, which one is faster? Is it going to be any difference? Does the swizzling actually gives us a big slowdown?
 
-On paper AVX512 is the one chewing more data at the
+On paper AVX512 is the one chewing more data at the time but at the end of the day we are just doing a single mul instruction plus swizzling
+overall we are just reading memory compressing it and writing it. Most likely we would be memory bound rather than ALU bound (I should probably run a 
+VTune session :P ).
+
+Let us see some timings.
+
+![intro](../images/15_simd_compression/chart.png)
+
+Timings are in microseconds, and the bars going left to right are respectively 2,10,100,1000 iterations.
+
+
+You might be wondering why I did provide timings for different count of iterations, that is because when I started getting some of the timings I 
+noticed that the more iterations I did the lower the per iteration time got. My first thought was that somehow I was hitting the caches.
+I am working with an image that is roughly 16mb worth of data which should only be able to fit in the 19mb L3 of cache of the 9920X (assuming it could
+hog the whole L3 cache). While investigating Intel's 
+{{<target-blank "smart cache" "https://software.intel.com/en-us/articles/software-techniques-for-shared-cache-multi-core-systems/?wapkw=smart+cache">}}
+I found a particularly interesting point:
+
+<p style="background:gray;padding: 1em;">
+Possible candidates for the cache blocking technique include large data sets that get operated on many times. 
+By going through the entire data set and performing one operation, followed by another pass for the second operation, and so on.
+</p>
+
+Not sure if any of this is playing a factor, but was interesting to see and if anyone knows if I am actually hitting the cache I would love to know.
+
+Finally I took some of the timings with and without swizzling:
+
+![intro](../images/15_simd_compression/chart2.png)
+
+My gut feeling was telling me all this swizzling might have killed completely the benefit of SIMD usage but probably the problem is so memory bound
+that is taking little or no effect as we can see from the graph.
+
+# Conclusion
+
+Well this is it for this small detour in saving images using SIMD. As usual if I said anything incorrect please do let me know!
+Until next time!
+
+
+
+
