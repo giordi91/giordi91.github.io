@@ -5,7 +5,7 @@ title: "HLSL Viewport Clamping trick"
 tags : ["shader","gpu"]
 tocname: "Table of contents:"
 toc : true
-draft : false
+draft : true
 ---
 
 <p style="background:gray;padding: 1em;">
