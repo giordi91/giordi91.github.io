@@ -14,6 +14,8 @@ Dealing with high count of instances effectively in Unity
 
 <br><br>
 
+This post is a mirror of the original post from {{<target-blank "MPC R&D blog" "https://www.mpc-rnd.com/unity-gpu-culling-experiments/?t=">}}
+
 # The problem 
 
 For the virtual production work we do at MPC, we constantly strive to achieve high frame rate for a smooth experience. 

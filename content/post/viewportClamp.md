@@ -5,7 +5,7 @@ title: "HLSL Viewport Clamping trick"
 tags : ["shader","gpu"]
 tocname: "Table of contents:"
 toc : true
-draft : false
+draft : true 
 ---
 
 <p style="background:gray;padding: 1em;">
@@ -99,14 +99,7 @@ As we can see the clamping happens at the end of fragment shader and right befor
 This explains why we don't get interpolation artefacts, since interpolation happens normally
 but right before depth compare we can just clamp it with the viewport.
 
-This is great, and also end of the story right? But what about early depth testing?
-
-Again, back to the specs, more specifically at  the 
-{{<target-blank "Output Writes part" "https://microsoft.github.io/DirectX-Specs/d3d/archive/D3D11_3_FunctionalSpec.htm#16.9.3%20Conservative%20Output%20Depth%20(Conservative%20oDepth)">}},
-here we can read that as soon as we enable conservative depth, early depth testing is disabled.
-Among other thing, using "SV_DepthGreaterEqual" or "SV_DepthLessEqual" disables early depth testing,
-which is my case. 
-
+This is it! Hope it helps!
 
 
 <br><br>

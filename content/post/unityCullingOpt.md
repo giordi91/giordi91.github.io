@@ -15,8 +15,11 @@ We can deal with a lot of instances, let's make it faster now.
 <br><br>
 
 # Re-cap 
-This is Part 2 of the article series about GPU culling in Unity. You can find the first post 
-INSERT LINK HERE =========== HERE ==================.
+This is Part 2 of the article series about GPU culling in Unity. You can find the 
+{{<target-blank "first post" "https://giordi91.github.io/post/unityCulling">}}.
+
+This post is a mirror of the original post from {{<target-blank "MPC R&D Blog" "https://www.mpc-rnd.com/unity-gpu-culling-experiments-part2-optimizations/?t=">}}
+
 To quickly recap, when we do frustum culling, we want to figure out which geometries are visible in the frustum
 and if not visible, we don't render them. In particular, we are focusing on doing the culling on the GPU and using instances.
 
