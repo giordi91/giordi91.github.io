@@ -2,15 +2,12 @@ sudo: required
 
 language: node
 
-services:
-  - docker
-
 before_install:
-  - docker pull yanqd0/hugo:0.47.1
+  - curl -LO https://github.com/gohugoio/hugo/releases/download/v0.55.4/hugo_0.55.4_Linux-64bit.deb
+  - sudo dpkg -i hugo_0.55.4_Linux-64bit.deb
 
 script:
-  - set -e
-  - docker run --rm -v $PWD:/srv/hugo yanqd0/hugo:0.47.1 hugo
+  - hugo
 
 # Deploy to GitHub pages
 deploy:
