@@ -199,18 +199,18 @@ Here the code, by now you should be super familiar with it:
 ```
 
 # Performance
-At this point my curiosity was, which one is faster? Is it going to be any difference? Does the swizzling actually gives us a big slowdown?
+At this point I was curious to know which one was faster? Is it going to be any difference? Does the swizzling actually gives us a big slowdown?
 
 On paper AVX512 is the one chewing more data at the time but at the end of the day we are just doing a single mul instruction plus swizzling
-overall we are just reading memory compressing it and writing it. Most likely we would be memory bound rather than ALU bound (I should probably run a 
-VTune session :P ).
+overall we are just reading memory compressing it and writing it. As you might expect we are memory bound, so I personally do not expect 
+a huge speed up. 
 
 Let us see some timings.
+NOTE: Timings here are just for fun, was not a proper in depth profiling and analisys. 
 
 ![intro](../images/15_simd_compression/chart.png)
 
 Timings are in microseconds, and the bars going left to right are respectively 2,10,100,1000 iterations.
-
 
 You might be wondering why I did provide timings for different count of iterations, that is because when I started getting some of the timings I 
 noticed that the more iterations I did the lower the per iteration time got. My first thought was that somehow I was hitting the caches.
@@ -230,8 +230,7 @@ Finally I took some of the timings with and without swizzling:
 
 ![intro](../images/15_simd_compression/chart2.png)
 
-My gut feeling was telling me all this swizzling might have killed completely the benefit of SIMD usage but probably the problem is so memory bound
-that is taking little or no effect as we can see from the graph.
+My gut feeling was telling me all this swizzling might have killed completely the benefit of SIMD usage but we are memory bound so there is not much difference.
 
 # Conclusion
 
