@@ -1,11 +1,11 @@
 ﻿---
-date: 2019-07-08
+date: 2020-01-17T14:49:45+00:00
 linktitle: HLSL Viewport Clamping 
 title: "HLSL Viewport Clamping trick"
 tags : ["shader","gpu"]
 tocname: "Table of contents:"
 toc : true
-draft : true
+draft : false 
 ---
 
 <p style="background:gray;padding: 1em;">
