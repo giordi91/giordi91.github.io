@@ -48,7 +48,7 @@ to the stencil.
 # Forcing depth to far plane
 
 The next option is to force the depth to max value (or min value in case of inverted depth) in 
-the vertex shader, altough this surley works and does not invove the cost of the stencil
+the vertex shader, altough this surely works and does not involve the cost of the stencil
 it does give some visual artefacts where you can start to see distortion in interpolation
 due to forcing the depth.(Note did not see this personally since I did not implement this method).
 
