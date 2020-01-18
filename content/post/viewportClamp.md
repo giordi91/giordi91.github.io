@@ -18,11 +18,11 @@ Time to render that sweet skybox but how to avoid overdraw?
 # The skybox problem
 
 I always found a skybox an incredible tool to increase the quality of your scene, as soon
-as you add a skybox everything looks better, even lighting altough probably that is 
+as you add a skybox everything looks better, even lighting although probably that is 
 just my brain playing tricks. 
 
 When I got to the point of rendering a skybox in my DX12 game engine I went the quick and 
-hacky way, just render a big enough spehere and be done with it. That comes with several problems
+hacky way, just render a big enough sphere and be done with it. That comes with several problems
 first of all if you don't move the sphere with your camera you can easily get out of the sphere
 or the sphere will start clipping far away objects when your camera moves.
 
@@ -33,13 +33,13 @@ An old school way to render the skybox was to render the skybox as first thing, 
 disabled. In doing so you will blit the skybox in the background without affecting the depth
 such that everything no matter how far it is will end up in front of the skybox (unless clipped
 by far plane). This surely works and is a quick and easy to do, main problem is you are 
-shading a lot of pixels that will be later coverd by the object in your scene.
+shading a lot of pixels that will be later covered by the object in your scene.
 The more clutter you have in the scene the more wasted skybox pixel you will have
 
 # Using stencil 
 
 Another option is to use a stencil in pair with your depth, whenever a fragments survives depth, 
-you write to the stencil aswell then when you do you skybox pass you check the stencil, if there 
+you write to the stencil as well then when you do you skybox pass you check the stencil, if there 
 is a value different than your default clear value means a fragment has been written there and
 there is no need for skybox.
 This method works well and is not too bad to setup, but you are paying an extra price to write
@@ -48,16 +48,16 @@ to the stencil.
 # Forcing depth to far plane
 
 The next option is to force the depth to max value (or min value in case of inverted depth) in 
-the vertex shader, altough this surely works and does not involve the cost of the stencil
-it does give some visual artefacts where you can start to see distortion in interpolation
+the vertex shader, although this surely works and does not involve the cost of the stencil
+it does give some visual artifacts where you can start to see distortion in interpolation
 due to forcing the depth.(Note did not see this personally since I did not implement this method).
 
 # Viewport trick
 I was ready to go and implement the stencil method, between me and me I was thinking that I was going 
 to need stencil anyway due to screen space sub surface scattering. I decided to reach to 
 {{<target-blank "Matt Pettineo" "https://twitter.com/mynameismjp?lang=en">}}
-on twitter just to do a final check to see if I was missing something, and as usual MJP tought me 
-somethign I did not know!
+on twitter just to do a final check to see if I was missing something, and as usual MJP taught me 
+something I did not know!
 
 He suggested to use 
 {{<target-blank "D3D12_VIEWPORT" "https://docs.microsoft.com/en-us/windows/win32/api/d3d12/ns-d3d12-d3d12_viewport">}}
@@ -96,7 +96,7 @@ the Pixel Shader)."
 </p>
 
 As we can see the clamping happens at the end of fragment shader and right before depth compare.
-This explains why we don't get interpolation artefacts, since interpolation happens normally
+This explains why we don't get interpolation artifacts, since interpolation happens normally
 but right before depth compare we can just clamp it with the viewport.
 
 This is it! I hope it helps!
