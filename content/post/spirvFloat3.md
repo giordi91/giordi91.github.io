@@ -33,11 +33,12 @@ layout (set=1,binding=0) buffer vertices
 };
 ```
 
-I am usually weary of data types packing for anything that is not 16 bytes aligned, especially in constant buffers, but this is was a storage 
-buffer, the closest thing you can get to a normal flat array allocation you can get in GLSL. As you can imagine, this did not go very well, the mesh was not being read properly, I witnessed really weird behaviours where initial values seems to be read properly and then just started being all garbage
-(possibly misaligned reads).
+I am usually weary of data types packing for anything that is not 16 bytes aligned, especially in constant buffers and  arrys, 
+but this is was a storage buffer, the closest thing you can get to a normal flat array allocation in GLSL. 
+As you can imagine, this did not go very well, the mesh was not being read properly.
 
 I quickly went in the shader, fixed to vec4, padded my mesh and voila! Problem fixed, let us move on! See you in the next blog post!
+
 Not so fast, that would be all good but I wanted to know why, the naive me would expect to work, possibly bit less efficient but still, working.
 
 #Alignment issues
@@ -49,13 +50,13 @@ His initial thought was that it should have worked with the right layout. Naive 
 layout (set=1,binding=0) buffer vertices
 ```
 
-What he meant was the right memory layout! As an example:
+What I failed to understand was that it should have the right memory layout in the layout block. As an example the blow forces a scalar layout:
 
 ```glsl
 layout (scalar, set=1, binding=0) 
 ```
 
-This is one of those moments when you realize you completely missed knowledge of whole set of features of the API! So back to reading the docs.
+This is one of those moments when you realize you have missing knowledge of whole set of features of the API! So back to reading the docs.
 I found some interesting links to look at:
 
 * {{<target-blank "VK 1.2 layout offset and aligments" "https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/chap14.html#interfaces-resources-layout">}}
@@ -68,7 +69,7 @@ With this new informations we can see that in the specification of layout offset
 ```
 A three- or four-component vector has a base alignment equal to four times its scalar alignment.
 ```
-
+That rule would force our vec3 and vec4 to have the same aligment properties.
 To note that this can't be simply fixed with std430 memory layout, I tried and is not enough. The actual solution is the extension:
 ```
 GL_EXT_scalar_block_layout 
@@ -81,7 +82,7 @@ of the actual extension we find this very important line:
 ```
 This new layout aligns values only to the scalar components of the block and its composite members.
 ```
-That is exactly the behaviour we wanted, this would change the alignment of our vec3 from 16 bytes to 4.
+That is exactly the behaviour we wanted, this would change the alignment of our vec3 from 16 bytes to 12.
 
 #SPIR-V enters the fight
 
@@ -113,7 +114,7 @@ void main()
 
 As we can see we have a define changing the different layout declaration of our buffer to compare the different results.
 
-Here an slice of the SPIR-V
+Here belowe the slice of the SPIR-V output:
 
 ```
                  Name 17  ""
@@ -155,9 +156,9 @@ TypeRuntimeArray 13(fvec3)
 TypePointer StorageBuffer 13(fvec3)
 ```
 
-This is specifying that we have have an array defined at runtime of which we don't know the length, and the pointer of that is a fvec3.
+The above is specifying that we have have an array defined at runtime of which we don't know the length, and the pointer type of it is a fvec3.
 If we put this two informations together we can see we are defining a pointer to float vec3 but with a stride of 16. From this we can deduce that our 
-our shader would work if we padded our mesh to vec4, no shader changes required, no need to change the buffer to vec4 (Although possibly readability).
+our shader would work if we padded our mesh to vec4, no shader changes required, no need to change the buffer to vec4 (Although possibly better readability).
 
 We do have that lovely define, why don't we flip it and see what happens? Here the result:
 
@@ -219,22 +220,19 @@ Here the code for the vec3:
 
 As we can see the only real difference is in the memory load, where in the case of the vec4, we are loading 16 bytes worth of data v[0:3]
 meanwhile in the vec3 we are loading only 12 v[0:2] plus an extra register load for the constant 1.0 in v3.
-Register pressure is exactly the same in both cases, so the only difference when it comes to amount of code is the extra register load for the 1.0f value
-we have. Which one is the fastest I have no idea and would need to be benchmarked, on one side we have less memory loaded and an extra register set but not aligned to 16 bytes, I doubt the extra register set has any effect on performance and boils down only to the memory system. If you happen to 
-have experience with this or data please let me know! I would love to hear it!
-This will require further investigation. 
+Register pressure is exactly the same in both cases, so the only difference when it comes to amount of code is the extra register load for the 1.0f value we have. 
+
+Which one of the two version is the fastest I have no idea and would need to be benchmarked, on one side we have less memory loaded and an extra register set but not aligned to 16 bytes so possible extra work to be done if the vec3 crosses two cache lines. I doubt the extra register set has any effect on performance and boils down only to the memory system. 
+
+If you happen to have experience with this or data please let me know! I would love to hear it!  This will require further investigation. 
 
 # Conclusion
-This is the end of the run in this rabbit hole, it was quite interesting and I am getting quite the linking to SPIR-V the more I deal with it!Thank 
-so much to Matthäus for enduring my questions! Give him a follow since he often contributes to very interesting conversations. 
-When it comes to my project, for the time being I am using vec4 and moving on to other stuff. I do plan at one point to do a nice pass on the geometry
-where I start using {{<target-blank "meshoptimizer" "https://github.com/zeux/meshoptimizer">}} compressing the data and so on, that might be a good time to revisit the topic.
+This is the end of the run in this rabbit hole, it was quite interesting and I am getting quite the linking to SPIR-V the more I deal with it!
+Thanks so much to Matthäus for enduring my questions! Give him a follow on twitter since he often contributes to very interesting conversations. 
 
-If you liked this blog post share it around and follow on twitter! @MGDev91.
+When it comes to my project, for the time being I am using vec4 and moving on to other stuff. I do plan at one point to do a nice pass on the geometry handling in general, where I start using {{<target-blank "meshoptimizer" "https://github.com/zeux/meshoptimizer">}}, compressing the data and so on, that might be a good time to revisit the topic.
 
-
-
-
+If you liked this blog post share it around and follow me on twitter! @MGDev91.
 
 
 
