@@ -2,7 +2,7 @@
 date: 2020-01-17T14:49:45+00:00
 linktitle: HLSL Viewport Clamping 
 title: "HLSL Viewport Clamping trick"
-tags : ["shader","gpu"]
+tags : ["shader"]
 tocname: "Table of contents:"
 toc : true
 draft : false 
