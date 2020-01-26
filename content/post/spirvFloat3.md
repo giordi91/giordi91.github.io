@@ -21,8 +21,7 @@ You just add a vec3 storage buffer in your GLSL shader.... but can't index it pr
 # vec3 buffers indexing fights back again 
 
 I am neck deep in the refactor of my engine, getting the Vulkan back end in a good state. During my work to start rendering
-meshes in a uniform way for both DX12 and VK, I refactored how my mesh is stored and ditched the input assembler directly 
-in favor of directly reading data from buffers (still using the index buffer).
+meshes in a uniform way for both DX12 and VK, I moved from vertex push (that is, using a vertex declaration and have the vertex attributes appear in the vertex shader) to vertex pull (i.e. manually fetching the vertex data in the vertex shader.
 
 I wrote a shader with this snippet of code in it:
 
@@ -33,7 +32,7 @@ layout (set=1,binding=0) buffer vertices
 };
 ```
 
-I am usually weary of data types packing for anything that is not 16 bytes aligned, especially in constant buffers and  arrys, 
+I am usually weary of data types packing for anything that is not 16 bytes aligned, especially in constant buffers and  arrays, 
 but this is was a storage buffer, the closest thing you can get to a normal flat array allocation in GLSL. 
 As you can imagine, this did not go very well, the mesh was not being read properly.
 
@@ -43,14 +42,14 @@ Not so fast, that would be all good but I wanted to know why, the naive me would
 
 #Alignment issues
 
-I decided to ask Matthäus Chajdas (@NIV_Anteru) to know more of the underlying details, and he was nice enough to spend the time to help me.
+I decided to ask Matthäus (@NIV_Anteru) to know more of the underlying details, and he was nice enough to spend the time to help me.
 His initial thought was that it should have worked with the right layout. Naive me jumps back in and shouts that I did indeed have have a layout! 
 
 ```glsl
 layout (set=1,binding=0) buffer vertices
 ```
 
-What I failed to understand was that it should have the right memory layout in the layout block. As an example the blow forces a scalar layout:
+What I failed to understand was that it should have the right memory layout in the layout block. As an example the below forces a scalar layout:
 
 ```glsl
 layout (scalar, set=1, binding=0) 
@@ -222,13 +221,17 @@ As we can see the only real difference is in the memory load, where in the case 
 meanwhile in the vec3 we are loading only 12 v[0:2] plus an extra register load for the constant 1.0 in v3.
 Register pressure is exactly the same in both cases, so the only difference when it comes to amount of code is the extra register load for the 1.0f value we have. 
 
-Which one of the two version is the fastest I have no idea and would need to be benchmarked, on one side we have less memory loaded and an extra register set but not aligned to 16 bytes so possible extra work to be done if the vec3 crosses two cache lines. I doubt the extra register set has any effect on performance and boils down only to the memory system. 
+Which one of the two version is the fastest I have no idea and it has to be benchmarked. On the one side, aligned loads have the advantage that 
+there is no possibility to access two cache lines in a single load, which should result in maximum efficiency. 
+On the other side, we do save 25% of bandwidth and increase the chance of cache hits. 
 
 If you happen to have experience with this or data please let me know! I would love to hear it!  This will require further investigation. 
 
 # Conclusion
+
 This is the end of the run in this rabbit hole, it was quite interesting and I am getting quite the linking to SPIR-V the more I deal with it!
-Thanks so much to Matthäus for enduring my questions! Give him a follow on twitter since he often contributes to very interesting conversations. 
+Thanks so much to Matthäus for enduring my questions! Give him a follow on twitter since he often contributes to very interesting conversations.
+He runs a great {{<target-blank "blog" "https://anteru.net/">}} with tons of interesting articles like the one about {{<target-blank "compute shaders" "https://anteru.net/blog/2018/intro-to-compute-shaders/">}} execution and working details.
 
 When it comes to my project, for the time being I am using vec4 and moving on to other stuff. I do plan at one point to do a nice pass on the geometry handling in general, where I start using {{<target-blank "meshoptimizer" "https://github.com/zeux/meshoptimizer">}}, compressing the data and so on, that might be a good time to revisit the topic.
 
