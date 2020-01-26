@@ -5,7 +5,7 @@ title: "SPIR-V vec3 buffers"
 tags : ["shader","spirv"]
 tocname: "Table of contents:"
 toc : true
-draft: true
+draft: false 
 ---
 
 <br><br>
