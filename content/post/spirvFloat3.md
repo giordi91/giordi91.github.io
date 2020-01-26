@@ -197,7 +197,7 @@ Decorate 14 ArrayStride 12
 Now our vec3 will have alignment requirement of scalar, in this case scalar multiple of the size of our type, giving us an alignment of 12 bytes.
 With this then finally the shader works and behaves as expected with no extra padding.
 
-# Performances?
+# Performance
 Since I was messing around with this stuff I decided to have a go and have a look at the actual disassembly for the vec3 vs vec4. 
 
 Here below code for the vec4:
@@ -228,9 +228,7 @@ This will require further investigation.
 This is the end of the run in this rabbit hole, it was quite interesting and I am getting quite the linking to SPIR-V the more I deal with it!Thank 
 so much to Matthäus for enduring my questions! Give him a follow since he often contributes to very interesting conversations. 
 When it comes to my project, for the time being I am using vec4 and moving on to other stuff. I do plan at one point to do a nice pass on the geometry
-where I start using 
-meshoptimizer
-compressing the data and so on, that might be a good time to revisit the topic.
+where I start using {{<target-blank "meshoptimizer" "https://github.com/zeux/meshoptimizer">}} compressing the data and so on, that might be a good time to revisit the topic.
 
 If you liked this blog post share it around and follow on twitter! @MGDev91.
 

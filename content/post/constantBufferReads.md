@@ -3,7 +3,7 @@
 date: 2019-11-01
 linktitle: Constant Buffer 
 title: "Constant buffer reads in HLSL"
-tags : ["shader","gpu"]
+tags : ["shader","hlsl"]
 tocname: "Table of contents:"
 toc : true
 draft : true 

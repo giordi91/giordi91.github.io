@@ -2,7 +2,7 @@
 date: 2018-10-24
 linktitle: compiler1 
 title: "Never trust the compiler pt1"
-tags : ["disassembly","c++","cpu"]
+tags : ["disassembly","cpu"]
 tocname: "Table of contents:"
 toc : true
 ---

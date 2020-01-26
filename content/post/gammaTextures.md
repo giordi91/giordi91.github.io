@@ -2,7 +2,7 @@
 date: 2018-11-01
 linktitle: degamma textures 
 title: "De-gamma your texture kid!"
-tags : ["realtime","gpu"]
+tags : ["shader"]
 tocname: "Table of contents:"
 toc : true
 ---

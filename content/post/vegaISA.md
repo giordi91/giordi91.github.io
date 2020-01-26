@@ -2,7 +2,7 @@
 date: 2019-03-10
 linktitle: vega ISA 
 title: "AMD GCN ISA: a first dive"
-tags : ["shader","assembly","gpu"]
+tags : ["shader","disassembly"]
 tocname: "Table of contents:"
 toc : true
 draft : false

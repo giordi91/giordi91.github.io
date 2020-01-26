@@ -2,7 +2,7 @@
 date: 2018-07-31
 linktitle: Parallel transport on curve
 title: "Parallel transport on curve"
-tags : ["unity","math", "curve"]
+tags : ["unity","math"]
 draft : false
 toc : true
 tocname: "Table of contents:"

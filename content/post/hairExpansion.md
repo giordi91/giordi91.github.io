@@ -2,7 +2,7 @@
 date: 2018-11-05
 linktitle: Hair Expansion
 title: "Hair expansion in Vertex Shader"
-tags : ["realtime","hlsl","gpu","unity"]
+tags : ["hlsl","shader","unity"]
 tocname: "Table of contents:"
 toc : true
 ---

@@ -2,7 +2,7 @@
 date: 2019-01-14
 linktitle: Unity GPU culling  
 title: "Unity GPU culling experiments"
-tags : ["realtime","unity", "gpu"]
+tags : ["unity", "shader"]
 tocname: "Table of contents:"
 toc : true
 draft : true

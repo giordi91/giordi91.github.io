@@ -2,7 +2,7 @@
 date: 2019-01-29
 linktitle: Unity GPU culling  opts 
 title: "Unity GPU culling experiments: optimizations"
-tags : ["realtime","unity", "gpu"]
+tags : ["unity", "hlsl"]
 tocname: "Table of contents:"
 toc : true
 draft : true

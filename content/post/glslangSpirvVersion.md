@@ -3,7 +3,7 @@
 date: 2019-11-30
 linktitle: glslang spirv 
 title: "Glslang and SPIR-V version"
-tags : ["shader","gpu","vulkan"]
+tags : ["shader","vulkan","spirv"]
 tocname: "Table of contents:"
 toc : true
 draft : true 
