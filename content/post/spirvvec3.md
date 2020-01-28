@@ -40,7 +40,7 @@ I quickly went in the shader, fixed to vec4, padded my mesh and voila! Problem f
 
 Not so fast, that would be all good but I wanted to know why, the naive me would expect to work, possibly bit less efficient but still, working.
 
-#Alignment issues
+# Alignment issues
 
 I decided to ask Matthäus (@NIV_Anteru) to know more of the underlying details, and he was nice enough to spend the time to help me.
 His initial thought was that it should have worked with the right layout. Naive me jumps back in and shouts that I did indeed have have a layout! 
@@ -83,7 +83,7 @@ This new layout aligns values only to the scalar components of the block and its
 ```
 That is exactly the behaviour we wanted, this would change the alignment of our vec3 from 16 bytes to 12.
 
-#SPIR-V enters the fight
+# SPIR-V enters the fight
 
 Matthäus also provided me with this amazing example from {{<target-blank "shader playground" "http://shader-playground.timjones.io/07e64f69c551fcc5e3e3d50b26ce981f">}} that would actually shows up what happens at SPIR-V level:
 
