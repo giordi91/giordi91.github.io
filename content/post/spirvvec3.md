@@ -61,7 +61,7 @@ I found some interesting links to look at:
 * {{<target-blank "VK 1.2 layout offset and aligments" "https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/chap14.html#interfaces-resources-layout">}}
 * {{<target-blank "Khronos Wiki layout qualifiers" "https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)">}}
 * {{<target-blank "Memory layout" "https://www.khronos.org/opengl/wiki/Interface_Block_(GLSL)#Memory_layout">}}
-* {{<target-blank "Enhanced layouts" "https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_enhanced_layouts.txt ">}}
+* {{<target-blank "Enhanced layouts" "https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_enhanced_layouts.txt">}}
 
 With this new informations we can see that in the specification of layout offset and alignment we find:
 
