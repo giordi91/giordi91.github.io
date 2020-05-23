@@ -17,11 +17,10 @@ What do some Rust features compile to?
 
 # Intro 
 
-I have been starting to have a look at Rust lately, mostly because I started to get a liking to WASM and Rust has
-the best tool in class to compile to WASM, or so I am told. I am eager to find by myself. 
+I have been starting to have a look at Rust lately, mostly because I  WASM is growing on me and Rust has
+the best tool in class for it, or so I am told. I am eager to find out by myself. 
 
-Rust comes with several 
-new idioms and structures in the language I am not used to, and being a performance enthusiast, I always get interested in what such constructs translate to.
+Rust comes with several new idioms and structures in the language I am not used to, and being a performance enthusiast, I always get interested in what such constructs translate to.
 
 I put together some tests that I will be discussing below, here the link to a compiler explorer 
 {{<target-blank "compiler explorer" "https://godbolt.org/z/Xbf-7u">}}
@@ -66,7 +65,7 @@ example::mul128:
 ```
 
 As most of you probably expected the i128 bits are implemented in software, it becomes especially clear in the addition where
-we see a first addition followed by an ```adc``` instruction, which takes care of adding the carry flag as well in case was set.
+we see a first addition followed by an ```adc``` instruction, which takes care of adding the carry flag as well in case it was set.
 Pretty cool!
 
 # Destructuring
@@ -94,9 +93,9 @@ example::destructuring:
 ```
 
 The compiler has no problem understanding what the user wants to extract and can optimize all the destructuring that
-is not needed. The compiler is merely shifting the pointer to where we wisth to read: ```[rdi + 8]``` , if we decided to access the second element we would see : ```[rdi + 4]```.
+is not needed. The compiler is merely shifting the pointer to where we wish to read: ```[rdi + 8]``` , if we decided to access the second element we would see : ```[rdi + 4]```.
 
-The destructuring2 two function generates exactly the same code. Interingly enough we can't access an elment by an index, something like this is not legal:
+The destructuring2 two function generates exactly the same code. Interingly enough we can't access an elment by an index variable, something like this is not legal:
 
 ```rust
 pub fn destructuring2(a : (f32, f32,f32), b: usize) -> f32 {
@@ -104,8 +103,8 @@ pub fn destructuring2(a : (f32, f32,f32), b: usize) -> f32 {
 }
 ```
 
-Given the fact that would be ambiguous for the language grammar, to begin with, the compiler would not be able to see what value you wish
-to unpack giving troubles with the fact that tuples can contain heterogeneous types.
+It would be ambiguous for the language grammar to begin with, and the compiler would not be able to see what value you wish
+to unpack ahead of time,giving it troubles with touble heterogeneous types.
 
 
 # Arrays
@@ -127,7 +126,7 @@ pub fn array3( a: &[i32;5], b: usize) -> i32 {
 }
 ```
 
-Here some different examples of array usage. In the first and second, the compiler is able to see what the user wants
+Here there are some different examples of array usage. In the first and second, the compiler is able to see what the user wants
 to do and is able to optimize the heck out of it, here the generated assembly for the first two tests:
 
 ```asm
@@ -171,7 +170,7 @@ Which is not an expensive operation per se, but what it follows might be:
     ja      .LBB5_2
 ```
 
-In the case our index is higher the the biggeste valid index we jump straight to panic land:
+In the case our index is higher the the biggest valid index we jump straight to panic land:
 
 ```
 .LBB5_2:
@@ -182,9 +181,9 @@ In the case our index is higher the the biggeste valid index we jump straight to
 ```
 
 First of all, let me say I love how it is literally called panic, second is the first time I meet the ```ud2``` instruction, 
-very interesting!
+very interesting! The ud2instruction generates an invalid instruction, and we have it after the panic mode. Not sure what exactly is needed for, maybe if for any reason panic mode doesn ot terminate the program such instruction will trigger a trap at hardware level?
 
-At this point, a c++ programmer might think, oh well we rust is too slow, goodbye! Hold on for a second, let us not be too hasty, shall we? Sure accessing a random index might be bad, but what if we are iterating?
+At this point, a c/c++ programmer might think: "oh well we rust is too slow, goodbye!" Hold on for a second, let us not be too hasty, shall we? Sure accessing a random index might be sub-obtimal, but what if we are iterating?
 
 
 # Loops
@@ -284,8 +283,7 @@ example::loop2:
 
 The above is **completely** different from the code we had before! As a first, we can see the loop has been completely unrolled and also vectorized! 
 
-The first three instructions load the ints into 128bits register and do a vectorized add. After that, it will be shuffling the values down
-to do a 2x wide add and finally the last add with the final value (I am 90% sure about this, I did not go all the way to check the provided masks for the shuffles.
+The first three instructions load the ints into 128bits register and do a vectorized add. After that, it will be shuffling the values down to do a 2x wide add and finally the last add with the final value (I am 90% sure about this, I did not go all the way to check the provided masks for the shuffles.
 
 To be fair, that was the best use case since 8 is a multiple of the SIMD register width, what if is not?
 
