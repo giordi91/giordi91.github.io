@@ -17,7 +17,7 @@ What do some Rust features compile to?
 
 # Intro 
 
-I have been starting to have a look at Rust lately, mostly because I  WASM is growing on me and Rust has
+I have been starting to have a look at Rust lately, mostly because WASM is growing on me and Rust has
 the best tool in class for it, or so I am told. I am eager to find out by myself. 
 
 Rust comes with several new idioms and structures in the language I am not used to, and being a performance enthusiast, I always get interested in what such constructs translate to.
