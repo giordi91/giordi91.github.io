@@ -1,7 +1,7 @@
 ---
 date: 2020-05-23
 linktitle: rust disass 
-title: "Rust Disassambly: part 1"
+title: "Rust Disassembly: part 1"
 tags : ["rust","disassembly"]
 tocname: "Table of contents:"
 toc : true
