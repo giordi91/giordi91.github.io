@@ -183,6 +183,20 @@ In the case our index is higher the the biggest valid index we jump straight to 
 First of all, let me say I love how it is literally called panic, second is the first time I meet the ```ud2``` instruction, 
 very interesting! The ud2instruction generates an invalid instruction, and we have it after the panic mode. Not sure what exactly is needed for, maybe if for any reason panic mode doesn ot terminate the program such instruction will trigger a trap at hardware level?
 
+<p style="background:gray;padding: 1em;">
+About the ud2 instruction</p>
+
+<p style="background:gray;padding: 1em;">
+After the publishing of the blog post, {{<target-blank "Phil Dennis-Jordan" "https://twitter.com/pmjordan">}} sparked an interesting discusission about what the source of ud2 could be.
+That lead me in the end to ask the compiler team in the Rust discord about it. 
+The user "Hanna" pointed me out to the relevant behaviour and 
+{{<target-blank "PR" "https://github.com/rust-lang/rust/pull/45920">}}
+implementing it.
+
+The TLDR is that, the rust compiler flips an options in LLVM to insert that instruction everywhere there is unreachable code to make 100% sure such code could not fall through by using hardware traps.
+</p>
+
+
 At this point, a c/c++ programmer might think: "oh well we rust is too slow, goodbye!" Hold on for a second, let us not be too hasty, shall we? Sure accessing a random index might be sub-obtimal, but what if we are iterating?
 
 
@@ -316,3 +330,8 @@ The generated code is quite similar, but the most important thing is there are n
 Not sure how I feel about that yet but it seems it would help keep the compiler happy and performances up. 
 
 I had quite a bit of fun checking this assembly out and learn lots in how Rust behaves; I will make sure to make another post if I find something interesting! If you liked to feel free to share around.
+
+**UPDATES**
+
+5/29/2020: Added details on ud2 instruction
+
