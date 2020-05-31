@@ -13,6 +13,7 @@ function addCallbacksToFoldables() {
 }
 
 function showAST(AST) {
+  return;
   var element = document.getElementById('AST');
   // clearing
   element.innerHTML = "";

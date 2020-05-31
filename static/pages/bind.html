@@ -26,9 +26,10 @@
     </style>
   </head>
   <script src="js/astbuilder.js"></script>
+  <script src="js/irbuilder.js"></script>
   <script src="js/glue.js"></script>
   <body>
-    <h1 class="title" >THE BINDER v0.0.2</h1>
+    <h1 class="title" >THE BINDER v0.1.0</h1>
     <hr class="thickbar">
     <p class="greentext"> This is a toy language written in c++ following the <a href="https://craftinginterpreters.com/" target="_blank">crafting interpreter book</a>, and ported to WASM . For now is quite limited but I will keep building on it. Feel free to hack around! Check the  
 <a href="https://github.com/giordi91/thebinder" target="_blank"><i class="fa fa-github" style="font-size:30px;" ></i> repository</a> out and my previous language 
@@ -39,6 +40,8 @@
           <button class="tablinks" onclick="openActionTab(event, 'print')">Print</button>
           <button class="tablinks" onclick="openActionTab(event, 'expressions')">Expressions</button>
           <button class="tablinks" onclick="openActionTab(event, 'variables')">Variables</button>
+          <button class="tablinks" onclick="openActionTab(event, 'loops')">loops</button>
+          <button class="tablinks" onclick="openActionTab(event, 'flow')">control flow</button>
           <button class="tablinks" onclick="openActionTab(event, 'bugs')"><i class="fa fa-bug" style="font-size:20px;"></i> BUGS! <i class="fa fa-bug" style="font-size:20px;"></i></button>
           <button class="tablinks" onclick="openActionTab(event, 'soon')">Coming soon...</button>
     </div>
@@ -53,10 +56,27 @@
         <p>remember you need to print to see the result in the output.</p>
     </div>
     <div id="variables" class="tabcontent">
-        <p>you can use variables.</p>
-        <p>var a = 10;</p>
-        <p>var b = 30;</p>
-        <p>print a*b;</p>
+        <p>you can use variables, TheBinder is dynamically typed and uses var as keyword (not int etc).</p>
+        <p>var a = 10;<br>
+        var b = 30;<br>
+        print a*b;</p>
+    </div>
+    <div id="loops" class="tabcontent">
+        <p>You can use while and for loops. The compiler only really knows about while loops, normal for loops are just syntax sugar</p>
+        <p>var a = 0;<br>
+        while(a < 10){ <br>
+        print a; <br> 
+        a = a + 1;<br>
+        }
+        <p>For a for loop do:</p>
+        <p>for(var a = 0; a < 10;a = a+ 1){<br>
+        print a; <br> } </p>
+    </div>
+    <div id="flow" class="tabcontent">
+        <p>You can use if/else statements</p>
+        <p>var a = 10;<br>
+        if(a < 5){<br>print "less!";<br>} 
+        else{<br>print "greater!";<br>} 
     </div>
     <div id="bugs" class="tabcontent">
         <p>If you find a bug please report it by clicking this button</p>
@@ -66,7 +86,7 @@
     <div id="soon" class="tabcontent" style="display:none">
         <p> I am currently working on this in my spare time, soon you will be
         able to actually execute expressions and from there i will be adding 
-        features like loops , branches , variables etc.
+        features like arrays, functions  and classes.
     </div>
 
 
@@ -86,8 +106,10 @@
       </div>
       <div class="content--rhs">
       <div class="content--rhs--ast">
-        <button type="button" class="collapsible">&#x25B6; AST</button>
-        <div class="content" id="AST"></div>
+        <button type="button" class="collapsible">&#x25B6; IR ASM</button>
+        <div class="content" id="AST">
+            <textarea class ="emscripten" id="irasm" rows="32" ></textarea>
+        </div>
       </div>
       </div>
 
@@ -112,12 +134,13 @@
       //in order to feed the string to wasm, it neesd to be converted to essentially a char*
       var ptr = allocate(intArrayFromString(source), 'i8', ALLOC_NORMAL);
       //now we can load the function which I have cwrapped and added to the module
-      var AST = Module.binderExecuteWASM(source);
+      var output= Module.binderExecuteWASM(source);
       //logging the ast for debug purpose
-      console.log(AST);
+      console.log("---- " ,output);
       //passing the AST to our visualizaiton function
-      showAST(AST); 
-      //the manulaly converted string needs to be freed by us, same goes for the returned
+      showIR(output); 
+      //showAST(AST); 
+      //the manually converted string needs to be freed by us, same goes for the returned
       //value by wasm
       _free(ptr);
       _free(AST);
@@ -134,12 +157,14 @@
           }], 
          print: 
           (text)=>{
-            console.log(text);
+            console.log("print ", text);
           var element = document.getElementById('output');
-              if (element) {
+          if (element) {
               element.value += text + "\n";
               element.scrollTop = element.scrollHeight; // focus on bottom
               }
+          else
+              {console.log("no output" );}
           },
         printErr: function(text) {
           if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
