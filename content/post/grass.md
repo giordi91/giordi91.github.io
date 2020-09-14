@@ -82,6 +82,42 @@ Actually the above is when culling goes wrong, in particular it is an issue on I
 
 ![grass8](../images/23_grass/grass8.gif)
 
+# Actual lodding implementation
+
+After the culling, the Viewport Culling was still my bottleneck, so next logical step was implementing LODding. The lod computation happens at same time of the culling, and is a simple distance from the camera of the center of the tile, nothing fancy.
+After coloring based on LOD result was the following:
+
+![grass8](../images/23_grass/grass5.gif)
+
+Of course distances are completely configurable and there I was simply testing, thus the short distances. Once the LOD is computed I perform four different scan operation, to compact tiles based on LOD values from 0 to 3. Result is stored in a single array separated by an offset. After that a small compoute shader gets kicked off and will grab the result of the scan (acculmulation atomics) to populate four indirect buffers and finally clearning the atomics for the next frame.
+In the vertex shader I will load the resulting tile and use the LOD result to perform the usual calculation to figure out which tile and blade I need to process as explained before.
+I have added configuration on the number of blades per lod to be used and we can use it to vary it at runtime. The parameter set by the artist is simply the number of blades that it wants to use for that lod, that many points will be used for the tile, and given the blue noise distribution even the subset of point of points are well distributed here an example of varying the numeber of blades:
+
+![grass8](../images/23_grass/grassLOD.gif)
+
+As of now I am using the same shader for all LOD levels but I can easily create different shader per LOD reducing the geometry created. Another good tip from Freek was to only render the tips of the blade for lower LOD level which was something I did not think of!
+
+# What about art direction
+I am quite happy with the result but how do you art direct it? Tiles are cool but it is a very uniform grass. Which might work in some situation, in other you might want to reduce the density based on texture or have it fade out when reaching a forest or a dirt road.
+
+## Binary search
+I have been thinking quite a bit about that and I have few ideas. First of all I can use different distribution, not a grid that would allow me to kill easily entire tiles but that is not granular enough. I would really need variable number of points per tile.
+The challenge would be figuring out to which tile/blade the ```gl_GlobalInvocationID.x``` maps to. To do so I could use the result scan array to search for the corresponding slot, which would tell me the index of the tile to sample and how many points I have in that tile. Being a sorted array I could use a binary search, but searching an array is highly divergent and I am not sure how performant it would be. 
+As an example say I have four tiles to render with this number of points per tile: ```[100,300,50,200]``` the resulting exclusive scan array would be ```[0,100,400,450]``` I could binary search in that array and find my tile.
+
+## Compute blade expansion
+Another option would be to expand the blades itself in the compute shader, store in a buffer and render that buffer as a single draw call. The draw back being the higher memory foot print and bandwith consumption. Of course if the grass is used in more than one pass
+might very well be worth to expand it once and reuse it, if you have done any experiment in the matter I would love to hear your experience!
+
+## Mesh shader enters the chat
+The whole grass system has been thought from the ground up to be Mesh shader friendly. Culling specifically has been a big use case for Mesh Shading. I did not implement the mesh shader variant due to two reasons. First I needed a break from grass, second I like developing on both AMD and Nvidia, my AMD card currently does not support Mesh shading. Supposedly RDNA2 is going to support that, so as soon I can get my hands on that I will be able to easily develop for both cards without adding a complexity of a fallback path (yet) to the engine.
+
+Mesh shading should allow for a very nice, single pass grass shader, I would be able to directly cull whole tiles, pick a corresponiding LOD and generate on demand the geometry however I see fit, varing geometry, tip only etc. No need for compute passes, draw indirect etc. I am actually looking forward to try but for now this is what I got
+
 
 # The elephant in the room
 Yeah Yeah I know... MSAA... I will get to it at one point, but let us be honest, who does not like a sea of shimmering aliasing? :P
+
+
+# Conclusion
+This is it! This is my take on grass shader! Of course is still a proof of concept and will require much more work to be a complete tool, but for now it will do! If you have experience on the matter, suggestion, critiques or just want to discrub the topic contact me! I am always happy to nerd about graphics! My   {{<target-blank "DMs" "https://twitter.com/MGDev91">}}on Twitter are open!
