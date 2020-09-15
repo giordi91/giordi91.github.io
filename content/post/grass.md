@@ -16,56 +16,65 @@ My take on realtime grass
 
 <br><br>
 
+
 # Intro 
 
-{{<target-blank "compiler explorer" "https://godbolt.org/z/Xbf-7u">}}
-
-I have been hard at work on my engine, due to work and other life committment, free time was little or not existent so I had to take roughly a six month break. When I jumped back in, the love was still there and felt so motivate to work on it, I got lots done in the past month or so. The latest effort has been grass. I got to a point where I wanted to work something new rather than just porting features to Vulkan.
+ The latest effort in my engine has been grass. After porting quite a bit of the DX12 functionality to Vulkan I got to a point where I wanted to work something new rather than just porting features to Vulkan.
 
 At a glance what I did in my grass shader was:
-- Using blue noise distribution for grass blades
-- Vertex plus fragment shader, no geometry shader involved. No billboards real geo per blade.
+
+- Using blue noise distribution for grass blades positions
+- Vertex + fragment shader, no geometry/tessellation shader involved. No billboards real geo per blade.
 - Tile based
 - GPU driven, both culling and lodding happening on GPU, indirect rendering
 
 I will now go discussing each of this different parts in more details
 
 # A Lodding idea
-It all started when a while back (before my break) I started thinking about how would I go about 
-working on a grass shader in my engine. I wanted to do something interesting potentially leveraging mesh shaders aswell. I had a fairly clear idea about using tiles for doing some GPU culling, what was not clear to me was how would I go about doing LODDing? Usually grass is very overdraw bound, and you want to limit as much as possible what you render, hence culling + lodding.
+It all started when a while back I started thinking about how would I go about working on a grass shader in my engine. I wanted to do something interesting potentially leveraging mesh shaders aswell. 
+I had a fairly clear idea about using tiles for doing some GPU culling, what was not clear to me was how would I go about doing LODDing? Usually grass is very overdraw bound, and you want to limit as much as possible what you render, hence culling + lodding.
 
-What I wanted to do was having a simple way to say, if the LOD I want requires 50% less blades, I want a simple way to grab my points, select only 50% of it and still have a good distribution, no clumping etc. I was sitting on it for a bit then it hit me, if I want to solve a distribution problem I need HIM!
+What I wanted to achieve was a simple way at runtime to grab a subset of points and still have them well distributed, no clumping or gaps I was sitting on it for a bit then it hit me, if I want to solve a distribution problem I need HIM!
 
 ![alan](../images/23_grass/alan.png)
 
 The noise/distribution master is known as 
-{{<target-blank "Alan Wolfe" "https://twitter.com/Atrix256">}}, he has been helping me since years and years now! I went to him explaining what I wanted to do and pointed out that points from a blue noise distribution respect exactly the kind of distribution I was after, not only that he linked me to one of his blog post with code I could use directly. 
-I created a commanline application program able to generate tiles of such points. I generated 100 tiles of 10k points each. Took roughly 3 hours on a 6 core laptop (running on 12 threads), the code scales quadratically but being efficient was not the point here. The points are generated once and baked down to binary file. Once I had that points I could use to draw those points and just grab a subset of it if I wanted to perform LODDing.
+{{<target-blank "Alan Wolfe" "https://twitter.com/Atrix256">}}, he has been helping me since years in my game engine/graphics dev! After explaining my idea he pointed out that points from a blue noise distribution respect exactly the kind of distribution I was after, not only that but he linked me to one of his blog post with c++ code I could use directly. 
+
+I created a commanline application able to generate tiles of such points. I generated 100 tiles of 10k points each. Took roughly 3 hours on a 6 core laptop (running on 12 threads), the code scales quadratically but being efficient was not the goal here. The points are generated once and baked down to a binary file. The data is ready time to do some rendering.
 
 # The first implementation
 
 After getting a clearer idea in how I would approach things, was time to get my hands dirty. I had experience in the past about expanding geometry in vertex shaders, in particular for 
-{{<target-blank "hair" "https://giordi91.github.io/post/hairexpansion/">}}, that plus the fact that usually geometry shader is frowned upon and I dont have experience with it, I decided to implement it in vertex shader aswell. As a base I used the great 
+{{<target-blank "hair" "https://giordi91.github.io/post/hairexpansion/">}}, that plus the fact that usually geometry shader is frowned upon and I dont have experience with it, I decided to implement the technique in vertex shader. As a base I used the great 
 {{<target-blank "Roystan tutorial" "https://roystan.net/articles/grass-shader.html">}}, here the result:
 
-![grass1](../images/23_grass/grass.gif)
-{{< youtube jeNwKbLVg9c >}}
+{{< youtube AQtvuftK7vg>}}
 
-The initial result was not bad, in the video particularly I was showing how much of a difference using an albedo texture made compared to a simple interpolated color.
-Performance was actually quite good, if I recall correclty I was rendering around 14 million vertices in around 1.5ms but take that with a grain of salt we are going to talk more about performance later.
+Here the huge diffrence made if I use a proper albedo texture instead of basic interpolated color
 
-When I shaded the initial gif, Freek Hoekstra over at LinkedIn suggested to offset sampling of the wind texture based on the UV coordindate of the blade, the higher the vertex in the blade the more offset it would get, this simple trick really improved 
+{{< youtube jeNwKbLVg9c>}}
+
+The initial result was not bad, performance was actually quite good, if I recall correclty I was rendering around 14 million vertices in around 1.5ms but take that with a grain of salt we are going to talk more about performance later.
+
+When I showed the initial gif on the internet, 
+{{<target-blank "Freek Hoekstra" "https://www.linkedin.com/in/freek-hoekstra/">}}
+over at LinkedIn suggested to offset sampling of the wind texture based on the UV coordindate of the blade, the higher the vertex in the blade the more offset it would get, this simple trick really improved 
 the effect, have a look for yourself.
-![grass3](../images/23_grass/grass3.gif)
+<br><br>
+
+<img loading=lazy src="../images/23_grass/grass3.gif" >
+
 Immediately the grass feels more of a blade than a static piece of geo rotating, I also improved a bit the wind rotations to give it a more natural look.
 
-
 In case you are interest in this video I cover a bit more the tiling working, but right now is a simple proof of concept, so I am just using a simple grid:
-{{< youtube _jD0piSDYL8 >}}
+<br><br>
+{{< youtube _jD0piSDYL8>}}
+<br><br>
 
 # GPU driven rendering
 The next step was to get the GPU culling going, I started by implementing the concept of a main camera and an active camera in the engine, in this way I will be able to jump from one to the other easily 
-and see if the culling is actually working. The setup is fairly basic but for now it will do. The culling shader will always use the main camera matrices to perform the culling, meanwhile for the render I will use the active camera. 
+and see if the culling is actually working. The setup is fairly basic but for now, but it will do. The culling shader will always use the main camera matrices to perform the culling, meanwhile for the render I will use the active camera. 
 
 The culling happens in a compute shader, the first step is to compute a vote, informing me whether or not the tile survives the culling or not, next the surviving instances get compacted into a single array. I talk at length about the proces in this 
 {{<target-blank "MPC R&D blog post" "https://www.mpc-rnd.com/unity-gpu-culling-experiments/">}}
@@ -76,21 +85,28 @@ has some
 {{<target-blank "content" "https://interplayoflight.wordpress.com/2018/01/15/experiments-in-gpu-based-occlusion-culling-part-2-multidrawindirect-and-mesh-lodding/">}}
 on culling, going in lots of details. Last time I have implemented something like this was on dx11, where wave instructions are not available if not from vendor specific extensions. Having wave instructions as first citizen made the code simpler and more efficient. Here the culling working:
 
+<br><br>
 ![grass4](../images/23_grass/grass4.gif)
+<br><br>
 
 Actually the above is when culling goes wrong, in particular it is an issue on Intel IGPUs, which is currently being looked at being potentially a bug. Here the real culling working, in the below gif you can see me jumping from the main camera to active camera, the main camera frustum being rendered and matching the culled region of grass:
 
+<br><br>
 ![grass8](../images/23_grass/grass8.gif)
+<br><br>
 
 # Actual lodding implementation
 
-After the culling, the Viewport Culling was still my bottleneck, so next logical step was implementing LODding. The lod computation happens at same time of the culling, and is a simple distance from the camera of the center of the tile, nothing fancy.
+After the culling, the VPC and rasterizer were still my bottlenecks, so next logical step was implementing LODding. The lod computation happens at same time of the culling, and is a simple distance from the camera of the center of the tile, nothing fancy.
 After coloring based on LOD result was the following:
 
+<br><br>
 ![grass8](../images/23_grass/grass5.gif)
+<br><br>
 
-Of course distances are completely configurable and there I was simply testing, thus the short distances. Once the LOD is computed I perform four different scan operation, to compact tiles based on LOD values from 0 to 3. Result is stored in a single array separated by an offset. After that a small compoute shader gets kicked off and will grab the result of the scan (acculmulation atomics) to populate four indirect buffers and finally clearning the atomics for the next frame.
-In the vertex shader I will load the resulting tile and use the LOD result to perform the usual calculation to figure out which tile and blade I need to process as explained before.
+Of course distances are completely configurable and there I was simply testing, thus the short distances. Once the LOD is computed I perform four different scan operation, to compact tiles based on LOD values from 0 to 3. The result is stored in a single array separated by an offset. Finally, a small compute shader gets kicked off and will grab the result of the scan (acculmulation atomics) to populate four indirect buffers and finally clearning the atomics for the next frame.
+
+In the vertex shader I will load the tile and use the LOD result to perform the usual calculation to figure out which tile and blade I need to process as explained before.
 I have added configuration on the number of blades per lod to be used and we can use it to vary it at runtime. The parameter set by the artist is simply the number of blades that it wants to use for that lod, that many points will be used for the tile, and given the blue noise distribution even the subset of point of points are well distributed here an example of varying the numeber of blades:
 
 ![grass8](../images/23_grass/grassLOD.gif)
@@ -98,21 +114,40 @@ I have added configuration on the number of blades per lod to be used and we can
 As of now I am using the same shader for all LOD levels but I can easily create different shader per LOD reducing the geometry created. Another good tip from Freek was to only render the tips of the blade for lower LOD level which was something I did not think of!
 
 # What about art direction
-I am quite happy with the result but how do you art direct it? Tiles are cool but it is a very uniform grass. Which might work in some situation, in other you might want to reduce the density based on texture or have it fade out when reaching a forest or a dirt road.
+I am quite happy with the result but how do you art direct it? Tiles are cool but makes for a very uniform grass. Which might work in some situation, in other you might want to reduce the density based on texture or have it fade out when reaching a forest or a dirt road. I have few ideas in how to go about it.
 
 ## Binary search
-I have been thinking quite a bit about that and I have few ideas. First of all I can use different distribution, not a grid that would allow me to kill easily entire tiles but that is not granular enough. I would really need variable number of points per tile.
-The challenge would be figuring out to which tile/blade the ```gl_GlobalInvocationID.x``` maps to. To do so I could use the result scan array to search for the corresponding slot, which would tell me the index of the tile to sample and how many points I have in that tile. Being a sorted array I could use a binary search, but searching an array is highly divergent and I am not sure how performant it would be. 
-As an example say I have four tiles to render with this number of points per tile: ```[100,300,50,200]``` the resulting exclusive scan array would be ```[0,100,400,450]``` I could binary search in that array and find my tile.
+I could use different tile distribution, not a grid that would allow me to kill easily entire tiles but that is not granular enough. I would really need variable number of points per tile.
+The challenge would be figuring out to which tile/blade the ```gl_GlobalInvocationID.x``` maps to. I could use the result scan array to search for the corresponding slot, which would tell me the index of the tile to sample and how many points I have in that tile. Being a sorted array  binary search would work well, but searching an array is highly divergent and I am not sure how performant it would be. 
 
 ## Compute blade expansion
 Another option would be to expand the blades itself in the compute shader, store in a buffer and render that buffer as a single draw call. The draw back being the higher memory foot print and bandwith consumption. Of course if the grass is used in more than one pass
 might very well be worth to expand it once and reuse it, if you have done any experiment in the matter I would love to hear your experience!
 
 ## Mesh shader enters the chat
-The whole grass system has been thought from the ground up to be Mesh shader friendly. Culling specifically has been a big use case for Mesh Shading. I did not implement the mesh shader variant due to two reasons. First I needed a break from grass, second I like developing on both AMD and Nvidia, my AMD card currently does not support Mesh shading. Supposedly RDNA2 is going to support that, so as soon I can get my hands on that I will be able to easily develop for both cards without adding a complexity of a fallback path (yet) to the engine.
+The whole grass system has been thought from the ground up to be Mesh shader friendly. Culling specifically has been a big use case for it. I did not implement the mesh shader variant yet, mostly waiting for RDNA2 to do so. Mesh shading should allow for a very nice, single pass grass shader, I would be able to directly cull whole tiles, pick a corresponiding LOD and generate on demand the geometry however I see fit, varing geometry, tips only etc. No need for compute passes, draw indirect etc. I am actually looking forward to try! 
 
-Mesh shading should allow for a very nice, single pass grass shader, I would be able to directly cull whole tiles, pick a corresponiding LOD and generate on demand the geometry however I see fit, varing geometry, tip only etc. No need for compute passes, draw indirect etc. I am actually looking forward to try but for now this is what I got
+# Performance
+After all this work, did any of this culling and lodding help at all?
+
+Here below a comparison before the culling , after the culling and both culling and lodding (I hope is readable enough, if not press RMB and click on view image):
+
+![rgp](../images/23_grass/rgp.png)
+
+As we can see from top left image, we had half of the shader working on vertex work (green) producing no visible fragment due to most likly being out of view or being rejected by early depth. After we perform some culling we pretty much drop completely the usueles vertex only work we can see in the middle image. We can see some more fragment action but still, overdraw is killing it (way too much green here).
+
+After we add the lodding we can see we have quite a bit less vertex work and more fragment work (blue). At each stage the overall shader got faster!
+
+So that is it? No more VPC and raster bound? Not really.... 
+
+***Before***
+
+![before](../images/23_grass/before.png)
+
+***After***
+![after](../images/23_grass/after.png)
+
+VPC is as mad as me as ever but shader is 3x faster so I am not complaining, lots more can be done on the matter but for now is fast enough and I can move to other things
 
 
 # The elephant in the room
