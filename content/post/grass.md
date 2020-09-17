@@ -5,7 +5,7 @@ title: "Grass Shader"
 tags : ["shader"]
 tocname: "Table of contents:"
 toc : true
-draft : true 
+draft : false 
 ---
 
 <p style="background:gray;padding: 1em;">
@@ -30,7 +30,7 @@ At a glance what I did in my grass shader was:
 
 I will now go discussing each of these different parts in more details.
 
-# A LoDding idea
+# A LODding idea
 It all started when a while back I started thinking about how would I go about working on a grass shader in my engine. I wanted to do something interesting potentially leveraging mesh shaders as-well (at some point). 
 I had a fairly clear idea about using grass tiles to leverage GPU culling easily, but how would I go about doing LODding (Level of details variation)? Usually, the grass is very overdraw bound, and you want to render only what is visible and avoid wasted work (don't we all?), hence culling + LODding.
 
