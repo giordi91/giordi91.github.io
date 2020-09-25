@@ -56,7 +56,7 @@ Here you can see the huge difference it made to use a proper albedo texture inst
  
 {{< youtube jeNwKbLVg9c>}}
  
-The initial result was not bad at all, and performance was decent. If I recall correctly I was rendering around 14 million vertices in around 1.5ms (take it with a bucket of salt, we are going to talk more about performance later. After the first implementation, a quick NSight profile highlighted that the Viewport culling (VPC) stage was my main bottleneck.
+The initial result was not bad at all, and performance was decent. If I recall correctly I was rendering around 14 million vertices in around 1.5ms (take it with a bucket of salt, we are going to talk more about performance later). After the first implementation, a quick NSight profile highlighted that the Viewport culling (VPC) stage was my main bottleneck.
  
 When I showed the initial gif on the internet, 
 {{<target-blank "Freek Hoekstra" "https://www.linkedin.com/in/freek-hoekstra/">}}
@@ -137,7 +137,7 @@ Here below a comparison before the culling, after the culling and both culling a
 
 As we can see from the top left image, we had half of the shader working on vertex work (in green) producing invisible fragment due to, most likely, being out of view or being rejected by early depth. After we perform some culling we pretty much drop completely the useless vertex only work (middle image); there is some more fragment action, but still overdraw is killing it (vertex to fragment ratio is too high).
 
-After we add the LODding we can see that we have quite fewer vertexes but more fragments working (in blue). At each stage, the overall shader got faster!
+After we add the LODding we can see that we have quite fewer vertices but more fragments working (in blue). At each stage, the overall shader got faster!
 
 So that is it? No more VPC and raster bound? Not really... 
 
