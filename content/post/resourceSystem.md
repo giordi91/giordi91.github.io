@@ -18,7 +18,7 @@ A different, hopefully better, approach to game engine resource management
 
 <br><br>
 
-## Intro 
+# Intro 
 Over the years I started shifting my game engine resource management to a different paradigm rather than the usual OOP. Such a paradigm is composed of a manager plus resource handles. 
 I used this system in many personal projects to great success. I hope it can be useful to other people and hope to hear different ways people handle their resources too! (pun intended) 
 
@@ -26,7 +26,7 @@ This pattern is a combination of two main ideas:
 - Instead of passing resource pointers around, you use an opaque, trivially copiable, handle.
 - Instead of encapsulating a resource inside a class instance, you delegate the logic to a manager that will be in charge of allocating, manipulating, and freeing the resources.
 
-## The handle pattern
+# The handle pattern
 I first came into contact with the handle idea from a chapter in the 
 {{<target-blank "Game programming gems book" "https://www.amazon.co.uk/Game-Programming-Gems-CD/dp/1584500492">}}, although I did not like their implementation too much, 
 it introduced me to the concept of handle and metadata to validate the handle, more on it later. 
@@ -76,7 +76,7 @@ An alternative could be to use a
 {{<target-blank "structure bitfield" "https://en.cppreference.com/w/cpp/language/bit_field">}} and let
 compiler generate the necessary masking/shifting. I just rolled my own years ago and never bothered to change it.
 
-## The manager
+# The manager
 
 We now know what a handle is, what it encodes, and what it represents, but how do we use it?
 I paired the handle with the concept of a manager. The manager is simply an object that is in charge of all the resources of the given type. 
@@ -117,7 +117,7 @@ struct VkTexture2D {
 
 This data is all the necessary information the manager needs to perform an array of operations on the resource. (This is a fairly big structure and could be optimized by splitting the data you use at runtime from "supporting/debug data" to have better cache utilization).
 
-### Metadata and lookup
+## Metadata and lookup
 
 To go from the handle to the texture data, I will need to do a lookup. The simplest solution would be to use an ```std::unordered_map``` to map the raw int of the handle to the actual ```VkTexture2D```.
 
@@ -165,7 +165,7 @@ It is still possible to do a similar thing using regular OOP but it becomes very
 - It is very simple to implement, is not much extra work than the normal OOP approach. You could convert your OOP system fairly easily by just reshuffling some of the existing code.
 
 
-## Conclusion
+# Conclusion
 
 That is it! I hope you liked it and would love to hear from you! How do you handle your resource in your engine? What do you think of this pattern? What would you do differently or better?
 You can reach me on {{<target-blank "Twitter" "https://twitter.com/MGDev91">}}. Feel free to share the post around! 
