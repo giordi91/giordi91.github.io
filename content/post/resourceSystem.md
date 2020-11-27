@@ -124,7 +124,7 @@ To go from the handle to the texture data, I will need to do a lookup. The simpl
 Although it works just fine, I believe this looks up and checks in the map is a fairly heavy-duty operation. In my engine, I wanted something a bit more lightweight, something that could leverage the handle validation to skip extra checks and go straight to the data.  
 I decided to use a simple custom memory pool, the index in the handle points directly to that memory slot used, no need to worry about hashing and hash collisions. 
 
-### Dangling handle
+## Dangling handle
 
 By using a memory pool, slots get reused when a resource is freed and re-allocated. 
 You could get in the situation where a "dangling" handle points to a slot where the original resource does not exist anymore and other data has been loaded instead. 
