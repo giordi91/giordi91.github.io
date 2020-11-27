@@ -1,7 +1,7 @@
 ---
 date: 2020-11-13T16:34:44+00:00
 linktitle: resource manager 
-title: "Engine Resource Magement: a handle approach"
+title: "Engine Resources Management: a handle approach"
 tags : ["engine"]
 tocname: "Table of contents:"
 toc : true
@@ -20,7 +20,7 @@ A different, hopefully better, approach to game engine resource management
 
 # Intro 
 Over the years I started shifting my game engine resource management to a different paradigm rather than the usual OOP. Such a paradigm is composed of a manager plus resource handles. 
-I used this system in many personal projects to great success. I hope it can be useful to other people and hope to hear different ways people handle their resources too! (pun intended) 
+I have used this system in many personal projects to great success. I hope it can be useful to other people and hope to hear different ways people handle their resources too! (pun intended) 
 
 This pattern is a combination of two main ideas:
 - Instead of passing resource pointers around, you use an opaque, trivially copiable, handle.
