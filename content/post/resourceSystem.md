@@ -51,7 +51,7 @@ We are going to look at how the index is used when we discuss the manager.
 Let us investigate a bit more about how I use the metadata to validate my handle.
 
 The {{<target-blank "Game programming gems book" "https://www.amazon.co.uk/Game-Programming-Gems-CD/dp/1584500492">}} 
-uses the metadata portion to store a "magic number", a unique number to idenfitfy the reseource. 
+uses the metadata portion to store a "magic number", a unique number to identify the resource. 
 When loading a resource, such a magic number is created (usually just incrementing a counter). The magic number is stored both in the metadata handle and in the data associated with the resource.
 When I want to manipulate/use the resource, before performing any operation I will check if the "magic number/version" from the handle matches the one in the manager's records.
 If the magic number matches, then I am sure the handle points to the correct resource.
