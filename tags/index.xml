@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on A-programmer&#39;s-cave</title>
+    <link>/tags/</link>
+    <description>Recent content in Tags on A-programmer&#39;s-cave</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <copyright>Copyright (c) 2018 - present, all rights reserved.</copyright>
+    <lastBuildDate>Wed, 24 Oct 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Cpu</title>
+      <link>/tags/cpu/</link>
+      <pubDate>Wed, 24 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/cpu/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Disassembly</title>
+      <link>/tags/disassembly/</link>
+      <pubDate>Sat, 23 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/disassembly/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Dynamics</title>
+      <link>/tags/dynamics/</link>
+      <pubDate>Tue, 31 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/dynamics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Engine</title>
+      <link>/tags/engine/</link>
+      <pubDate>Fri, 13 Nov 2020 16:34:44 +0000</pubDate>
+      
+      <guid>/tags/engine/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Hlsl</title>
+      <link>/tags/hlsl/</link>
+      <pubDate>Mon, 05 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/hlsl/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Math</title>
+      <link>/tags/math/</link>
+      <pubDate>Tue, 31 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/math/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Realtime</title>
+      <link>/tags/realtime/</link>
+      <pubDate>Sat, 12 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/realtime/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Rust</title>
+      <link>/tags/rust/</link>
+      <pubDate>Sat, 23 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/rust/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Shader</title>
+      <link>/tags/shader/</link>
+      <pubDate>Fri, 25 Sep 2020 17:17:44 +0100</pubDate>
+      
+      <guid>/tags/shader/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Spirv</title>
+      <link>/tags/spirv/</link>
+      <pubDate>Sun, 26 Jan 2020 08:53:02 +0000</pubDate>
+      
+      <guid>/tags/spirv/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Unity</title>
+      <link>/tags/unity/</link>
+      <pubDate>Mon, 05 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/unity/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Cpu on A-programmer&#39;s-cave</title>
+    <link>/tags/cpu/</link>
+    <description>Recent content in Cpu on A-programmer&#39;s-cave</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <copyright>Copyright (c) 2018 - present, all rights reserved.</copyright>
+    <lastBuildDate>Wed, 24 Oct 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/cpu/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Never trust the compiler pt1</title>
+      <link>/post/never_trust_your_compiler_1/</link>
+      <pubDate>Wed, 24 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/never_trust_your_compiler_1/</guid>
+      <description>You thought those ternary operator were going to be converted to conditional move? Sorry... Introduction It is a normal day, having some fun optimizing a custom CPU implementation of Tero Kerras BVH , with the Superluminal profiler , (super cool by the way, check it out) , when the profiler itself tells you the in the ray traversal function, one piece of code is particularly expensive, I started to drill down to find some interesting surprises.</description>
+    </item>
+    
+  </channel>
+</rss>

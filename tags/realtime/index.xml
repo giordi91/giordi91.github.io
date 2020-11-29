@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Realtime on A-programmer&#39;s-cave</title>
+    <link>/tags/realtime/</link>
+    <description>Recent content in Realtime on A-programmer&#39;s-cave</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <copyright>Copyright (c) 2018 - present, all rights reserved.</copyright>
+    <lastBuildDate>Sat, 12 Jan 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/realtime/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Game engine resource compiler architecture.</title>
+      <link>/post/resource_compiler/</link>
+      <pubDate>Sat, 12 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/post/resource_compiler/</guid>
+      <description>Planning the architecture for my first game engine resource compiler 
+The ugly model loader If you are not interested in how I ended up with a crappy model loader, jump to the resource compiler section.
+Since I started working with OpenGL, almost five years ago, I wrote a super simple and ugly model obj loader. The main issue was that tinyobj loader would give me back multiple index buffers, one per geometry attribute.</description>
+    </item>
+    
+  </channel>
+</rss>

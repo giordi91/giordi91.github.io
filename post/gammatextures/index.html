@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+<meta charset="utf-8" />
+<meta name="author" content="Marco Giordano" />
+<meta name="description" content="A-programmer&#39;s-cave" />
+<meta name="keywords" content="" />
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+<meta name="generator" content="Hugo 0.47.1" />
+
+<link rel="canonical" href="/post/gammatextures/">
+<base href="/" />
+<meta property="og:title" content="De-gamma your texture kid!" />
+<meta property="og:description" content="You just applied gamma correction to your real-time application and everything looks too bright? De-gamma yout textures! To wet your appetite, here it is a wrongly doubly gamma corrected picture.
+Introduction I have been working on my dx11 toy engine for a while now, and I got to the point where I wanted to try to implement PBR. By following the learn-opengl tutorial, they mentioned that I was going to need to handle HDR, I went and upgraded my deferred renderer to support it, and added a post processing pass to do tone mapping, and since I never did it, gamma correction." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/post/gammatextures/" /><meta property="article:published_time" content="2018-11-01T00:00:00&#43;00:00"/>
+<meta property="article:modified_time" content="2018-11-01T00:00:00&#43;00:00"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="De-gamma your texture kid!"/>
+<meta name="twitter:description" content="You just applied gamma correction to your real-time application and everything looks too bright? De-gamma yout textures! To wet your appetite, here it is a wrongly doubly gamma corrected picture.
+Introduction I have been working on my dx11 toy engine for a while now, and I got to the point where I wanted to try to implement PBR. By following the learn-opengl tutorial, they mentioned that I was going to need to handle HDR, I went and upgraded my deferred renderer to support it, and added a post processing pass to do tone mapping, and since I never did it, gamma correction."/>
+
+
+
+<meta itemprop="name" content="De-gamma your texture kid!">
+<meta itemprop="description" content="You just applied gamma correction to your real-time application and everything looks too bright? De-gamma yout textures! To wet your appetite, here it is a wrongly doubly gamma corrected picture.
+Introduction I have been working on my dx11 toy engine for a while now, and I got to the point where I wanted to try to implement PBR. By following the learn-opengl tutorial, they mentioned that I was going to need to handle HDR, I went and upgraded my deferred renderer to support it, and added a post processing pass to do tone mapping, and since I never did it, gamma correction.">
+
+
+<meta itemprop="datePublished" content="2018-11-01T00:00:00&#43;00:00" />
+<meta itemprop="dateModified" content="2018-11-01T00:00:00&#43;00:00" />
+<meta itemprop="wordCount" content="663">
+
+
+
+<meta itemprop="keywords" content="shader," />
+
+
+<script async src="/dist/main.js"></script>
+<link rel="stylesheet" href="dist/main.css" />
+<style type="text/css">
+body {
+  background-color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+a {
+  color: {
+     {
+      .Param 'colors.link';
+    }
+  }
+}
+
+pre {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+  border-radius: 5px;
+}
+
+code {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+}
+
+blockquote {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border-left: 3px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+table {
+  margin: 1em auto;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+th {
+  background: {
+     {
+      .Param 'colors.text';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+}
+
+.siteTitle a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+.post .content h1 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h2 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h3 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h4 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h5 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h6 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.social-link:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.nav-item-title:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.tag a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.copyright {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby a {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.post-preview .title a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.content-item a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post-list .title {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.rmore {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.terms .term a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+</style>
+
+
+
+<title>
+
+
+     De-gamma your texture kid! 
+
+</title>
+
+</head>
+
+
+<body>
+<div class="main">
+    <header>
+
+        <div class="header-bar">
+
+            <nav>
+                <div class="siteTitle">
+                    <a href="/">A-programmer&#39;s-cave</a>
+                </div> 
+                
+                
+                <a class="nav-item active" href="/post/"><div class="nav-item-title">Posts</div></a>
+                
+                <a class="nav-item" href="/tags/"><div class="nav-item-title">Tags</div></a>
+                
+
+            </nav>
+        </div>
+
+        
+<div class="social-links-header">
+
+  
+  <a href="mailto:myemail"><div class="social-link">email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">gh</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">twtr</div></a>
+  
+
+  
+
+  <a href="pages/bind.html" target="_blank"><div class="social-link">TheBinder</div></a>
+
+</div>
+
+        <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+		
+    </header>
+
+
+<article class="post">
+    <h1 class="title"> De-gamma your texture kid! </h1>
+		
+            
+		        Table of contents:
+            
+		    <nav id="TableOfContents">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+</ul>
+</nav>
+		
+    <div class="content"> 
+
+<p style="background:gray;padding: 1em;">
+You just applied gamma correction to your real-time application
+and everything looks too bright? De-gamma yout textures!
+</p>
+
+<p>To wet your appetite, here it is a wrongly doubly gamma corrected picture.</p>
+
+<p><img src="../images/08_gamma/wrongGamma.jpg" alt="intro" /></p>
+
+<h1 id="introduction">Introduction</h1>
+
+<p>I have been working on my dx11 toy engine for a while now,
+and I got to the point where I wanted to try to implement
+PBR. By following the
+<a href="https://learnopengl.com/PBR/Theory" target="_blank">learn-opengl</a>
+
+tutorial, they mentioned that I was going to need to handle HDR, I went and upgraded
+my deferred renderer to support it, and added a post processing
+pass to do tone mapping, and since I never did it, <strong><em>gamma</em></strong> correction.</p>
+
+<p>Although being horrible about judging colors, I quickly realized my
+image looked very washed out and way to bright.</p>
+
+<p>I started debugging and the code looked solid, I mean &hellip; doing
+a gamma correction is a pow operation, there are only so many
+ways you can mess it up.</p>
+
+<p>Running out of options I reached out to the amazing
+<a href="https://twitter.com/Atrix256" target="_blank">Alan Wolfe</a>
+,
+who has been helping me in my game-dev epic fails for years now,
+since the time I was trying to load file in parallel from a
+mechanical drive (super smart idea, I know right?).</p>
+
+<p>He looked at the two pictures before and after and asked me
+are you correcting your textures when you read them? Meaning,
+are you transforming from gamma to linear space?</p>
+
+<p>Short answer: no, in this case we are talking about albedo
+textures only, it makes no sense to correct normal maps  (unless you know
+they have been gamma corrected.)</p>
+
+<p>This made me realize I was basically gamma correcting twice,
+once when reading the input texture, being already gamma corrected
+and second in my post processing pass,
+that explains the super white and washed out result.</p>
+
+<p>Here you can see the original frame after I compensated the color
+textures for the gamma correction, and the final gamma corrected
+frame. As you can see the difference is quite staggering.</p>
+
+<div class='vue'>
+  <vue-compare-image 
+        left-image="/images/08_gamma/wrongGamma.jpg" 
+        right-image="/images/08_gamma/correctGamma.jpg" />
+</div>
+
+<p><strong><em>apologies for the different size of the bunnies in the comparison</em></strong></p>
+
+<p>To make sure that I am not actually doing things wrong I decided to compare the actual
+correct frame with the original skybox texture and bunny texture
+(ps: the texture I was using for the bunny made no sense, it was a random one, but that is not the point)</p>
+
+<p>Here below we have the correct gamma compared with the albedo textures</p>
+
+<div class='vue'>
+  <vue-compare-image 
+        left-image="/images/08_gamma/correctGamma.jpg" 
+        right-image="/images/08_gamma/skybox.jpg" />
+</div>
+
+<p><br><br></p>
+
+<p>It is a bit harder to see on the rabbit due to illumination:</p>
+
+<div class='vue'>
+  <vue-compare-image 
+        left-image="/images/08_gamma/correctGamma.jpg" 
+        right-image="/images/08_gamma/armorColor.jpg" />
+</div>
+
+<p><br><br></p>
+
+<p>But if we go ahead and compare the same albedo with the wrong gamma we could clearly
+that the result was awfully bright:</p>
+
+<div class='vue'>
+  <vue-compare-image 
+        left-image="/images/08_gamma/wrongGamma.jpg" 
+        right-image="/images/08_gamma/skybox.jpg" />
+</div>
+
+<p><br><br>
+It is a bit harder to see on the rabbit due to illumination:</p>
+
+<div class='vue'>
+  <vue-compare-image 
+        left-image="/images/08_gamma/wrongGamma.jpg" 
+        right-image="/images/08_gamma/armorColor.jpg" />
+</div>
+
+<p><br><br></p>
+
+<p>Now, keep in mind you would have the same issue with every color that you might pick from the screen,
+from a color picker widget for example(color wheel to change light color).
+When you do so, you are picking a color which is gamma corrected, so you
+might want to linearize before passing it to the shader.</p>
+
+<p>If you are curious in how you can make sure your texture gets gamma corrected is fairly simple,
+the first way is to correct your texture and save them in linear, linearize them at runtime and or
+use a gamma texture format and let the hardware convert to linear when you sample the texture.</p>
+
+<p>In my engine I spend already way to much time reading resources in an non-optimal way, so
+I decided to not add an extra linearizion pass on top of it, and went with the easy way to set
+a gamma corrected format, I just had to change my texture description format from:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">DXGI_FORMAT_R8G8B8A8_UNORM;
+</code></pre></div>
+<p>to</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+</code></pre></div>
+<p>This is it! To finish here below the correct frames, on the left the not gamma corrected one with linear
+input albedo, and the gamma corrected frame on the right:</p>
+
+<div class='vue'>
+  <vue-compare-image 
+        left-image="/images/08_gamma/noGamma.jpg" 
+        right-image="/images/08_gamma/correctGamma.jpg" />
+</div>
+
+<p>Edit:
+I recently found this amazing article about gamma correction, highly recommend:
+<a href="http://blog.johnnovak.net/2016/09/21/what-every-coder-should-know-about-gamma/" target="_blank">What every coder should know about gamma</a>
+,</p>
+ </div>
+
+    
+<footer class="post-footer">
+
+  <div class="post-footer-data">
+    
+<div class="tags">
+    
+      <div class="tag">
+        <a href="/tags/shader">#shader</a>
+      </div>
+    
+</div>
+
+    <div class="date"> Nov 1, 2018 </div>
+  </div>
+
+</footer>
+
+
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "aprogrammerscave" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</article>
+
+  <footer>
+
+  <div class="social-links-footer">
+
+  
+  <a href="mailto:myemail"><div class="social-link">Email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">GitHub</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">Twitter</div></a>
+  
+
+  
+
+  <div class="social-link">
+  <a href="/index.xml" target="_blank">RSS</a>
+  </div>
+
+</div>
+
+
+  
+<div class="footer-menu">
+    
+    <a class="footer-menu" href="/comments-policy/">Comments Policy</a>
+    
+</div>
+
+
+  <div class="copyright"> Copyright (c) 2018 - present, all rights reserved. </div>
+
+  <div class="poweredby">
+    Powered by <a href="https://gohugo.io/">Hugo</a>.
+  </div>
+
+  </footer>
+
+</div> 
+
+</body>
+</html>
+

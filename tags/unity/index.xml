@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Unity on A-programmer&#39;s-cave</title>
+    <link>/tags/unity/</link>
+    <description>Recent content in Unity on A-programmer&#39;s-cave</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <copyright>Copyright (c) 2018 - present, all rights reserved.</copyright>
+    <lastBuildDate>Mon, 05 Nov 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/unity/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Hair expansion in Vertex Shader</title>
+      <link>/post/hairexpansion/</link>
+      <pubDate>Mon, 05 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/hairexpansion/</guid>
+      <description>How would you go and expand your hair segment into polygons you can shade? Geometry Shader? Vertex Shader? Introduction The other day I was talking with a friend who was trying to make grass shader, he was going about it by using a geometry shader. Although a geometry shader is a really appealing solution, it might not be the fastest one.
+Why not geometry shader? Warning, what I am about to say is mostly what I gathered from the industry, my experience with geometry shader is near to not existent, the only geometry shader I ever implemented was the Nvidia solid wireframe shader .</description>
+    </item>
+    
+    <item>
+      <title>Parallel transport on curve</title>
+      <link>/post/2018-31-07-parallel-transport/</link>
+      <pubDate>Tue, 31 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2018-31-07-parallel-transport/</guid>
+      <description>TL;DR: How to generate a stable orientation along a curve, math and Unity implementation. Here the repository with all the code and Unity project.
+Introduction Parallel transport is a technique that allows computing a moving frame (a 4x4 matrix defining a coordinate system) down the curve. Here is an example: The computation starts on the top right of the image, where the gizmo is, then move sequentially down the curve.</description>
+    </item>
+    
+    <item>
+      <title>Unity custom hair simulation PT1</title>
+      <link>/post/2018-31-07-hair-dyn/</link>
+      <pubDate>Tue, 31 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2018-31-07-hair-dyn/</guid>
+      <description>Introduction In today&amp;rsquo;s blog post I would like to talk about hair simulation, it has been something that always piqued my interest. I attempted to do a proper simulation in the past based on the Position based dynamics , more specifically the one focusing on inextensible hair strand .
+The issue with both papers was that they did not worry about keeping the initial hair shape, basically the groom an artist would have spent days crafting.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+<meta charset="utf-8" />
+<meta name="author" content="Marco Giordano" />
+<meta name="description" content="A-programmer&#39;s-cave" />
+<meta name="keywords" content="" />
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+<meta name="generator" content="Hugo 0.47.1" />
+
+<link rel="canonical" href="/post/resourcesystem/">
+<base href="/" />
+<meta property="og:title" content="Engine Resources Management: a handle approach" />
+<meta property="og:description" content="A different, hopefully better, approach to game engine resource management 
+Intro Over the years I started shifting my game engine resource management to a different paradigm rather than the usual OOP. Such a paradigm is composed of a manager plus resource handles. I have used this system in many personal projects to great success. I hope it can be useful to other people and hope to hear different ways people handle their resources too!" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/post/resourcesystem/" /><meta property="article:published_time" content="2020-11-13T16:34:44&#43;00:00"/>
+<meta property="article:modified_time" content="2020-11-13T16:34:44&#43;00:00"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Engine Resources Management: a handle approach"/>
+<meta name="twitter:description" content="A different, hopefully better, approach to game engine resource management 
+Intro Over the years I started shifting my game engine resource management to a different paradigm rather than the usual OOP. Such a paradigm is composed of a manager plus resource handles. I have used this system in many personal projects to great success. I hope it can be useful to other people and hope to hear different ways people handle their resources too!"/>
+
+
+
+<meta itemprop="name" content="Engine Resources Management: a handle approach">
+<meta itemprop="description" content="A different, hopefully better, approach to game engine resource management 
+Intro Over the years I started shifting my game engine resource management to a different paradigm rather than the usual OOP. Such a paradigm is composed of a manager plus resource handles. I have used this system in many personal projects to great success. I hope it can be useful to other people and hope to hear different ways people handle their resources too!">
+
+
+<meta itemprop="datePublished" content="2020-11-13T16:34:44&#43;00:00" />
+<meta itemprop="dateModified" content="2020-11-13T16:34:44&#43;00:00" />
+<meta itemprop="wordCount" content="1461">
+
+
+
+<meta itemprop="keywords" content="engine," />
+
+
+<script async src="/dist/main.js"></script>
+<link rel="stylesheet" href="dist/main.css" />
+<style type="text/css">
+body {
+  background-color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+a {
+  color: {
+     {
+      .Param 'colors.link';
+    }
+  }
+}
+
+pre {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+  border-radius: 5px;
+}
+
+code {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+}
+
+blockquote {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border-left: 3px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+table {
+  margin: 1em auto;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+th {
+  background: {
+     {
+      .Param 'colors.text';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+}
+
+.siteTitle a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+.post .content h1 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h2 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h3 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h4 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h5 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h6 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.social-link:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.nav-item-title:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.tag a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.copyright {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby a {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.post-preview .title a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.content-item a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post-list .title {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.rmore {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.terms .term a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+</style>
+
+
+
+<title>
+
+
+     Engine Resources Management: a handle approach 
+
+</title>
+
+</head>
+
+
+<body>
+<div class="main">
+    <header>
+
+        <div class="header-bar">
+
+            <nav>
+                <div class="siteTitle">
+                    <a href="/">A-programmer&#39;s-cave</a>
+                </div> 
+                
+                
+                <a class="nav-item active" href="/post/"><div class="nav-item-title">Posts</div></a>
+                
+                <a class="nav-item" href="/tags/"><div class="nav-item-title">Tags</div></a>
+                
+
+            </nav>
+        </div>
+
+        
+<div class="social-links-header">
+
+  
+  <a href="mailto:myemail"><div class="social-link">email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">gh</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">twtr</div></a>
+  
+
+  
+
+  <a href="pages/bind.html" target="_blank"><div class="social-link">TheBinder</div></a>
+
+</div>
+
+        <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+		
+    </header>
+
+
+<article class="post">
+    <h1 class="title"> Engine Resources Management: a handle approach </h1>
+		
+            
+		        Table of contents:
+            
+		    <nav id="TableOfContents">
+<ul>
+<li><a href="#intro">Intro</a></li>
+<li><a href="#the-handle-pattern">The handle pattern</a></li>
+<li><a href="#the-manager">The manager</a>
+<ul>
+<li><a href="#metadata-and-lookup">Metadata and lookup</a></li>
+<li><a href="#dangling-handle">Dangling handle</a></li>
+</ul></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
+</nav>
+		
+    <div class="content"> 
+
+<p style="background:gray;padding: 1em;">
+A different, hopefully better, approach to game engine resource management
+</p>
+
+<p><img src="../images/24_handles/handle.jpg" alt="intro" /></p>
+
+<p><br><br></p>
+
+<h1 id="intro">Intro</h1>
+
+<p>Over the years I started shifting my game engine resource management to a different paradigm rather than the usual OOP. Such a paradigm is composed of a manager plus resource handles.
+I have used this system in many personal projects to great success. I hope it can be useful to other people and hope to hear different ways people handle their resources too! (pun intended)</p>
+
+<p>This pattern is a combination of two main ideas:
+- Instead of passing resource pointers around, you use an opaque, trivially copiable, handle.
+- Instead of encapsulating a resource inside a class instance, you delegate the logic to a manager that will be in charge of allocating, manipulating, and freeing the resources.</p>
+
+<h1 id="the-handle-pattern">The handle pattern</h1>
+
+<p>I first came into contact with the handle idea from a chapter in the
+<a href="https://www.amazon.co.uk/Game-Programming-Gems-CD/dp/1584500492" target="_blank">Game programming gems book</a>
+, although I did not like their implementation too much,
+it introduced me to the concept of handle and metadata to validate the handle, more on it later.
+I came across the concept again from
+<a href="https://floooh.github.io/2018/06/17/handles-vs-pointers.html" target="_blank">this great article</a>
+ by
+<a href="https://twitter.com/flohofwoe" target="_blank">Andre Weissflog</a>
+. The blog post covers many of the advantages of handles over pointers and really resonated with me.</p>
+
+<p>In my specific case the handle looks something like this:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#6ab825;font-weight:bold">struct</span> TextureHandle <span style="color:#6ab825;font-weight:bold">final</span> {
+  uint32_t handle;
+  <span style="color:#6ab825;font-weight:bold">bool</span> <span style="color:#447fcf">isHandleValid</span>() <span style="color:#6ab825;font-weight:bold">const</span> { <span style="color:#6ab825;font-weight:bold">return</span> handle != <span style="color:#3677a9">0</span>; }
+};
+</code></pre></div>
+<p>As you can see it is nothing more than a simple wrapper around the <code>uint32_t</code>. Of course, you have full control over how big the handle is.
+In my case, I usually reserve 16 bits for an index that lets me look up the data and 16 bits of metadata for validation.
+We are going to look at how the index is used when we discuss the manager.</p>
+
+<p>Let us investigate a bit more about how I use the metadata to validate my handle.</p>
+
+<p>The <a href="https://www.amazon.co.uk/Game-Programming-Gems-CD/dp/1584500492" target="_blank">Game programming gems book</a>
+
+uses the metadata portion to store a &ldquo;magic number&rdquo;, a unique number to identify the resource.
+When loading a resource, such a magic number is created (usually just incrementing a counter). The magic number is stored both in the metadata handle and in the data associated with the resource.
+When I want to manipulate/use the resource, before performing any operation I will check if the &ldquo;magic number/version&rdquo; from the handle matches the one in the manager&rsquo;s records.
+If the magic number matches, then I am sure the handle points to the correct resource.</p>
+
+<p>I use some utility functions to extract the different sections from my handle:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#6ab825;font-weight:bold">template</span> &lt;<span style="color:#6ab825;font-weight:bold">typename</span> T&gt;
+<span style="color:#6ab825;font-weight:bold">inline</span> uint32_t getIndexFromHandle(<span style="color:#6ab825;font-weight:bold">const</span> T h) {
+  <span style="color:#6ab825;font-weight:bold">constexpr</span> uint32_t standardIndexMask = (<span style="color:#3677a9">1</span> &lt;&lt; <span style="color:#3677a9">16</span>) - <span style="color:#3677a9">1</span>;
+  <span style="color:#6ab825;font-weight:bold">return</span> h.handle &amp; standardIndexMask;
+}
+<span style="color:#6ab825;font-weight:bold">template</span> &lt;<span style="color:#6ab825;font-weight:bold">typename</span> T&gt;
+<span style="color:#6ab825;font-weight:bold">inline</span> uint32_t getMagicFromHandle(<span style="color:#6ab825;font-weight:bold">const</span> T h) {
+  <span style="color:#6ab825;font-weight:bold">constexpr</span> uint32_t standardIndexMask = (<span style="color:#3677a9">1</span> &lt;&lt; <span style="color:#3677a9">16</span>) - <span style="color:#3677a9">1</span>;
+  <span style="color:#6ab825;font-weight:bold">const</span> uint32_t standardMagicNumberMask = ~standardIndexMask;
+  <span style="color:#6ab825;font-weight:bold">return</span> (h.handle &amp; standardMagicNumberMask) &gt;&gt; <span style="color:#3677a9">16</span>;
+}
+</code></pre></div>
+<p>An alternative could be to use a
+<a href="https://en.cppreference.com/w/cpp/language/bit_field" target="_blank">structure bitfield</a>
+ and let
+compiler generate the necessary masking/shifting. I just rolled my own years ago and never bothered to change it.</p>
+
+<h1 id="the-manager">The manager</h1>
+
+<p>We now know what a handle is, what it encodes, and what it represents, but how do we use it?
+I paired the handle with the concept of a manager. The manager is simply an object that is in charge of all the resources of the given type.
+In the context of a texture, you would have a TextureManager.
+Such a manager can load a texture from the hard drive, bind it, and more. Loading a texture might look something like this:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">TextureHandle handle = textureManager-&gt;load(pathOnDisk);
+</code></pre></div>
+<p>As you can see the function returns us a handle we can use later on to operate on the resource, as an example, to bind the texture:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">textureManager-&gt;bindTexture(handle, slot);
+</code></pre></div>
+<p>By providing the handle, the manager will know which resource to operate on.
+Let us dive a bit deeper inside the manager. For example, my Vulkan texture manager, when loading a texture will create
+a texture data structure internally:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#6ab825;font-weight:bold">struct</span> VkTexture2D {
+  <span style="color:#6ab825;font-weight:bold">const</span> <span style="color:#6ab825;font-weight:bold">char</span> *name = <span style="color:#6ab825;font-weight:bold">nullptr</span>;
+  VkImage image;
+  VkDeviceMemory deviceMemory;
+  VkImageView view;
+  VkDescriptorImageInfo srv{};
+  VkImageLayout imageLayout;
+  VkFormat format;
+  uint32_t width : <span style="color:#3677a9">16</span>;
+  uint32_t height : <span style="color:#3677a9">16</span>;
+  uint32_t mipLevels : <span style="color:#3677a9">16</span>;
+  uint32_t magicNumber : <span style="color:#3677a9">16</span>;
+  uint32_t isRenderTarget : <span style="color:#3677a9">1</span>;
+  uint32_t creationFlags : <span style="color:#3677a9">31</span>;
+};
+</code></pre></div>
+<p>This data is all the necessary information the manager needs to perform an array of operations on the resource. (This is a fairly big structure and could be optimized by splitting the data you use at runtime from &ldquo;supporting/debug data&rdquo; to have better cache utilization).</p>
+
+<h2 id="metadata-and-lookup">Metadata and lookup</h2>
+
+<p>To go from the handle to the texture data, I will need to do a lookup. The simplest solution would be to use an <code>std::unordered_map</code> to map the raw int of the handle to the actual <code>VkTexture2D</code>.</p>
+
+<p>Although it works just fine, I believe this looks up and checks in the map is a fairly heavy-duty operation. In my engine, I wanted something a bit more lightweight, something that could leverage the handle validation to skip extra checks and go straight to the data.<br />
+I decided to use a simple custom memory pool, the index in the handle points directly to that memory slot used, no need to worry about hashing and hash collisions.</p>
+
+<h2 id="dangling-handle">Dangling handle</h2>
+
+<p>By using a memory pool, slots get reused when a resource is freed and re-allocated.
+You could get in the situation where a &ldquo;dangling&rdquo; handle points to a slot where the original resource does not exist anymore and other data has been loaded instead.
+For example, you might have a handle pointing to slot 10 in the pool, where you expect to find an albedo texture, instead you now have a roughness texture, because the albedo texture was freed and the slot recycled.</p>
+
+<p>This is where the metadata comes into play, in the <code>VkTexture2D</code> I store a copy of the magic number, which is compared to the handle&rsquo;s magic number, if the number matches you are indeed pointing to the correct resource.
+As mentioned above, the magic number is nothing more than an ever-increasing counter, each time a resource is created the counter is bumped up by one. There is the possibility that the counters wrap around and you get a collision, but the possibility is so remote that I did not worry. You can always increase the handle size and use more bit for the magic number counter.</p>
+
+<p>It accessing the resource is quite simple and looks something like this:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">  VkFormat <span style="color:#447fcf">getTextureFormat</span>(<span style="color:#6ab825;font-weight:bold">const</span> TextureHandle &amp;handle) <span style="color:#6ab825;font-weight:bold">const</span> {
+    assertMagicNumber(handle);
+    <span style="color:#6ab825;font-weight:bold">const</span> uint32_t idx = getIndexFromHandle(handle);
+    <span style="color:#6ab825;font-weight:bold">const</span> VkTexture2D &amp;data = m_texturePool.getConstRef(idx);
+    <span style="color:#6ab825;font-weight:bold">return</span> data.format;
+  };
+</code></pre></div>
+<p>In the above function, I am using the handle to try to retrieve the texture format of the associated texture.
+The assertMagicNumber() simply compares the metadata with the data in the pool. I always assert on every handle use, as soon something goes wrong the programs halts.
+The checks expand to nothing in releases unless I force them on at compile time.
+Once I know the handle is valid, I access directly the data in the pool.</p>
+
+<p><img src="https://media.tenor.com/images/fab0bbf2eb62ed8b58ff9ae70a1ec3ee/tenor.gif" alt="intro" /></p>
+
+<p>After reading all the above, you might be wondering why would I use something like that instead of simply copying a pointer around.</p>
+
+<p>I think there are several benefits to it in my opinion:</p>
+
+<ul>
+<li><p>You don&rsquo;t have problems of ownership, the handle can&rsquo;t own the data, you can cheaply copy it and not worrying about &ldquo;leaks&rdquo; (you still need to free the resource at one point or have logic in the manager to deallocate old data).
+You could use smart pointers but they have an overhead and they might trigger a resource deletion at any point in the frame.</p></li>
+
+<li><p>Paired with a manager, all your allocations are centralized in one place, it becomes much easier to reason about memory and how to optimize it. Once you are behind the manager interface you can easily change any aspect of memory usage and allocation,it won&rsquo;t affect the user (you can use a memory pool, a stack, etc for resource allocations).
+It is still possible to do a similar thing using regular OOP but it becomes very hard and clunky very quickly.</p></li>
+
+<li><p>Handles are not API specific. This pattern is the main tool I use to abstract multiple APIs (DX12 and Vk) in my engine.</p></li>
+
+<li><p>It is very simple to implement, is not much extra work than the normal OOP approach. You could convert your OOP system fairly easily by just reshuffling some of the existing code.</p></li>
+</ul>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>That is it! I hope you liked it and would love to hear from you! How do you handle your resource in your engine? What do you think of this pattern? What would you do differently or better?
+You can reach me on <a href="https://twitter.com/MGDev91" target="_blank">Twitter</a>
+. Feel free to share the post around!</p>
+ </div>
+
+    
+<footer class="post-footer">
+
+  <div class="post-footer-data">
+    
+<div class="tags">
+    
+      <div class="tag">
+        <a href="/tags/engine">#engine</a>
+      </div>
+    
+</div>
+
+    <div class="date"> Nov 13, 2020 </div>
+  </div>
+
+</footer>
+
+
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "aprogrammerscave" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</article>
+
+  <footer>
+
+  <div class="social-links-footer">
+
+  
+  <a href="mailto:myemail"><div class="social-link">Email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">GitHub</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">Twitter</div></a>
+  
+
+  
+
+  <div class="social-link">
+  <a href="/index.xml" target="_blank">RSS</a>
+  </div>
+
+</div>
+
+
+  
+<div class="footer-menu">
+    
+    <a class="footer-menu" href="/comments-policy/">Comments Policy</a>
+    
+</div>
+
+
+  <div class="copyright"> Copyright (c) 2018 - present, all rights reserved. </div>
+
+  <div class="poweredby">
+    Powered by <a href="https://gohugo.io/">Hugo</a>.
+  </div>
+
+  </footer>
+
+</div> 
+
+</body>
+</html>
+

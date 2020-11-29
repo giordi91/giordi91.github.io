@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+<meta charset="utf-8" />
+<meta name="author" content="Marco Giordano" />
+<meta name="description" content="A-programmer&#39;s-cave" />
+<meta name="keywords" content="" />
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+<meta name="generator" content="Hugo 0.47.1" />
+
+<link rel="canonical" href="/post/vegaisa/">
+<base href="/" />
+<meta property="og:title" content="AMD GCN ISA: a first dive" />
+<meta property="og:description" content="You want to learn more about GCN but where to start? Where to start I always liked optimizing and disassembling code. When trying to do that on GPU, the result is mixed. It is often hard to do because the information is simply not available (on PC) and you can&rsquo;t really see the machine code easily. That is more or less true depending on the API you are using, you can for example see CUDA disassembly but you don&rsquo;t have the ISA to understand the instructions and/or arguments/registers." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/post/vegaisa/" /><meta property="article:published_time" content="2019-03-10T00:00:00&#43;00:00"/>
+<meta property="article:modified_time" content="2019-03-10T00:00:00&#43;00:00"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="AMD GCN ISA: a first dive"/>
+<meta name="twitter:description" content="You want to learn more about GCN but where to start? Where to start I always liked optimizing and disassembling code. When trying to do that on GPU, the result is mixed. It is often hard to do because the information is simply not available (on PC) and you can&rsquo;t really see the machine code easily. That is more or less true depending on the API you are using, you can for example see CUDA disassembly but you don&rsquo;t have the ISA to understand the instructions and/or arguments/registers."/>
+
+
+
+<meta itemprop="name" content="AMD GCN ISA: a first dive">
+<meta itemprop="description" content="You want to learn more about GCN but where to start? Where to start I always liked optimizing and disassembling code. When trying to do that on GPU, the result is mixed. It is often hard to do because the information is simply not available (on PC) and you can&rsquo;t really see the machine code easily. That is more or less true depending on the API you are using, you can for example see CUDA disassembly but you don&rsquo;t have the ISA to understand the instructions and/or arguments/registers.">
+
+
+<meta itemprop="datePublished" content="2019-03-10T00:00:00&#43;00:00" />
+<meta itemprop="dateModified" content="2019-03-10T00:00:00&#43;00:00" />
+<meta itemprop="wordCount" content="2744">
+
+
+
+<meta itemprop="keywords" content="shader,disassembly," />
+
+
+<script async src="/dist/main.js"></script>
+<link rel="stylesheet" href="dist/main.css" />
+<style type="text/css">
+body {
+  background-color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+a {
+  color: {
+     {
+      .Param 'colors.link';
+    }
+  }
+}
+
+pre {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+  border-radius: 5px;
+}
+
+code {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+}
+
+blockquote {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border-left: 3px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+table {
+  margin: 1em auto;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+th {
+  background: {
+     {
+      .Param 'colors.text';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+}
+
+.siteTitle a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+.post .content h1 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h2 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h3 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h4 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h5 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h6 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.social-link:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.nav-item-title:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.tag a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.copyright {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby a {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.post-preview .title a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.content-item a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post-list .title {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.rmore {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.terms .term a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+</style>
+
+
+
+<title>
+
+
+     AMD GCN ISA: a first dive 
+
+</title>
+
+</head>
+
+
+<body>
+<div class="main">
+    <header>
+
+        <div class="header-bar">
+
+            <nav>
+                <div class="siteTitle">
+                    <a href="/">A-programmer&#39;s-cave</a>
+                </div> 
+                
+                
+                <a class="nav-item active" href="/post/"><div class="nav-item-title">Posts</div></a>
+                
+                <a class="nav-item" href="/tags/"><div class="nav-item-title">Tags</div></a>
+                
+
+            </nav>
+        </div>
+
+        
+<div class="social-links-header">
+
+  
+  <a href="mailto:myemail"><div class="social-link">email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">gh</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">twtr</div></a>
+  
+
+  
+
+  <a href="pages/bind.html" target="_blank"><div class="social-link">TheBinder</div></a>
+
+</div>
+
+        <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+		
+    </header>
+
+
+<article class="post">
+    <h1 class="title"> AMD GCN ISA: a first dive </h1>
+		
+            
+		        Table of contents:
+            
+		    <nav id="TableOfContents">
+<ul>
+<li><a href="#where-to-start">Where to start</a></li>
+<li><a href="#what-to-study">What to study?</a></li>
+<li><a href="#the-tooling">The tooling</a>
+<ul>
+<li><a href="#radeon-gpu-analizer">Radeon GPU Analizer</a></li>
+<li><a href="#radeon-gpu-profiler">Radeon GPU Profiler</a></li>
+<li><a href="#codexl">CodeXL</a></li>
+<li><a href="#pix">Pix</a></li>
+<li><a href="#shader-playground">Shader playground</a></li>
+</ul></li>
+<li><a href="#the-code">The code</a></li>
+<li><a href="#disassembly">Disassembly</a>
+<ul>
+<li><a href="#a-first-implementation">A first implementation</a></li>
+<li><a href="#a-first-optimization-pass">A first optimization pass</a></li>
+<li><a href="#rapid-packed-math">Rapid Packed Math</a></li>
+</ul></li>
+</ul>
+</nav>
+		
+    <div class="content"> 
+
+<p style="background:gray;padding: 1em;">
+You want to learn more about GCN but where to start?
+</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/gcn_logo.png" alt="intro" />
+<br><br></p>
+
+<h1 id="where-to-start">Where to start</h1>
+
+<p>I always liked  optimizing and disassembling code.
+When trying to do that on GPU, the result is mixed. It is often hard to do because the information
+is simply not available (on PC) and you can&rsquo;t really see the machine code easily.
+That is more or less true depending on the API you are using, you can for example
+see CUDA disassembly but you don&rsquo;t have the ISA to understand the instructions and/or arguments/registers.
+In DirectX you can often only see the IR from the D3DCompiler, which might be quite far from the final
+machine code.</p>
+
+<p>In my case I was interested in optimizing my DirectX shaders and by looking at the landscape, the only
+solution I had was to buy an AMD card and work on it. AMD has always been super open with respect to the architecture and tooling.
+There is a public ISA and a lot of tools for developers on PC which you can use to disassemble and get a lot of information out of your shaders.
+I went ahead I picked up a Vega 64, but now that you have the hardware, where do you start?</p>
+
+<h1 id="what-to-study">What to study?</h1>
+
+<p>We have to get our hands on some material we can actually learn from and study. The first two stops are these
+amazing presentations, packed with knowledge:</p>
+
+<ul>
+<li><a href="https://www.youtube.com/watch?v=Bmy3Tt3Ottc&amp;t=10s" target="_blank">Digital Dragons 2014 - Michal Drobot</a>
+</li>
+<li><a href="https://www.gdcvault.com/play/1019294/%7B$httpProtocol%7Dwww.gdcvault.com" target="_blank">Powering the Next Generation of Graphics: The AMD GCN Architecture</a>
+</li>
+<li><a href="https://anteru.net/blog/2018/intro-to-compute-shaders/" target="_blank">Matthäus G. Chajdas blog</a>
+</li>
+</ul>
+
+<p><br><br>
+This should give you a enough to get your way around a bit more, next you need to inspect the
+<a href="https://developer.amd.com/wp-content/resources/Vega_Shader_ISA_28July2017.pdf" target="_blank">Vega ISA</a>
+.</p>
+
+<p>I personally found that it is good to keep all of the ISA pdfs at hand not only the Vega one as some explain a bit more than others. If there is something you
+don&rsquo;t understand from one ISA pdf you can probably figure out from a previous guide.
+We are all set to start looking at some code.</p>
+
+<h1 id="the-tooling">The tooling</h1>
+
+<p>Our main goal now is how to generate the disassembly and gather any useful information. One of the things I did not
+like from AMD was that their software stack was all over the place, so many tools, many discontinued/deprecated, It might
+ a bit hard to navigate all this, so here below a list of all the tools I ended up using and for what reason.</p>
+
+<h2 id="radeon-gpu-analizer">Radeon GPU Analizer</h2>
+
+<p>The first tool in our tool-bag is the <a href="https://github.com/GPUOpen-Tools/RGA" target="_blank">Radeon GPU Analyzer</a>
+.
+The tool deals with both OpenCL and graphics, but the UI only deals with OpenCL, if you want to do graphics stuff you
+need to use the CLI. The tool is amazing for OpenCL as it shows relationship between source code lines and assembly lines,
+I really hope the UI functionality and source-code/assembly lines linking will be ported to graphics soon. (hint hint AMD!).</p>
+
+<p>To use from CLI we need to do something along these lines</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">rga temp.hlsl -f PS -s hlsl --isa out.txt --il ir.txt -I E:/WORK_IN_PROGRESS/C/SirEngineThe3rd/data/shaders/rasterization -p ps_5_0 -c gfx900 --intrinsics -a analisys.txt</code></pre></div>
+<p>The above snippet of code will generate an ISA dump (assembly), IR dump, and an extra analysis for our pixel shader.
+The analysis file will contain mostly number of registers used and registers spills.</p>
+
+<h2 id="radeon-gpu-profiler">Radeon GPU Profiler</h2>
+
+<p>The <a href="https://gpuopen.com/gaming-product/radeon-gpu-profiler-rgp/" target="_blank">profiler</a>
+
+is quite good for profiling the whole application, but only it offers few informations about your specific shader but nothing
+too useful for optimizing it. It is amazing to see the overall program execution and barriers debugging.
+Here a screen shot of a pixel shader:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/rgp.png" alt="intro" /></p>
+
+<p>If you want to know more I highly recommend the official   <a href="https://www.youtube.com/watch?v=eE9Oomlm8V0" target="_blank">guide</a>
+.</p>
+
+<h2 id="codexl">CodeXL</h2>
+
+<p>The next workhorse in our tool-set is <a href="https://github.com/GPUOpen-Tools/CodeXL" target="_blank">CodeXL</a>
+.
+The software is quite similar to RGA, it has a lot of overlap, not sure what AMD plans for it but I would foresee CodeXL
+to merge into RGA. It is a bit silly to have several similar tools around.
+CodeXL works with the UI and as such is easier to use and iterate than RGA. The disassembly offers some nice visualization where you
+also get the latency of instructions in cycles and what type of instructions it is.</p>
+
+<h2 id="pix">Pix</h2>
+
+<p>Next in the pipeline is <a href="https://blogs.msdn.microsoft.com/pix/2019/02/01/pix-1901-28/" target="_blank">Pix</a>
+.
+Pix is an amazing graphics debugger, and I use it on a daily basis. This is  my go to for DirectX 12 code.
+Among the usual goodies for debugging it can show us the disassembly of our shader (thanks to a cooperating AMD driver):</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/pixDis.png" alt="intro" /></p>
+
+<p>It also shows  a <strong>LOT</strong> of counters, as far as I know this is the only tool that does that (possibly along RenderDoc).
+Those counters can be essential to understand the bottlenecks in your shader, if you are memory bound, ALU bound etc.</p>
+
+<p>The downside is that it is fairly hard to deal with those counters as they are shown in columns where you end up scrolling a lot.
+Personally I think that for now NSight Graphics nailed it quite well with the SOLs (speed of light) way of optimizing, I hope
+AMD will go down a similar path, they already have the data they just need to present it better in my opinion.</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/pixCounters.png" alt="intro" /></p>
+
+<p>Finally you can also see the same kind of occupancy graph you see in RGP and AMD is the only IVH I managed to get such graph in
+Pix (just ignore the horrible stalls :D):</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/pixOccupancy.png" alt="intro" /></p>
+
+<p>Edit: Latest version just added high resolution counter for all three major IHVs making even better!</p>
+
+<h2 id="shader-playground">Shader playground</h2>
+
+<p>Last but not least  <a href="http://shader-playground.timjones.io/" target="_blank">Shader playground</a>
+!
+This is the Godbolt compiler explorer equivalent for shader, it is amazing! It is as simple as it gets,
+you put your shader and assembly is generated based
+on the compiler your picked. Just too good.</p>
+
+<h1 id="the-code">The code</h1>
+
+<p>After this tooling detour we are finally ready to start looking at some disassembly, I will be using CodeXL mostly.
+As a first example I decided to have a look at my super simple procedural background/sky. The reason why I decided to use it
+is because it is an extremely simple and it will not be too overwhelming therefore easier to understand what the disassembly is doing.</p>
+
+<p>Here&rsquo;s a picture of the actual background, it is heavily inspired by the default Unity background,
+mostly because I am used to looking at it:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/bg.png" alt="intro" /></p>
+
+<p>Let us have a look at the actual shader</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#cd2828;font-weight:bold">#include</span> <span style="color:#cd2828;font-weight:bold">&#34;../common/vertexDefinitions.hlsl&#34;</span><span style="color:#cd2828;font-weight:bold">
+</span><span style="color:#cd2828;font-weight:bold">#include</span> <span style="color:#cd2828;font-weight:bold">&#34;../common/structures.hlsl&#34;</span><span style="color:#cd2828;font-weight:bold">
+</span><span style="color:#cd2828;font-weight:bold"></span>
+ConstantBuffer&lt;CameraBuffer&gt; g_cameraBuffer : <span style="color:#6ab825;font-weight:bold">register</span>(b0);
+
+float4 <span style="color:#447fcf">PS</span>(FullScreenVertexOut pin) : SV_Target
+{
+    float4 worldDir = normalize(mul(float4(pin.clipPos, <span style="color:#3677a9">0.0f</span>, <span style="color:#3677a9">1.0f</span>), g_cameraBuffer.VPinverse));
+
+	<span style="color:#999;font-style:italic">//degamma color
+</span><span style="color:#999;font-style:italic"></span>    float3 ground = float3(<span style="color:#3677a9">0.142f</span>, <span style="color:#3677a9">0.119</span>, <span style="color:#3677a9">0.103</span>);
+    float3 skyTop = float3(<span style="color:#3677a9">0.103f</span>, <span style="color:#3677a9">0.173f</span>, <span style="color:#3677a9">0.325f</span>);
+    float3 skybottom = float3(<span style="color:#3677a9">0.804f</span>, <span style="color:#3677a9">1.0f</span>, <span style="color:#3677a9">1.0f</span>);
+
+    <span style="color:#6ab825;font-weight:bold">float</span> bottomGradientDiffusion = <span style="color:#3677a9">15.0f</span>;
+    <span style="color:#6ab825;font-weight:bold">float</span> topGradientDiffiusion= <span style="color:#3677a9">2.0f</span>;
+    <span style="color:#6ab825;font-weight:bold">float</span> verticalGradient = worldDir.y;
+    <span style="color:#6ab825;font-weight:bold">float</span> topLerpFactor = saturate(verticalGradient*topGradientDiffiusion);
+    <span style="color:#6ab825;font-weight:bold">float</span> bottomLerpFactor = saturate(-verticalGradient*bottomGradientDiffusion);
+
+    <span style="color:#999;font-style:italic">//sky
+</span><span style="color:#999;font-style:italic"></span>    <span style="color:#6ab825;font-weight:bold">if</span>(worldDir.y &gt; <span style="color:#3677a9">0</span>)
+    {
+        float4 color = float4(lerp(skybottom, skyTop, topLerpFactor), <span style="color:#3677a9">1.0f</span>);
+        <span style="color:#6ab825;font-weight:bold">return</span> color;
+    }
+    <span style="color:#999;font-style:italic">//ground
+</span><span style="color:#999;font-style:italic"></span>    <span style="color:#6ab825;font-weight:bold">else</span>
+    {
+        float4 color = float4(lerp(skybottom, ground, bottomLerpFactor), <span style="color:#3677a9">1.0f</span>);
+        <span style="color:#6ab825;font-weight:bold">return</span> color;
+    }
+}
+</code></pre></div>
+<p>This was the  simplest version of the shader, the first one I used to get it to work. As you might have noticed I am using
+shader model 6.0, unluckily AMD tooling do not support that shader model, and for disassembling I will need to remove
+features like ConstantBuffers&lt;&gt;.</p>
+
+<p>Before making any assumptions about how good or bad this code is (I know you have been looking at that branch!), let us
+see what CodeXL has to say about it.</p>
+
+<h1 id="disassembly">Disassembly</h1>
+
+<h2 id="a-first-implementation">A first implementation</h2>
+
+<p>Here&rsquo;s the first result from CodeXL:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/01_start.png" alt="intro" /></p>
+
+<p>The above is not the full code, there are few instructions at the bottom that are missing, you can check the
+full original listing   <a href="../images/14_amd_gcn_first_dive/01_start.csv" target="_blank">here</a>
+.</p>
+
+<p>Before looking at the disassembly let us have a quick look at the statistics:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/01_stats.png" alt="intro" /></p>
+
+<p>As expected, register pressure wise we are in good shape, but the shader is
+extremely simple, and we are using a lot of registers not the less, that should remind us that register
+pressure is a big deal, although it is something I never worried too much before, mostly because I have no
+way to know how many register I was using.</p>
+
+<p>Lets try to concentrate on the assembly now. Right at the beginning we can see some interesting
+instructions I was not expecting: <strong><em>V_INTERP_P[1,2]_F32</em></strong>.</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/01_interp.png" alt="intro" /></p>
+
+<p>From the ISA pdf, we know that those instructions are used to interpolate data that came from the
+vertex shader, in this case we are interpolating the clip space coordinate before using them.
+The source data lives in the LDS for faster read.</p>
+
+<p>Although I never spent too much time  thinking how the interpolation was done, I was naive enough
+to believe that happened at the rasterizer stage, and in the pixel shader you would get the data pre-interpolated.
+It is clearly not the case, reading the rasterizer part from
+<a href="https://fgiesen.wordpress.com/2011/07/06/a-trip-through-the-graphics-pipeline-2011-part-6/" target="_blank">A trip through the graphics pipeline</a>
+
+was also eye opening.</p>
+
+<p>Moving down we find the matrix multiplication with a lot of ADD, MULL and an interesting MAC.
+From looking at the ISA guide, the MAC instruction implements the following operation:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/mac.png" alt="intro" /></p>
+
+<p>Which is slightly different from the MAD one:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/mad.png" alt="intro" /></p>
+
+<p>The difference seems to be only in the fact the destination register is reused for the add part compared
+with the mad instruction which requires 3 source operand plus the destination. I&rsquo;m not sure why this is the
+case. It possibly helps with reducing register usage, if anyone knows more I would love to know!</p>
+
+<p>As we keep moving down the code, we see a lovely 16 cycle reciprocal square root, that is used for
+the normalization of the vector. More about it later.</p>
+
+<p>Next, something really interesting is coming up:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/01_clamp.png" alt="intro" /></p>
+
+<p>It looks like a MUL instruction but with an extra clamp? What is it and where does it come from?
+This particular piece of information was covered in the Digital Dragons presentation, and it refers to
+input and output modifiers.</p>
+
+<p>If I&rsquo;m not mistaken the short story is by not having to deal with IEEE floating point correctness,
+the GPU is able to sneak int some extra operation for free either on input or output of
+your instructions.  The ISA guide says this when referring to the output of instructions:</p>
+
+<pre><code>When the VOP3 form is used, instructions with a floating-point result can apply an output modifier (OMOD field) 
+that multiplies the result by: 0.5, 1.0, 2.0 or 4.0. Optionally, the result can be clamped (CLAMP field) to the range [0.0, +1.0].
+</code></pre>
+
+<p>That is quite interesting! But where does it come from? In the code we are clamping
+our interpolation value with a saturate():</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">    <span style="color:#6ab825;font-weight:bold">float</span> topLerpFactor = saturate(verticalGradient*topGradientDiffiusion);
+    <span style="color:#6ab825;font-weight:bold">float</span> bottomLerpFactor = saturate(-verticalGradient*bottomGradientDiffusion);
+</code></pre></div>
+<p>Thanks to the output modifiers, we are getting the saturate for free in a single instruction!
+That&rsquo;s not all because if you look closely you will also notice that one of the argument of the instructions
+does not come from a standard register but looks like a literal constant, interestingly enough the second
+saturate/clamp instruction does not use the same form, we don&rsquo;t see the 15.0 value directly in the
+instruction:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/01_clamp2.png" alt="intro" /></p>
+
+<p>The reason for this comes from the fact that GCN has some special registers that are hard-coded to some common values
+like 0.0f, 1.0f, 2.0f , 0.5 , 4, 8 etc. If the compiler sees that the value can actually use those special
+register directly, in the disassembly they show up as literal constant. This not only allows us to save
+a scalar register, it also allows us to save a mov instruction to put such value in the register.</p>
+
+<p>Finally at the end of the program we have few extra instructions worth nothing (they were not visible
+in the first screenshot):</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/01_export.png" alt="intro" /></p>
+
+<p>Those are packing instructions, that convert F32 values to F16 and send it to be exported
+for being written to the RenderTarget, I assume EXP sends the value to ROPs.</p>
+
+<p>Phewww! That was quite a bit of stuff from a simple assembly dump! Fortunately, it is not over yet, there
+are still few things I wish to try just for fun.</p>
+
+<h2 id="a-first-optimization-pass">A first optimization pass</h2>
+
+<p>I did not really need to optimize this shader, my simple application is heavily CPU bound. Since the
+graphics load is so short, the card does not even bother to raise the cores frequency. The reason why I
+am doing it is just to see the result in the assambly, I won&rsquo;t even bother profiling it.</p>
+
+<p>The first thing that I thought of doing was to simplify the matrix multiplication to convert from
+clip space to world space. After all I am using only the Y component from the whole vector and this feels
+a bit wasteful! Unluckily the vector normalization needs the full result from the matrix multiplication.
+Can I get away without normalizing? In order to see that I decided to remove the normalization and render
+the error as color on screen:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/error.png" alt="intro" /></p>
+
+<p>The above error is scaled by a factor of 5.0f and is the worst case scenario when looking straight up and or down.
+Since the error shows up mostly when looking up and down, where the gradient would be the full sky color or ground
+we most likely  won&rsquo;t see any difference. Let us try drop the normalization and only use the y component:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">    <span style="color:#6ab825;font-weight:bold">float</span> worldDir = mul(float4(pin.clipPos, <span style="color:#3677a9">0.0f</span>, <span style="color:#3677a9">1.0f</span>), g_cameraBuffer.VPinverse).y;
+</code></pre></div>
+<p>How did the code change?</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/03_y_assembly.png" alt="intro" /></p>
+
+<p>There is quite decrease in instructions with no visual difference. We also reduced quite a bit the number
+of registers used (not that was really necessary).</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/03_y_stats.png" alt="intro" /></p>
+
+<h2 id="rapid-packed-math">Rapid Packed Math</h2>
+
+<p>The last thing I wanted to try, was to use Rapid Packed Math(RPM). RPM was a big feature for Vega, it boils down to FP16 operation
+which offers twice the throughput compared to the big brother FP32. This seems to be a great option to have if you are ALU bound
+and want to speed up your code, of course not everything can be computed at FP16.</p>
+
+<p>I decided to give it a go, I changed all my float in the code to half and &hellip; nothing happened.
+The output code was still exactly the same.
+By looking at the MSDN doc, it seems like half only exists for compatibility reasons. At compile time half is used as a float.
+At that point I was not sure how to use and/or enable RPM, I did not find anything in the AMD intrinsics extensions either.</p>
+
+<p>I asked <a href="https://twitter.com/tigerfunk" target="_blank">Rohan Mehalwal</a>
+ for help, he is super nice, you should totally give him a
+follow! He pointed me in the right direction, where the right data type to use is &ldquo;min16float&rdquo;.
+More info can be found <a href="https://docs.microsoft.com/en-us/windows/desktop/direct3dhlsl/using-hlsl-minimum-precision" target="_blank">here</a>
+,
+the TLDR is, min16float will allow the compiler to use the reduced precision where it can.
+Having said that, there is no hard guarantee that you are going to get FP16 instructions.</p>
+
+<p>That is good enough! Let us substitute all the floats to min16float and see what happens
+(you do have all the vector types available like min16float4 etc.).
+As a note, you cannot have min16float in variables coming in from constant buffers or vertex output, etc,
+only in the body of your shader. Here the output result:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/04_pk.png" alt="intro" /></p>
+
+<p>The output is quite interesting. Right away we can see that we start to get FP16 operations:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/04_pk_mul.png" alt="intro" /></p>
+
+<p>There seems to be also some special flags for preserving part of the register that might not be used,
+to note that those are not RPM instructions, they are only FP16. This might be due to the fact some
+of the source arguments are from scalar registers? I am not exactly sure, if anyone knows more I would
+like to know!</p>
+
+<p>Moving forward a little bit we start to see the first RPM instructions:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/04_pk_mulpk.png" alt="intro" /></p>
+
+<p>Finally something else caught my eyes. At export times there seems to be quite a bit going on, let us have
+a look:</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/04_pk_cvt.png" alt="intro" /></p>
+
+<p>From the looks of it, our final result gets up-casted to a F32 and then compacted and down-casted again
+for export. Interestingly enough my render target is a R16G16B16A16_FLOAT render buffer.</p>
+
+<p>Thanks to the help from Rohan (thanks again), we found the issue was from my return type
+still being a float4, once I changed that to a min16float4 and the export went away.</p>
+
+<p><img src="../images/14_amd_gcn_first_dive/noExport.png" alt="intro" /></p>
+
+<p>At the end of the day I don&rsquo;t know yet if this would actually give a performance benefit or not,
+on the surface we can see packed instructions, one less register used and less instructions
+for exports. This was just some fooling around, I plan to test RPM with a meatier shader.</p>
+
+<p>That is it for now folks!</p>
+ </div>
+
+    
+<footer class="post-footer">
+
+  <div class="post-footer-data">
+    
+<div class="tags">
+    
+      <div class="tag">
+        <a href="/tags/shader">#shader</a>
+      </div>
+    
+      <div class="tag">
+        <a href="/tags/disassembly">#disassembly</a>
+      </div>
+    
+</div>
+
+    <div class="date"> Mar 10, 2019 </div>
+  </div>
+
+</footer>
+
+
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "aprogrammerscave" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</article>
+
+  <footer>
+
+  <div class="social-links-footer">
+
+  
+  <a href="mailto:myemail"><div class="social-link">Email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">GitHub</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">Twitter</div></a>
+  
+
+  
+
+  <div class="social-link">
+  <a href="/index.xml" target="_blank">RSS</a>
+  </div>
+
+</div>
+
+
+  
+<div class="footer-menu">
+    
+    <a class="footer-menu" href="/comments-policy/">Comments Policy</a>
+    
+</div>
+
+
+  <div class="copyright"> Copyright (c) 2018 - present, all rights reserved. </div>
+
+  <div class="poweredby">
+    Powered by <a href="https://gohugo.io/">Hugo</a>.
+  </div>
+
+  </footer>
+
+</div> 
+
+</body>
+</html>
+

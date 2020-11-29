@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>A-programmer&#39;s-cave</title>
+    <link>/</link>
+    <description>Recent content on A-programmer&#39;s-cave</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <copyright>Copyright (c) 2018 - present, all rights reserved.</copyright>
+    <lastBuildDate>Fri, 13 Nov 2020 16:34:44 +0000</lastBuildDate>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Engine Resources Management: a handle approach</title>
+      <link>/post/resourcesystem/</link>
+      <pubDate>Fri, 13 Nov 2020 16:34:44 +0000</pubDate>
+      
+      <guid>/post/resourcesystem/</guid>
+      <description>A different, hopefully better, approach to game engine resource management 
+Intro Over the years I started shifting my game engine resource management to a different paradigm rather than the usual OOP. Such a paradigm is composed of a manager plus resource handles. I have used this system in many personal projects to great success. I hope it can be useful to other people and hope to hear different ways people handle their resources too!</description>
+    </item>
+    
+    <item>
+      <title>Grass Shader</title>
+      <link>/post/grass/</link>
+      <pubDate>Fri, 25 Sep 2020 17:17:44 +0100</pubDate>
+      
+      <guid>/post/grass/</guid>
+      <description>My take on realtime grass 
+Intro The latest effort in my engine has been a grass system. After porting quite a bit of the DX12 functionality to Vulkan I got to the point where I wanted to work on something new rather than just porting features to Vulkan.
+At a glance what I did in my grass shader was:
+ Using blue noise distribution for grass blades positions. Vertex + fragment shader, no geometry/tessellation shader involved.</description>
+    </item>
+    
+    <item>
+      <title>Rust Disassembly: part 1</title>
+      <link>/post/disassemlbyrust1/</link>
+      <pubDate>Sat, 23 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/disassemlbyrust1/</guid>
+      <description>What do some Rust features compile to? Intro I have been starting to have a look at Rust lately, mostly because WASM is growing on me and Rust has the best tool in class for it, or so I am told. I am eager to find out by myself.
+Rust comes with several new idioms and structures in the language I am not used to, and being a performance enthusiast, I always get interested in what such constructs translate to.</description>
+    </item>
+    
+    <item>
+      <title>SPIR-V vec3 buffers</title>
+      <link>/post/spirvvec3/</link>
+      <pubDate>Sun, 26 Jan 2020 08:53:02 +0000</pubDate>
+      
+      <guid>/post/spirvvec3/</guid>
+      <description>You just add a vec3 storage buffer in your GLSL shader&amp;hellip;. but can&amp;rsquo;t index it properly, let us find out why 
+vec3 buffers indexing fights back again I am neck deep in the refactor of my engine, getting the Vulkan back end in a good state. During my work to start rendering meshes in a uniform way for both DX12 and VK, I moved from vertex push (that is, using a vertex declaration and have the vertex attributes appear in the vertex shader) to vertex pull (i.</description>
+    </item>
+    
+    <item>
+      <title>HLSL Viewport Clamping trick</title>
+      <link>/post/viewportclamp/</link>
+      <pubDate>Fri, 17 Jan 2020 14:49:45 +0000</pubDate>
+      
+      <guid>/post/viewportclamp/</guid>
+      <description>Time to render that sweet skybox but how to avoid overdraw? The skybox problem I always found a skybox an incredible tool to increase the quality of your scene, as soon as you add a skybox everything looks better, even lighting although probably that is just my brain playing tricks.
+When I got to the point of rendering a skybox in my DX12 game engine I went the quick and hacky way, just render a big enough sphere and be done with it.</description>
+    </item>
+    
+    <item>
+      <title>AMD GCN ISA: a first dive</title>
+      <link>/post/vegaisa/</link>
+      <pubDate>Sun, 10 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/post/vegaisa/</guid>
+      <description>You want to learn more about GCN but where to start? Where to start I always liked optimizing and disassembling code. When trying to do that on GPU, the result is mixed. It is often hard to do because the information is simply not available (on PC) and you can&amp;rsquo;t really see the machine code easily. That is more or less true depending on the API you are using, you can for example see CUDA disassembly but you don&amp;rsquo;t have the ISA to understand the instructions and/or arguments/registers.</description>
+    </item>
+    
+    <item>
+      <title>Game engine resource compiler architecture.</title>
+      <link>/post/resource_compiler/</link>
+      <pubDate>Sat, 12 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/post/resource_compiler/</guid>
+      <description>Planning the architecture for my first game engine resource compiler 
+The ugly model loader If you are not interested in how I ended up with a crappy model loader, jump to the resource compiler section.
+Since I started working with OpenGL, almost five years ago, I wrote a super simple and ugly model obj loader. The main issue was that tinyobj loader would give me back multiple index buffers, one per geometry attribute.</description>
+    </item>
+    
+    <item>
+      <title>Hair expansion in Vertex Shader</title>
+      <link>/post/hairexpansion/</link>
+      <pubDate>Mon, 05 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/hairexpansion/</guid>
+      <description>How would you go and expand your hair segment into polygons you can shade? Geometry Shader? Vertex Shader? Introduction The other day I was talking with a friend who was trying to make grass shader, he was going about it by using a geometry shader. Although a geometry shader is a really appealing solution, it might not be the fastest one.
+Why not geometry shader? Warning, what I am about to say is mostly what I gathered from the industry, my experience with geometry shader is near to not existent, the only geometry shader I ever implemented was the Nvidia solid wireframe shader .</description>
+    </item>
+    
+    <item>
+      <title>De-gamma your texture kid!</title>
+      <link>/post/gammatextures/</link>
+      <pubDate>Thu, 01 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/gammatextures/</guid>
+      <description>You just applied gamma correction to your real-time application and everything looks too bright? De-gamma yout textures! To wet your appetite, here it is a wrongly doubly gamma corrected picture.
+Introduction I have been working on my dx11 toy engine for a while now, and I got to the point where I wanted to try to implement PBR. By following the learn-opengl tutorial, they mentioned that I was going to need to handle HDR, I went and upgraded my deferred renderer to support it, and added a post processing pass to do tone mapping, and since I never did it, gamma correction.</description>
+    </item>
+    
+    <item>
+      <title>Never trust the compiler pt1</title>
+      <link>/post/never_trust_your_compiler_1/</link>
+      <pubDate>Wed, 24 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/never_trust_your_compiler_1/</guid>
+      <description>You thought those ternary operator were going to be converted to conditional move? Sorry... Introduction It is a normal day, having some fun optimizing a custom CPU implementation of Tero Kerras BVH , with the Superluminal profiler , (super cool by the way, check it out) , when the profiler itself tells you the in the ray traversal function, one piece of code is particularly expensive, I started to drill down to find some interesting surprises.</description>
+    </item>
+    
+    <item>
+      <title>Parallel transport on curve</title>
+      <link>/post/2018-31-07-parallel-transport/</link>
+      <pubDate>Tue, 31 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2018-31-07-parallel-transport/</guid>
+      <description>TL;DR: How to generate a stable orientation along a curve, math and Unity implementation. Here the repository with all the code and Unity project.
+Introduction Parallel transport is a technique that allows computing a moving frame (a 4x4 matrix defining a coordinate system) down the curve. Here is an example: The computation starts on the top right of the image, where the gizmo is, then move sequentially down the curve.</description>
+    </item>
+    
+    <item>
+      <title>Unity custom hair simulation PT1</title>
+      <link>/post/2018-31-07-hair-dyn/</link>
+      <pubDate>Tue, 31 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2018-31-07-hair-dyn/</guid>
+      <description>Introduction In today&amp;rsquo;s blog post I would like to talk about hair simulation, it has been something that always piqued my interest. I attempted to do a proper simulation in the past based on the Position based dynamics , more specifically the one focusing on inextensible hair strand .
+The issue with both papers was that they did not worry about keeping the initial hair shape, basically the groom an artist would have spent days crafting.</description>
+    </item>
+    
+    <item>
+      <title>Comments Policy</title>
+      <link>/comments-policy/</link>
+      <pubDate>Mon, 02 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/comments-policy/</guid>
+      <description>Comments Policy Keep it civil aka don’t be a jerk We’re going to get into the thick of a lot of heated discussions and that’s okay. These discussions often entail topics that we all personally care a lot about and will passionately defend. But in order for discussions to thrive here, we need to remember to criticize ideas, not people.
+So, remember to avoid:
+ name-calling ad hominem attacks Responding to a post’s tone instead of its actual content.</description>
+    </item>
+    
+    <item>
+      <title>HLSL: Will it MAD/FMA ?</title>
+      <link>/post/2018-03-07-will-it-mad/</link>
+      <pubDate>Sun, 01 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2018-03-07-will-it-mad/</guid>
+      <description>SPOILER: What is a MAD/FMA? (click to show text)
+TL;DR: FMA (Fused multiply add) and MAD/MADD (multiply-add) are a specific instuction in a processor which allows to performa a multiplication followed by an add in a single instruction. Having that instruction baked in hardware allows to achieve two results, higher performance due to performaing the operation in a single instruction and less instruction/fetch and decoding down the cpu pipeline. Proper explanation: FMA on wikipedia</description>
+    </item>
+    
+  </channel>
+</rss>

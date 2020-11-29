@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Math on A-programmer&#39;s-cave</title>
+    <link>/tags/math/</link>
+    <description>Recent content in Math on A-programmer&#39;s-cave</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <copyright>Copyright (c) 2018 - present, all rights reserved.</copyright>
+    <lastBuildDate>Tue, 31 Jul 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/math/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Parallel transport on curve</title>
+      <link>/post/2018-31-07-parallel-transport/</link>
+      <pubDate>Tue, 31 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2018-31-07-parallel-transport/</guid>
+      <description>TL;DR: How to generate a stable orientation along a curve, math and Unity implementation. Here the repository with all the code and Unity project.
+Introduction Parallel transport is a technique that allows computing a moving frame (a 4x4 matrix defining a coordinate system) down the curve. Here is an example: The computation starts on the top right of the image, where the gizmo is, then move sequentially down the curve.</description>
+    </item>
+    
+  </channel>
+</rss>

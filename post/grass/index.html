@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+<meta charset="utf-8" />
+<meta name="author" content="Marco Giordano" />
+<meta name="description" content="A-programmer&#39;s-cave" />
+<meta name="keywords" content="" />
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+<meta name="generator" content="Hugo 0.47.1" />
+
+<link rel="canonical" href="/post/grass/">
+<base href="/" />
+<meta property="og:title" content="Grass Shader" />
+<meta property="og:description" content="My take on realtime grass 
+Intro The latest effort in my engine has been a grass system. After porting quite a bit of the DX12 functionality to Vulkan I got to the point where I wanted to work on something new rather than just porting features to Vulkan.
+At a glance what I did in my grass shader was:
+ Using blue noise distribution for grass blades positions. Vertex &#43; fragment shader, no geometry/tessellation shader involved." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/post/grass/" /><meta property="article:published_time" content="2020-09-25T17:17:44&#43;01:00"/>
+<meta property="article:modified_time" content="2020-09-25T17:17:44&#43;01:00"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Grass Shader"/>
+<meta name="twitter:description" content="My take on realtime grass 
+Intro The latest effort in my engine has been a grass system. After porting quite a bit of the DX12 functionality to Vulkan I got to the point where I wanted to work on something new rather than just porting features to Vulkan.
+At a glance what I did in my grass shader was:
+ Using blue noise distribution for grass blades positions. Vertex &#43; fragment shader, no geometry/tessellation shader involved."/>
+
+
+
+<meta itemprop="name" content="Grass Shader">
+<meta itemprop="description" content="My take on realtime grass 
+Intro The latest effort in my engine has been a grass system. After porting quite a bit of the DX12 functionality to Vulkan I got to the point where I wanted to work on something new rather than just porting features to Vulkan.
+At a glance what I did in my grass shader was:
+ Using blue noise distribution for grass blades positions. Vertex &#43; fragment shader, no geometry/tessellation shader involved.">
+
+
+<meta itemprop="datePublished" content="2020-09-25T17:17:44&#43;01:00" />
+<meta itemprop="dateModified" content="2020-09-25T17:17:44&#43;01:00" />
+<meta itemprop="wordCount" content="2014">
+
+
+
+<meta itemprop="keywords" content="shader," />
+
+
+<script async src="/dist/main.js"></script>
+<link rel="stylesheet" href="dist/main.css" />
+<style type="text/css">
+body {
+  background-color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+a {
+  color: {
+     {
+      .Param 'colors.link';
+    }
+  }
+}
+
+pre {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+  border-radius: 5px;
+}
+
+code {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+}
+
+blockquote {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border-left: 3px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+table {
+  margin: 1em auto;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+th {
+  background: {
+     {
+      .Param 'colors.text';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+}
+
+.siteTitle a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+.post .content h1 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h2 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h3 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h4 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h5 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h6 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.social-link:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.nav-item-title:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.tag a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.copyright {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby a {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.post-preview .title a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.content-item a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post-list .title {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.rmore {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.terms .term a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+</style>
+
+
+
+<title>
+
+
+     Grass Shader 
+
+</title>
+
+</head>
+
+
+<body>
+<div class="main">
+    <header>
+
+        <div class="header-bar">
+
+            <nav>
+                <div class="siteTitle">
+                    <a href="/">A-programmer&#39;s-cave</a>
+                </div> 
+                
+                
+                <a class="nav-item active" href="/post/"><div class="nav-item-title">Posts</div></a>
+                
+                <a class="nav-item" href="/tags/"><div class="nav-item-title">Tags</div></a>
+                
+
+            </nav>
+        </div>
+
+        
+<div class="social-links-header">
+
+  
+  <a href="mailto:myemail"><div class="social-link">email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">gh</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">twtr</div></a>
+  
+
+  
+
+  <a href="pages/bind.html" target="_blank"><div class="social-link">TheBinder</div></a>
+
+</div>
+
+        <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+		
+    </header>
+
+
+<article class="post">
+    <h1 class="title"> Grass Shader </h1>
+		
+            
+		        Table of contents:
+            
+		    <nav id="TableOfContents">
+<ul>
+<li><a href="#intro">Intro</a></li>
+<li><a href="#a-lodding-idea">A LODding idea</a></li>
+<li><a href="#the-first-implementation">The first implementation</a></li>
+<li><a href="#gpu-driven-rendering">GPU driven rendering</a></li>
+<li><a href="#actual-lodding-implementation">Actual LODding implementation</a></li>
+<li><a href="#what-about-art-direction">What about art direction</a>
+<ul>
+<li><a href="#binary-search">Binary search</a></li>
+<li><a href="#compute-blade-expansion">Compute blade expansion</a></li>
+<li><a href="#mesh-shader-enters-the-chat">Mesh shader enters the chat</a></li>
+</ul></li>
+<li><a href="#performance">Performance</a></li>
+<li><a href="#the-elephant-in-the-room">The elephant in the room</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
+</nav>
+		
+    <div class="content"> 
+
+<p style="background:gray;padding: 1em;">
+My take on realtime grass
+</p>
+
+<p><img src="../images/23_grass/thumb.png" alt="intro" /></p>
+
+<p><br><br></p>
+
+<h1 id="intro">Intro</h1>
+
+<p>The latest effort in my engine has been a grass system. After porting quite a bit of the DX12 functionality to Vulkan I got to the point where I wanted to work on something new rather than just porting features to Vulkan.</p>
+
+<p>At a glance what I did in my grass shader was:</p>
+
+<ul>
+<li>Using blue noise distribution for grass blades positions.</li>
+<li>Vertex + fragment shader, no geometry/tessellation shader involved. No billboards real geo per blade.</li>
+<li>Tile-based.</li>
+<li>GPU driven, both culling and LODding calculation happening on GPU, indirect rendering.</li>
+</ul>
+
+<p>I will now go on into discussing each of these different parts in more details.</p>
+
+<h1 id="a-lodding-idea">A LODding idea</h1>
+
+<p>It all started when, a while back, I started thinking about how to add a grass shader to my engine. I wanted to do something interesting potentially leveraging mesh shaders as well (at some point).
+I had a fairly clear idea about how to use grass tiles to leverage GPU culling easily, but how would I go about doing LODding (Level of details variation)? Usually, the grass is very overdraw bound, and you want to render only what is visible to avoid wasted work (don&rsquo;t we all?), hence culling + LODding.</p>
+
+<p>What I wanted to achieve was a simple way, at runtime, to grab a subset of points per tile and still have a nice distribution, no clumping or gaps. I was sitting on it for a bit then it hit me: if I want to solve a distribution problem I needed HIM!</p>
+
+<p><img src="../images/23_grass/alan.png" alt="alan" /></p>
+
+<p>The noise/distribution master is known as
+<a href="https://twitter.com/Atrix256" target="_blank">Alan Wolfe</a>
+, he has been helping me for years, among many others, in my game engine/graphics dev-adventure! After explaining my idea, he pointed out that points from a blue noise distribution respect exactly the kind of distribution I was after; not only that, but he linked me to one of his blog post with c++ code I could directly use.</p>
+
+<p>I created a command-line application able to generate tiles of such points. I generated 100 tiles of 10k points each, each point was an in-tile normalized coordinate in the range [0-1]. The process took roughly 3 hours on a 6 core laptop (running on 12 threads), the code scales quadratically but being efficient was not the goal here. The points are generated once and baked down to a binary file. The data is ready, time to do some rendering.</p>
+
+<h1 id="the-first-implementation">The first implementation</h1>
+
+<p>After getting a clearer idea of how best approach things, it was time to get my hands dirty. I worked in the past in expanding geometry in vertex shaders, in particular for
+<a href="https://giordi91.github.io/post/hairexpansion/" target="_blank">hair</a>
+; that plus the fact that (usually) geometry shaders are frowned upon for being slow and I do not have experience with them, I decided to implement the technique in vertex shader by expansion. For the grass look, as a base, I used the great
+<a href="https://roystan.net/articles/grass-shader.html" target="_blank">Roystan tutorial</a>
+, here the result:</p>
+
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="//www.youtube.com/embed/AQtvuftK7vg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+
+<p>Here you can see the huge difference it made to use a proper albedo texture instead of basic interpolated colour</p>
+
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="//www.youtube.com/embed/jeNwKbLVg9c" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+
+<p>The initial result was not bad at all, and performance was decent. If I recall correctly I was rendering around 14 million vertices in around 1.5ms (take it with a bucket of salt, we are going to talk more about performance later). After the first implementation, a quick NSight profile highlighted that the Viewport culling (VPC) stage was my main bottleneck.</p>
+
+<p>When I showed the initial gif on the internet,
+<a href="https://www.linkedin.com/in/freek-hoekstra/" target="_blank">Freek Hoekstra</a>
+
+over at LinkedIn, suggested to offset sampling of the wind texture based on the UV coordinates of the blade; the higher the vertex in the blade from the ground the more offset it would get, this simple trick improved
+the effect by giving a nice whiplash effect, have a look for yourself.
+<br><br></p>
+
+<p><img loading=lazy src="../images/23_grass/grass3.gif" ></p>
+
+<p>Immediately the grass feels more of a blade than a static piece of geo rotating, I also improved a bit the wind rotations to give it a more natural look.</p>
+
+<p>In case you are interested, in this video I cover a bit more the tiling working. Right now the tiling is a simple proof of concept, I am just using a simple grid:
+<br><br>
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="//www.youtube.com/embed/_jD0piSDYL8" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+<br><br></p>
+
+<h1 id="gpu-driven-rendering">GPU driven rendering</h1>
+
+<p>The next step was to get the GPU culling going, I started by implementing the concept of a main camera and an active camera in the engine; in this way I was able to jump between them easily and see if the culling was actually working. The setup is fairly basic, but for now it will do. The culling shader will always use the main camera matrices to perform the culling, meanwhile, for the render I will use the active camera, this is allowing me to spin around with the debug camera and check that the grass is removed from the render.</p>
+
+<p>The culling happens in a compute shader; the first step is to compute a vote, informing me whether or not the tile survives the culling. Next, the surviving instances get compacted into a single array. I talk at length about the process in this
+<a href="https://www.mpc-rnd.com/unity-gpu-culling-experiments/" target="_blank">MPC R&amp;D blog post</a>
+
+I made a while back plus
+<a href="https://twitter.com/KostasAAA" target="_blank">Kostas Anagnostou</a>
+
+has some
+<a href="https://www.youtube.com/watch?v=U20dIA3SLTs" target="_blank">amazing</a>
+
+<a href="https://interplayoflight.wordpress.com/2018/01/15/experiments-in-gpu-based-occlusion-culling-part-2-multidrawindirect-and-mesh-lodding/" target="_blank">content</a>
+
+on culling, going in lots of details. Last time I have implemented something like this was on dx11, where wave instructions are not available if not through vendor-specific extensions. Having wave instructions as a first citizen made the code simpler and more efficient. Here the culling working:
+<br><br>
+<img src="../images/23_grass/grass4.gif" alt="grass4" />
+<br><br></p>
+
+<p>Actually, the above is when culling goes wrong, in particular, it is an issue on Intel iGPUs, which is currently being looked at, being it potentially a compiler bug. Here the real culling working, in the below gif you can see me jumping from the main camera to active camera, the main camera frustum being rendered and matching the culled region of grass:</p>
+
+<p><br><br>
+<img src="../images/23_grass/grass8.gif" alt="grass8" />
+<br><br></p>
+
+<p>PRO-TIP: be mindful of your barriers for the draw indirect buffer! Indirect buffer transition exists for a reason! I was doing a simple write-read transition on the buffer, but that is not enough and was giving me glitches.</p>
+
+<h1 id="actual-lodding-implementation">Actual LODding implementation</h1>
+
+<p>After the culling, the VPC and rasterizer were still my bottlenecks, so the next logical step was implementing LODding. The LOD computation happens at the same time of the culling, not only I compute a culling vote value but also a LOD index; the LOD computation is a simple distance bucketing from the camera of the centre of the tile, nothing fancy.
+After coloring based on LOD, the result was the following:</p>
+
+<p><br><br>
+<img src="../images/23_grass/grass5.gif" alt="grass8" />
+<br><br></p>
+
+<p>Of course, distances are completely configurable and there I was simply testing, thus the short distances. Once the LOD is computed I perform four different scan operations, to compact tiles based on LOD values from 0 to 3. The result is stored in a single array separated by an offset. Finally, a small compute shader gets kicked off, grabbing the result of the scans (accumulation atomics), use it to populate four indirect buffers and finally clearing the atomics for the next frame.</p>
+
+<p>In the vertex shader, I use the LOD result to perform the indexing calculation to figure out which tile and blade I need to process, as explained before.
+I have added configuration on the number of blades per LOD to be used, and we can use it to vary it at runtime. The parameter set by the artist is simply the number of blades that needs to be used for that LOD; given the blue noise distribution, even the subset of points are well distributed. Here below an example of varying the number of blades (to note: blades are stable when increasing in the count (which might not be the case if procedurally generated on the fly):</p>
+
+<p><img src="../images/23_grass/grassLOD.gif" alt="grass8" /></p>
+
+<p>I am using the same shader for all LOD levels but I can easily create different shader per LOD reducing the geometry created. Another good tip from Freek was to only render the tips of the blade for lower LOD level which was something I did not think of!</p>
+
+<h1 id="what-about-art-direction">What about art direction</h1>
+
+<p>I am quite happy with the result, but how do you art direct it? Tiles are cool but make for a very uniform grass. Such distribution might work well in some situation, in others, you might want to reduce the density based on a texture or have it fade out when reaching a forest or a dirt road. I have few ideas about how to go about it.</p>
+
+<h2 id="binary-search">Binary search</h2>
+
+<p>I could use different tile distribution, not a grid that would allow me to kill easily entire tiles, but that is not granular enough. I would really need a variable number of points per tile.
+The challenge would be figuring out to which tile/blade the <code>gl_GlobalInvocationID.x</code> maps to. I could use the result scan array from the culling to search for the corresponding slot, which would tell me the index of the tile to sample and how many points I have in that tile. Being a sorted array, a binary search would work well, but searching an array is highly divergent and I am not sure how performant it would be.</p>
+
+<h2 id="compute-blade-expansion">Compute blade expansion</h2>
+
+<p>Another option would be to expand the blades itself in the compute shader, store in a buffer and render that buffer as a single draw call. The drawback being the higher memory footprint and bandwidth consumption. Of course, if the grass is used in more than one pass
+might very well be worth it expand it once and reuse it. If you have done any experiment on the matter I would love to hear your experience!</p>
+
+<h2 id="mesh-shader-enters-the-chat">Mesh shader enters the chat</h2>
+
+<p>The whole grass system has been planned from the ground up to be Mesh shader friendly. Culling specifically has been a big use case for it. I did not implement the mesh shader variant yet, mostly waiting for RDNA2 to do so. Mesh shading should allow for a very nice single-pass grass shader; I would be able to directly cull whole tiles, and on a per blade basis, pick a corresponding LOD and generate on-demand the geometry however I see it fit: varying geometry, varying tips only etc. There is no need for compute passes, draw indirect etc. I am actually looking forward to trying it.</p>
+
+<h1 id="performance">Performance</h1>
+
+<p>After all this work, did any of this culling and LODding help at all?</p>
+
+<p>Here below a comparison before the culling, after the culling and both culling and LODding (I hope is readable enough, if not press RMB and click on view image):</p>
+
+<p><img src="../images/23_grass/rgp.png" alt="rgp" /></p>
+
+<p>As we can see from the top left image, we had half of the shader working on vertex work (in green) producing invisible fragment due to, most likely, being out of view or being rejected by early depth. After we perform some culling we pretty much drop completely the useless vertex only work (middle image); there is some more fragment action, but still overdraw is killing it (vertex to fragment ratio is too high).</p>
+
+<p>After we add the LODding we can see that we have quite fewer vertices but more fragments working (in blue). At each stage, the overall shader got faster!</p>
+
+<p>So that is it? No more VPC and raster bound? Not really&hellip;</p>
+
+<p><strong><em>Before</em></strong></p>
+
+<p><img src="../images/23_grass/before.png" alt="before" /></p>
+
+<p><strong><em>After</em></strong>
+<img src="../images/23_grass/after.png" alt="after" /></p>
+
+<p>VPC is as mad as me as ever, but the shader is 3x faster; I am not complaining. A lot more can be done on the matter, but for now this is fast enough and I can move to other things</p>
+
+<h1 id="the-elephant-in-the-room">The elephant in the room</h1>
+
+<p>Yeah Yeah, I know&hellip; MSAA&hellip; I will get to it at some point, but let us be honest, who does not like a sea of shimmering aliasing? :P</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>This is it! This is my take on grass shader. Of course, this grass system is still a proof of concept and will require much more work for it to be a complete tool, but for now, it will do! If you have any experience on the matter, suggestion, critiques or just want to discuss the topic contact me, I am always happy to nerd about graphics. My   <a href="https://twitter.com/MGDev91" target="_blank">DMs</a>
+on Twitter are open!</p>
+ </div>
+
+    
+<footer class="post-footer">
+
+  <div class="post-footer-data">
+    
+<div class="tags">
+    
+      <div class="tag">
+        <a href="/tags/shader">#shader</a>
+      </div>
+    
+</div>
+
+    <div class="date"> Sep 25, 2020 </div>
+  </div>
+
+</footer>
+
+
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "aprogrammerscave" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</article>
+
+  <footer>
+
+  <div class="social-links-footer">
+
+  
+  <a href="mailto:myemail"><div class="social-link">Email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">GitHub</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">Twitter</div></a>
+  
+
+  
+
+  <div class="social-link">
+  <a href="/index.xml" target="_blank">RSS</a>
+  </div>
+
+</div>
+
+
+  
+<div class="footer-menu">
+    
+    <a class="footer-menu" href="/comments-policy/">Comments Policy</a>
+    
+</div>
+
+
+  <div class="copyright"> Copyright (c) 2018 - present, all rights reserved. </div>
+
+  <div class="poweredby">
+    Powered by <a href="https://gohugo.io/">Hugo</a>.
+  </div>
+
+  </footer>
+
+</div> 
+
+</body>
+</html>
+

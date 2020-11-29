@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Engine on A-programmer&#39;s-cave</title>
+    <link>/tags/engine/</link>
+    <description>Recent content in Engine on A-programmer&#39;s-cave</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <copyright>Copyright (c) 2018 - present, all rights reserved.</copyright>
+    <lastBuildDate>Fri, 13 Nov 2020 16:34:44 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/engine/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Engine Resources Management: a handle approach</title>
+      <link>/post/resourcesystem/</link>
+      <pubDate>Fri, 13 Nov 2020 16:34:44 +0000</pubDate>
+      
+      <guid>/post/resourcesystem/</guid>
+      <description>A different, hopefully better, approach to game engine resource management 
+Intro Over the years I started shifting my game engine resource management to a different paradigm rather than the usual OOP. Such a paradigm is composed of a manager plus resource handles. I have used this system in many personal projects to great success. I hope it can be useful to other people and hope to hear different ways people handle their resources too!</description>
+    </item>
+    
+    <item>
+      <title>Game engine resource compiler architecture.</title>
+      <link>/post/resource_compiler/</link>
+      <pubDate>Sat, 12 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/post/resource_compiler/</guid>
+      <description>Planning the architecture for my first game engine resource compiler 
+The ugly model loader If you are not interested in how I ended up with a crappy model loader, jump to the resource compiler section.
+Since I started working with OpenGL, almost five years ago, I wrote a super simple and ugly model obj loader. The main issue was that tinyobj loader would give me back multiple index buffers, one per geometry attribute.</description>
+    </item>
+    
+  </channel>
+</rss>

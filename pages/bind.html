@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en-us" class="gr__nerdfonts_com" dir="ltr" >
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Emscripten-Generated Code</title>
+    <link rel="stylesheet" href="css/aststyle.css"> 
+    <link rel="stylesheet" href="css/bodystyle.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+      .emscripten { 
+          padding-right: 0; 
+          margin-left: auto; 
+          margin-right: auto; 
+          display: block; 
+          background-color: #181818;
+          border-color: #99cc66;
+          font-family: monospace; 
+          color: white; 
+          width: 80%; 
+      }
+      textarea.emscripten { 
+          font-family: monospace; 
+          width: 80%; 
+      }
+    </style>
+  </head>
+  <script src="js/astbuilder.js"></script>
+  <script src="js/irbuilder.js"></script>
+  <script src="js/glue.js"></script>
+  <body>
+    <h1 class="title" >THE BINDER v0.1.0</h1>
+    <hr class="thickbar">
+    <p class="greentext"> This is a toy language written in c++ following the <a href="https://craftinginterpreters.com/" target="_blank">crafting interpreter book</a>, and ported to WASM . For now is quite limited but I will keep building on it. Feel free to hack around! Check the  
+<a href="https://github.com/giordi91/thebinder" target="_blank"><i class="fa fa-github" style="font-size:30px;" ></i> repository</a> out and my previous language 
+<a  href="https://github.com/giordi91/babycpp" target="_blank"><i class="fa fa-github" style="font-size:30px;"></i> babycpp!</a><p>
+    <hr class="thickbar">
+    <h3 class="greentext" >What can you do</h1>
+    <div class="tab">
+          <button class="tablinks" onclick="openActionTab(event, 'print')">Print</button>
+          <button class="tablinks" onclick="openActionTab(event, 'expressions')">Expressions</button>
+          <button class="tablinks" onclick="openActionTab(event, 'variables')">Variables</button>
+          <button class="tablinks" onclick="openActionTab(event, 'loops')">loops</button>
+          <button class="tablinks" onclick="openActionTab(event, 'flow')">control flow</button>
+          <button class="tablinks" onclick="openActionTab(event, 'bugs')"><i class="fa fa-bug" style="font-size:20px;"></i> BUGS! <i class="fa fa-bug" style="font-size:20px;"></i></button>
+          <button class="tablinks" onclick="openActionTab(event, 'soon')">Coming soon...</button>
+    </div>
+    <div id="print" class="tabcontent">
+        <p>You print values with a print statement.</p>
+        <p>print 10;</p>
+        <p>print "hello world";</p>
+    </div>
+    <div id="expressions" class="tabcontent">
+        <p>You can evaluate mathematical expressions like.</p>
+        <p>print (-1*3.14)+(-13);</p>
+        <p>remember you need to print to see the result in the output.</p>
+    </div>
+    <div id="variables" class="tabcontent">
+        <p>you can use variables, TheBinder is dynamically typed and uses var as keyword (not int etc).</p>
+        <p>var a = 10;<br>
+        var b = 30;<br>
+        print a*b;</p>
+    </div>
+    <div id="loops" class="tabcontent">
+        <p>You can use while and for loops. The compiler only really knows about while loops, normal for loops are just syntax sugar</p>
+        <p>var a = 0;<br>
+        while(a < 10){ <br>
+        print a; <br> 
+        a = a + 1;<br>
+        }
+        <p>For a for loop do:</p>
+        <p>for(var a = 0; a < 10;a = a+ 1){<br>
+        print a; <br> } </p>
+    </div>
+    <div id="flow" class="tabcontent">
+        <p>You can use if/else statements</p>
+        <p>var a = 10;<br>
+        if(a < 5){<br>print "less!";<br>} 
+        else{<br>print "greater!";<br>} 
+    </div>
+    <div id="bugs" class="tabcontent">
+        <p>If you find a bug please report it by clicking this button</p>
+        <button class="button" onclick="reportBug()">REPORT BUG</button>
+    </div>
+
+    <div id="soon" class="tabcontent" style="display:none">
+        <p> I am currently working on this in my spare time, soon you will be
+        able to actually execute expressions and from there i will be adding 
+        features like arrays, functions  and classes.
+    </div>
+
+
+   <hr class="thickbar">
+    <div class='container'>
+      <div class="content--lhs">
+      <div class="content--lhs--source">
+        <label for="source" class="greentext">Write your source code here and press ctrl + enter to evaluate:</label>
+        <textarea class="emscripten" id="source" rows="16" ></textarea>
+      </div>
+      <div class="content--lhs--output">
+        <label  for="output" class="greentext">code output:</label>
+      </div>
+       <textarea class="emscripten" id="output" rows="8"></textarea>
+       <p></p>
+       <button class="button" onclick="reportBug()"><i class="fa fa-bug" style="font-size:20px;"></i> REPORT BUG <i class="fa fa-bug" style="font-size:20px;"></i></button> 
+      </div>
+      <div class="content--rhs">
+      <div class="content--rhs--ast">
+        <button type="button" class="collapsible active">&#x25BC; IR ASM</button>
+        <div class="content" id="AST" style="display: block">
+            <textarea class ="emscripten" id="irasm" rows="32" ></textarea>
+        </div>
+      </div>
+      </div>
+
+    </div>
+
+
+
+    <script type='text/javascript'>
+
+    //triggering the glue code for html elements
+    initPage();
+
+    //this is the actual function that gets evaluated when enter is pressed
+    //in the input source text area
+    function processCode() {
+    
+      var element = document.getElementById('source');
+    
+      //debug string
+      // var source = "(){}}{(,.-+*";
+      var source = element.value;
+      //in order to feed the string to wasm, it neesd to be converted to essentially a char*
+      var ptr = allocate(intArrayFromString(source), 'i8', ALLOC_NORMAL);
+      //now we can load the function which I have cwrapped and added to the module
+      var output= Module.binderExecuteWASM(source);
+      //logging the ast for debug purpose
+      console.log("---- " ,output);
+      //passing the AST to our visualizaiton function
+      showIR(output); 
+      //showAST(AST); 
+      //the manually converted string needs to be freed by us, same goes for the returned
+      //value by wasm
+      _free(ptr);
+      _free(AST);
+    }
+    //========== EMSCRIPTEN STUFF =================
+
+      var Module = {
+        preRun: [],
+          postRun: [()=>{
+          
+          console.log("loaded");
+          Module.binderExecuteWASM = this.cwrap('bindExecute','string',['string']);
+          console.log(Module);
+          }], 
+         print: 
+          (text)=>{
+            console.log("print ", text);
+          var element = document.getElementById('output');
+          if (element) {
+              element.value += text + "\n";
+              element.scrollTop = element.scrollHeight; // focus on bottom
+              }
+          else
+              {console.log("no output" );}
+          },
+        printErr: function(text) {
+          if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+          console.error(text);
+        },
+      };
+
+    </script>
+    <script async type="text/javascript" src="bind.js"></script>
+  </body>
+</html>
+
+

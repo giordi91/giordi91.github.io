@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Disassembly on A-programmer&#39;s-cave</title>
+    <link>/tags/disassembly/</link>
+    <description>Recent content in Disassembly on A-programmer&#39;s-cave</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <copyright>Copyright (c) 2018 - present, all rights reserved.</copyright>
+    <lastBuildDate>Sat, 23 May 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/disassembly/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Rust Disassembly: part 1</title>
+      <link>/post/disassemlbyrust1/</link>
+      <pubDate>Sat, 23 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/disassemlbyrust1/</guid>
+      <description>What do some Rust features compile to? Intro I have been starting to have a look at Rust lately, mostly because WASM is growing on me and Rust has the best tool in class for it, or so I am told. I am eager to find out by myself.
+Rust comes with several new idioms and structures in the language I am not used to, and being a performance enthusiast, I always get interested in what such constructs translate to.</description>
+    </item>
+    
+    <item>
+      <title>AMD GCN ISA: a first dive</title>
+      <link>/post/vegaisa/</link>
+      <pubDate>Sun, 10 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/post/vegaisa/</guid>
+      <description>You want to learn more about GCN but where to start? Where to start I always liked optimizing and disassembling code. When trying to do that on GPU, the result is mixed. It is often hard to do because the information is simply not available (on PC) and you can&amp;rsquo;t really see the machine code easily. That is more or less true depending on the API you are using, you can for example see CUDA disassembly but you don&amp;rsquo;t have the ISA to understand the instructions and/or arguments/registers.</description>
+    </item>
+    
+    <item>
+      <title>Never trust the compiler pt1</title>
+      <link>/post/never_trust_your_compiler_1/</link>
+      <pubDate>Wed, 24 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/never_trust_your_compiler_1/</guid>
+      <description>You thought those ternary operator were going to be converted to conditional move? Sorry... Introduction It is a normal day, having some fun optimizing a custom CPU implementation of Tero Kerras BVH , with the Superluminal profiler , (super cool by the way, check it out) , when the profiler itself tells you the in the ray traversal function, one piece of code is particularly expensive, I started to drill down to find some interesting surprises.</description>
+    </item>
+    
+    <item>
+      <title>HLSL: Will it MAD/FMA ?</title>
+      <link>/post/2018-03-07-will-it-mad/</link>
+      <pubDate>Sun, 01 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2018-03-07-will-it-mad/</guid>
+      <description>SPOILER: What is a MAD/FMA? (click to show text)
+TL;DR: FMA (Fused multiply add) and MAD/MADD (multiply-add) are a specific instuction in a processor which allows to performa a multiplication followed by an add in a single instruction. Having that instruction baked in hardware allows to achieve two results, higher performance due to performaing the operation in a single instruction and less instruction/fetch and decoding down the cpu pipeline. Proper explanation: FMA on wikipedia</description>
+    </item>
+    
+  </channel>
+</rss>

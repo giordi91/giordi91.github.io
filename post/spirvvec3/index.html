@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+<meta charset="utf-8" />
+<meta name="author" content="Marco Giordano" />
+<meta name="description" content="A-programmer&#39;s-cave" />
+<meta name="keywords" content="" />
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+<meta name="generator" content="Hugo 0.47.1" />
+
+<link rel="canonical" href="/post/spirvvec3/">
+<base href="/" />
+<meta property="og:title" content="SPIR-V vec3 buffers" />
+<meta property="og:description" content="You just add a vec3 storage buffer in your GLSL shader&hellip;. but can&rsquo;t index it properly, let us find out why 
+vec3 buffers indexing fights back again I am neck deep in the refactor of my engine, getting the Vulkan back end in a good state. During my work to start rendering meshes in a uniform way for both DX12 and VK, I moved from vertex push (that is, using a vertex declaration and have the vertex attributes appear in the vertex shader) to vertex pull (i." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/post/spirvvec3/" /><meta property="article:published_time" content="2020-01-26T08:53:02&#43;00:00"/>
+<meta property="article:modified_time" content="2020-01-26T08:53:02&#43;00:00"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="SPIR-V vec3 buffers"/>
+<meta name="twitter:description" content="You just add a vec3 storage buffer in your GLSL shader&hellip;. but can&rsquo;t index it properly, let us find out why 
+vec3 buffers indexing fights back again I am neck deep in the refactor of my engine, getting the Vulkan back end in a good state. During my work to start rendering meshes in a uniform way for both DX12 and VK, I moved from vertex push (that is, using a vertex declaration and have the vertex attributes appear in the vertex shader) to vertex pull (i."/>
+
+
+
+<meta itemprop="name" content="SPIR-V vec3 buffers">
+<meta itemprop="description" content="You just add a vec3 storage buffer in your GLSL shader&hellip;. but can&rsquo;t index it properly, let us find out why 
+vec3 buffers indexing fights back again I am neck deep in the refactor of my engine, getting the Vulkan back end in a good state. During my work to start rendering meshes in a uniform way for both DX12 and VK, I moved from vertex push (that is, using a vertex declaration and have the vertex attributes appear in the vertex shader) to vertex pull (i.">
+
+
+<meta itemprop="datePublished" content="2020-01-26T08:53:02&#43;00:00" />
+<meta itemprop="dateModified" content="2020-01-26T08:53:02&#43;00:00" />
+<meta itemprop="wordCount" content="1387">
+
+
+
+<meta itemprop="keywords" content="shader,spirv," />
+
+
+<script async src="/dist/main.js"></script>
+<link rel="stylesheet" href="dist/main.css" />
+<style type="text/css">
+body {
+  background-color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+a {
+  color: {
+     {
+      .Param 'colors.link';
+    }
+  }
+}
+
+pre {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+  border-radius: 5px;
+}
+
+code {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+}
+
+blockquote {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border-left: 3px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+table {
+  margin: 1em auto;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+th {
+  background: {
+     {
+      .Param 'colors.text';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+}
+
+.siteTitle a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+.post .content h1 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h2 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h3 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h4 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h5 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h6 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.social-link:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.nav-item-title:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.tag a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.copyright {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby a {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.post-preview .title a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.content-item a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post-list .title {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.rmore {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.terms .term a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+</style>
+
+
+
+<title>
+
+
+     SPIR-V vec3 buffers 
+
+</title>
+
+</head>
+
+
+<body>
+<div class="main">
+    <header>
+
+        <div class="header-bar">
+
+            <nav>
+                <div class="siteTitle">
+                    <a href="/">A-programmer&#39;s-cave</a>
+                </div> 
+                
+                
+                <a class="nav-item active" href="/post/"><div class="nav-item-title">Posts</div></a>
+                
+                <a class="nav-item" href="/tags/"><div class="nav-item-title">Tags</div></a>
+                
+
+            </nav>
+        </div>
+
+        
+<div class="social-links-header">
+
+  
+  <a href="mailto:myemail"><div class="social-link">email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">gh</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">twtr</div></a>
+  
+
+  
+
+  <a href="pages/bind.html" target="_blank"><div class="social-link">TheBinder</div></a>
+
+</div>
+
+        <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+		
+    </header>
+
+
+<article class="post">
+    <h1 class="title"> SPIR-V vec3 buffers </h1>
+		
+            
+		        Table of contents:
+            
+		    <nav id="TableOfContents">
+<ul>
+<li><a href="#vec3-buffers-indexing-fights-back-again">vec3 buffers indexing fights back again</a></li>
+<li><a href="#alignment-issues">Alignment issues</a></li>
+<li><a href="#spir-v-enters-the-fight">SPIR-V enters the fight</a></li>
+<li><a href="#performance">Performance</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
+</nav>
+		
+    <div class="content"> 
+
+<p><br><br>
+<p style="background:gray;padding: 1em;">
+You just add a vec3 storage buffer in your GLSL shader&hellip;. but can&rsquo;t index it properly, let us find out why
+</p></p>
+
+<p><br><br></p>
+
+<p><img src="../images/20_spirvvec3/cover.png" alt="intro" />
+<br><br></p>
+
+<h1 id="vec3-buffers-indexing-fights-back-again">vec3 buffers indexing fights back again</h1>
+
+<p>I am neck deep in the refactor of my engine, getting the Vulkan back end in a good state. During my work to start rendering
+meshes in a uniform way for both DX12 and VK, I moved from vertex push (that is, using a vertex declaration and have the vertex attributes appear in the vertex shader) to vertex pull (i.e. manually fetching the vertex data in the vertex shader.</p>
+
+<p>I wrote a shader with this snippet of code in it:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-glsl" data-lang="glsl">layout (set=<span style="color:#3677a9">1</span>,binding=<span style="color:#3677a9">0</span>) buffer vertices
+{
+    <span style="color:#6ab825;font-weight:bold">vec3</span> p[];
+};</code></pre></div>
+<p>I am usually weary of data types packing for anything that is not 16 bytes aligned, especially in constant buffers and  arrays,
+but this is was a storage buffer, the closest thing you can get to a normal flat array allocation in GLSL.
+As you can imagine, this did not go very well, the mesh was not being read properly.</p>
+
+<p>I quickly went in the shader, fixed to vec4, padded my mesh and voila! Problem fixed, let us move on! See you in the next blog post!</p>
+
+<p>Not so fast, that would be all good but I wanted to know why, the naive me would expect to work, possibly bit less efficient but still, working.</p>
+
+<h1 id="alignment-issues">Alignment issues</h1>
+
+<p>I decided to ask Matthäus (@NIV_Anteru) to know more of the underlying details, and he was nice enough to spend the time to help me.
+His initial thought was that it should have worked with the right layout. Naive me jumps back in and shouts that I did indeed have have a layout!</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-glsl" data-lang="glsl">layout (set=<span style="color:#3677a9">1</span>,binding=<span style="color:#3677a9">0</span>) buffer vertices</code></pre></div>
+<p>What I failed to understand was that it should have the right memory layout in the layout block. As an example the below forces a scalar layout:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-glsl" data-lang="glsl">layout (scalar, set=<span style="color:#3677a9">1</span>, binding=<span style="color:#3677a9">0</span>) </code></pre></div>
+<p>This is one of those moments when you realize you have missing knowledge of whole set of features of the API! So back to reading the docs.
+I found some interesting links to look at:</p>
+
+<ul>
+<li><a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/chap14.html#interfaces-resources-layout" target="_blank">VK 1.2 layout offset and aligments</a>
+</li>
+<li><a href="https://www.khronos.org/opengl/wiki/Layout_Qualifier_%28GLSL%29" target="_blank">Khronos Wiki layout qualifiers</a>
+</li>
+<li><a href="https://www.khronos.org/opengl/wiki/Interface_Block_%28GLSL%29#Memory_layout" target="_blank">Memory layout</a>
+</li>
+<li><a href="https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_enhanced_layouts.txt" target="_blank">Enhanced layouts</a>
+</li>
+</ul>
+
+<p>With this new informations we can see that in the specification of layout offset and alignment we find:</p>
+
+<pre><code>A three- or four-component vector has a base alignment equal to four times its scalar alignment.
+</code></pre>
+
+<p>That rule would force our vec3 and vec4 to have the same aligment properties.
+To note that this can&rsquo;t be simply fixed with std430 memory layout, I tried and is not enough. The actual solution is the extension:</p>
+
+<pre><code>GL_EXT_scalar_block_layout 
+</code></pre>
+
+<p>On the
+<a href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GL_EXT_scalar_block_layout.txt" target="_blank">page</a>
+
+of the actual extension we find this very important line:</p>
+
+<pre><code>This new layout aligns values only to the scalar components of the block and its composite members.
+</code></pre>
+
+<p>That is exactly the behaviour we wanted, this would change the alignment of our vec3 from 16 bytes to 12.</p>
+
+<h1 id="spir-v-enters-the-fight">SPIR-V enters the fight</h1>
+
+<p>Matthäus also provided me with this amazing example from <a href="http://shader-playground.timjones.io/07e64f69c551fcc5e3e3d50b26ce981f" target="_blank">shader playground</a>
+ that would actually shows up what happens at SPIR-V level:</p>
+
+<p>Original shader:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-glsl" data-lang="glsl"><span style="color:#cd2828;font-weight:bold">#version 450</span>
+<span style="color:#cd2828;font-weight:bold">#define FIX_IT 0</span>
+<span style="color:#cd2828;font-weight:bold">#if FIX_IT</span>
+<span style="color:#cd2828;font-weight:bold">#extension GL_EXT_scalar_block_layout : require</span>
+layout (scalar, set=<span style="color:#3677a9">1</span>,binding=<span style="color:#3677a9">0</span>) buffer vertices
+<span style="color:#cd2828;font-weight:bold">#else</span>
+layout (set=<span style="color:#3677a9">1</span>,binding=<span style="color:#3677a9">0</span>) buffer vertices
+<span style="color:#cd2828;font-weight:bold">#endif</span>
+{
+    <span style="color:#6ab825;font-weight:bold">vec3</span> p[];
+};
+
+<span style="color:#6ab825;font-weight:bold">out</span> gl_PerVertex {
+    <span style="color:#6ab825;font-weight:bold">vec4</span> gl_Position;
+};
+
+<span style="color:#6ab825;font-weight:bold">void</span> main()
+{
+    gl_Position = <span style="color:#6ab825;font-weight:bold">vec4</span>(p[<span style="color:#3677a9">0</span>],<span style="color:#3677a9">1</span>);
+}</code></pre></div>
+<p>As we can see we have a define changing the different layout declaration of our buffer to compare the different results.</p>
+
+<p>Here belowe the slice of the SPIR-V output:</p>
+
+<pre><code>                 Name 17  &quot;&quot;
+                              MemberDecorate 8(gl_PerVertex) 0 BuiltIn Position
+                              Decorate 8(gl_PerVertex) Block
+                              Decorate 14 ArrayStride 16
+                              MemberDecorate 15(vertices) 0 Offset 0
+                              Decorate 15(vertices) Block
+                              Decorate 17 DescriptorSet 1
+                              Decorate 17 Binding 0
+               2:             TypeVoid
+               3:             TypeFunction 2
+               6:             TypeFloat 32
+               7:             TypeVector 6(float) 4
+ 8(gl_PerVertex):             TypeStruct 7(fvec4)
+               9:             TypePointer Output 8(gl_PerVertex)
+              10:      9(ptr) Variable Output
+              11:             TypeInt 32 1
+              12:     11(int) Constant 0
+              13:             TypeVector 6(float) 3
+              14:             TypeRuntimeArray 13(fvec3)
+    15(vertices):             TypeStruct 14
+              16:             TypePointer StorageBuffer 15(vertices)
+              17:     16(ptr) Variable StorageBuffer
+              18:             TypePointer StorageBuffer 13(fvec3)
+</code></pre>
+
+<p>By investigating the SPIR-V we can notice several interesting things, the vertices array is defined as a struct referring to id 14</p>
+
+<pre><code>Decorate 14 ArrayStride 16
+TypeStruct 14
+</code></pre>
+
+<p>This defines a struct with a stride of 16 bytes, few lines below we actually see the definition of the pointer to the storage buffer:</p>
+
+<pre><code>TypeRuntimeArray 13(fvec3)
+TypePointer StorageBuffer 13(fvec3)
+</code></pre>
+
+<p>The above is specifying that we have have an array defined at runtime of which we don&rsquo;t know the length, and the pointer type of it is a fvec3.
+If we put this two informations together we can see we are defining a pointer to float vec3 but with a stride of 16. From this we can deduce that our
+our shader would work if we padded our mesh to vec4, no shader changes required, no need to change the buffer to vec4 (Although possibly better readability).</p>
+
+<p>We do have that lovely define, why don&rsquo;t we flip it and see what happens? Here the result:</p>
+
+<pre><code>                   Name 17  &quot;&quot;
+                              MemberDecorate 8(gl_PerVertex) 0 BuiltIn Position
+                              Decorate 8(gl_PerVertex) Block
+                              Decorate 14 ArrayStride 12
+                              MemberDecorate 15(vertices) 0 Offset 0
+                              Decorate 15(vertices) Block
+                              Decorate 17 DescriptorSet 1
+                              Decorate 17 Binding 0
+               2:             TypeVoid
+               3:             TypeFunction 2
+               6:             TypeFloat 32
+               7:             TypeVector 6(float) 4
+ 8(gl_PerVertex):             TypeStruct 7(fvec4)
+               9:             TypePointer Output 8(gl_PerVertex)
+              10:      9(ptr) Variable Output
+              11:             TypeInt 32 1
+              12:     11(int) Constant 0
+              13:             TypeVector 6(float) 3
+              14:             TypeRuntimeArray 13(fvec3)
+    15(vertices):             TypeStruct 14
+              16:             TypePointer StorageBuffer 15(vertices)
+              17:     16(ptr) Variable StorageBuffer
+              18:             TypePointer StorageBuffer 13(fvec3)
+</code></pre>
+
+<p>Overall the structure is exactly the same but the game change line is this:</p>
+
+<pre><code>Decorate 14 ArrayStride 12
+</code></pre>
+
+<p>Now our vec3 will have alignment requirement of scalar, in this case scalar multiple of the size of our type, giving us an alignment of 12 bytes.
+With this then finally the shader works and behaves as expected with no extra padding.</p>
+
+<h1 id="performance">Performance</h1>
+
+<p>Since I was messing around with this stuff I decided to have a go and have a look at the actual disassembly for the vec3 vs vec4.</p>
+
+<p>Here below code for the vec4:</p>
+
+<pre><code>s_waitcnt_depctr       0xffe3
+buffer_load_dwordx4    v[0:3], v0, s[4:7], 0 offen
+s_waitcnt              vmcnt(0)
+exp                    pos0, v0, v1, v2, v3 done
+</code></pre>
+
+<p>Here the code for the vec3:</p>
+
+<pre><code>  s_waitcnt_depctr  0xffe3                              // 000000000090: BFA3FFE3
+  buffer_load_dwordx3  v[0:2], v0, s[4:7], 0 offen      // 000000000094: E03C1000 80010000
+  v_mov_b32     v3, 1.0                                 // 00000000009C: 7E0602F2
+  s_waitcnt     vmcnt(0)                                // 0000000000A0: BF8C3F70
+  exp           pos0, v0, v1, v2, v3 done  
+</code></pre>
+
+<p>As we can see the only real difference is in the memory load, where in the case of the vec4, we are loading 16 bytes worth of data v[0:3]
+meanwhile in the vec3 we are loading only 12 v[0:2] plus an extra register load for the constant 1.0 in v3.
+Register pressure is exactly the same in both cases, so the only difference when it comes to amount of code is the extra register load for the 1.0f value we have.</p>
+
+<p>Which one of the two version is the fastest I have no idea and it has to be benchmarked. On the one side, aligned loads have the advantage that
+there is no possibility to access two cache lines in a single load, which should result in maximum efficiency.
+On the other side, we do save 25% of bandwidth and increase the chance of cache hits.</p>
+
+<p>If you happen to have experience with this or data please let me know! I would love to hear it!  This will require further investigation.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>This is the end of the run in this rabbit hole, it was quite interesting and I am getting quite the linking to SPIR-V the more I deal with it!
+Thanks so much to Matthäus for enduring my questions! Give him a follow on twitter since he often contributes to very interesting conversations.
+He runs a great <a href="https://anteru.net/" target="_blank">blog</a>
+ with tons of interesting articles like the one about <a href="https://anteru.net/blog/2018/intro-to-compute-shaders/" target="_blank">compute shaders</a>
+ execution and working details.</p>
+
+<p>When it comes to my project, for the time being I am using vec4 and moving on to other stuff. I do plan at one point to do a nice pass on the geometry handling in general, where I start using <a href="https://github.com/zeux/meshoptimizer" target="_blank">meshoptimizer</a>
+, compressing the data and so on, that might be a good time to revisit the topic.</p>
+
+<p>If you liked this blog post share it around and follow me on twitter! @MGDev91.</p>
+
+<p><br><br></p>
+ </div>
+
+    
+<footer class="post-footer">
+
+  <div class="post-footer-data">
+    
+<div class="tags">
+    
+      <div class="tag">
+        <a href="/tags/shader">#shader</a>
+      </div>
+    
+      <div class="tag">
+        <a href="/tags/spirv">#spirv</a>
+      </div>
+    
+</div>
+
+    <div class="date"> Jan 26, 2020 </div>
+  </div>
+
+</footer>
+
+
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "aprogrammerscave" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</article>
+
+  <footer>
+
+  <div class="social-links-footer">
+
+  
+  <a href="mailto:myemail"><div class="social-link">Email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">GitHub</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">Twitter</div></a>
+  
+
+  
+
+  <div class="social-link">
+  <a href="/index.xml" target="_blank">RSS</a>
+  </div>
+
+</div>
+
+
+  
+<div class="footer-menu">
+    
+    <a class="footer-menu" href="/comments-policy/">Comments Policy</a>
+    
+</div>
+
+
+  <div class="copyright"> Copyright (c) 2018 - present, all rights reserved. </div>
+
+  <div class="poweredby">
+    Powered by <a href="https://gohugo.io/">Hugo</a>.
+  </div>
+
+  </footer>
+
+</div> 
+
+</body>
+</html>
+

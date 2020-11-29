@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+<meta charset="utf-8" />
+<meta name="author" content="Marco Giordano" />
+<meta name="description" content="A-programmer&#39;s-cave" />
+<meta name="keywords" content="" />
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+<meta name="generator" content="Hugo 0.47.1" />
+
+<link rel="canonical" href="/post/2018-31-07-parallel-transport/">
+<base href="/" />
+<meta property="og:title" content="Parallel transport on curve" />
+<meta property="og:description" content="TL;DR: How to generate a stable orientation along a curve, math and Unity implementation. Here the repository with all the code and Unity project.
+Introduction Parallel transport is a technique that allows computing a moving frame (a 4x4 matrix defining a coordinate system) down the curve. Here is an example: The computation starts on the top right of the image, where the gizmo is, then move sequentially down the curve." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/post/2018-31-07-parallel-transport/" /><meta property="article:published_time" content="2018-07-31T00:00:00&#43;00:00"/>
+<meta property="article:modified_time" content="2018-07-31T00:00:00&#43;00:00"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Parallel transport on curve"/>
+<meta name="twitter:description" content="TL;DR: How to generate a stable orientation along a curve, math and Unity implementation. Here the repository with all the code and Unity project.
+Introduction Parallel transport is a technique that allows computing a moving frame (a 4x4 matrix defining a coordinate system) down the curve. Here is an example: The computation starts on the top right of the image, where the gizmo is, then move sequentially down the curve."/>
+
+
+
+<meta itemprop="name" content="Parallel transport on curve">
+<meta itemprop="description" content="TL;DR: How to generate a stable orientation along a curve, math and Unity implementation. Here the repository with all the code and Unity project.
+Introduction Parallel transport is a technique that allows computing a moving frame (a 4x4 matrix defining a coordinate system) down the curve. Here is an example: The computation starts on the top right of the image, where the gizmo is, then move sequentially down the curve.">
+
+
+<meta itemprop="datePublished" content="2018-07-31T00:00:00&#43;00:00" />
+<meta itemprop="dateModified" content="2018-07-31T00:00:00&#43;00:00" />
+<meta itemprop="wordCount" content="1953">
+
+
+
+<meta itemprop="keywords" content="unity,math," />
+
+
+<script async src="/dist/main.js"></script>
+<link rel="stylesheet" href="dist/main.css" />
+<style type="text/css">
+body {
+  background-color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+a {
+  color: {
+     {
+      .Param 'colors.link';
+    }
+  }
+}
+
+pre {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+  border-radius: 5px;
+}
+
+code {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+}
+
+blockquote {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border-left: 3px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+table {
+  margin: 1em auto;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+th {
+  background: {
+     {
+      .Param 'colors.text';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+}
+
+.siteTitle a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+.post .content h1 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h2 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h3 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h4 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h5 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h6 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.social-link:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.nav-item-title:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.tag a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.copyright {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby a {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.post-preview .title a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.content-item a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post-list .title {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.rmore {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.terms .term a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+</style>
+
+
+
+<title>
+
+
+     Parallel transport on curve 
+
+</title>
+
+</head>
+
+
+<body>
+<div class="main">
+    <header>
+
+        <div class="header-bar">
+
+            <nav>
+                <div class="siteTitle">
+                    <a href="/">A-programmer&#39;s-cave</a>
+                </div> 
+                
+                
+                <a class="nav-item active" href="/post/"><div class="nav-item-title">Posts</div></a>
+                
+                <a class="nav-item" href="/tags/"><div class="nav-item-title">Tags</div></a>
+                
+
+            </nav>
+        </div>
+
+        
+<div class="social-links-header">
+
+  
+  <a href="mailto:myemail"><div class="social-link">email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">gh</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">twtr</div></a>
+  
+
+  
+
+  <a href="pages/bind.html" target="_blank"><div class="social-link">TheBinder</div></a>
+
+</div>
+
+        <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+		
+    </header>
+
+
+<article class="post">
+    <h1 class="title"> Parallel transport on curve </h1>
+		
+            
+		        Table of contents:
+            
+		    <nav id="TableOfContents">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#unity-plumbing">Unity plumbing</a></li>
+<li><a href="#implementation">Implementation</a></li>
+</ul>
+</nav>
+		
+    <div class="content"> 
+
+<p><strong>TL;DR</strong>: How to generate a stable orientation along a curve, math
+and Unity implementation.
+<a href="https://github.com/giordi91/Unity-Tutorials/tree/master/04_parallel_transport" target="_blank">Here</a>
+ the repository with all the code and Unity project.</p>
+
+<h1 id="introduction">Introduction</h1>
+
+<p>Parallel transport is a technique that allows computing a moving frame
+(a 4x4 matrix defining a coordinate system) down the curve. Here is an example:
+<img src="../images/03_parallel_transport/parallel_transport.jpg" alt="parallel" /></p>
+
+<p>The computation starts on the top right of the image, where the gizmo is,
+then move sequentially down the curve. The frame is aligned
+nicely along the curve. One property (wanted or not) of parallel transport
+is the natural twist the frame has following down the curve.
+You can imagine it as the frame starts to bend inward if a curve has a spiral form.</p>
+
+<p>The main idea is simple, you start from a given up vector,
+you take two samples on a curve, the first sample is the point you want to
+compute the frame at, the second sample is a point down the curve,
+ideally, offset by a small delta.
+Once you compute the new frame, you have generated 3 axes, one of those 3
+axes will correspond to the up vector of the frame,
+we are going to use that new up vector for the next frame of the computation,
+basically for the $i$ iteration we use the resulting up vector from $i-1$ iteration.
+As you can see doing this the up vector will gradually adapt such
+that the delta won&rsquo;t be too big causing the cross product to fail.</p>
+
+<p>Written in mathematical terms will be something like this:
+$$ \begin{align}
+   \vec{x_i} &amp;= P_{i+1} - P_{i} \\<br />
+   \vec{z_i} &amp;= \vec{x_i} \times \vec{y_{i-1}} \\<br />
+   \vec{y_i} &amp;= \vec{z_i} \times \vec{x_{i}}
+   \end{align} $$</p>
+
+<p>All the vectors are normalized, either at each steps or at the end, to keep notation less cluttered
+the normalization was omitted and $\times$ operator is the cross product.</p>
+
+<p><details>
+  <summary>SPOILER: Arrow above the variable? (click to show text)</summary>
+   <p style="background:gray;padding: 1em;">
+   In case you were wondering what the arrow above the variables means, it is a standard notation to
+   represent a vector variable/quantity. Other notations I have seen around are with a bold or underlined
+   variables.
+   </p>
+</details></p>
+
+<p>That was an overview, let&rsquo;s dive into the actual code! I used unity to demonstrate the concept, if you are not interested in Unity details skip the next section.</p>
+
+<h1 id="unity-plumbing">Unity plumbing</h1>
+
+<p>The way I decided to approach this tutorial was to have a simple component
+referencing many game objects, each of those game object will be a point along
+a discrete curve, meaning a curve defined by a series of points and segments
+instead of a mathematical function.
+Let&rsquo;s start by creating all the needed game objects,
+one named <code>curveDrawer</code> and many others called <code>curvePoint#</code>.</p>
+
+<p><img src="../images/03_parallel_transport/hierarchy.jpg" alt="hierarchy" /></p>
+
+<p>Next, let&rsquo;s add a new script called ParallelTransport to the <code>curveDrawer</code>
+object, we are going to add several parameters, the most important of all
+the GameObjects array.</p>
+
+<p><img src="../images/03_parallel_transport/component.jpg" alt="component" /></p>
+
+<p>Here the members of the component:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C#" data-lang="C#"><span style="color:#6ab825;font-weight:bold">using</span> <span style="color:#447fcf;text-decoration:underline">System.Collections</span>;
+<span style="color:#6ab825;font-weight:bold">using</span> <span style="color:#447fcf;text-decoration:underline">System.Collections.Generic</span>;
+<span style="color:#6ab825;font-weight:bold">using</span> <span style="color:#447fcf;text-decoration:underline">Unity.Mathematics</span>;
+<span style="color:#6ab825;font-weight:bold">using</span> <span style="color:#447fcf;text-decoration:underline">UnityEngine</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">[ExecuteInEditMode]</span>
+<span style="color:#6ab825;font-weight:bold">public</span> <span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">parallelTransport</span> : MonoBehaviour
+{
+
+    <span style="color:#6ab825;font-weight:bold">public</span> GameObject<span style="color:#bbb">[]</span> objects;
+    <span style="color:#6ab825;font-weight:bold">public</span> <span style="color:#6ab825;font-weight:bold">float</span> twistAmount;
+    <span style="color:#6ab825;font-weight:bold">public</span> float3 initialVector;
+    <span style="color:#6ab825;font-weight:bold">public</span> <span style="color:#6ab825;font-weight:bold">float</span> debugVectorScale;</code></pre></div>
+<p>To note that we added the attribute <strong>[ExecuteInEditMode]</strong>, this allows the
+script to be executed even when not in play mode, making our life much easier.</p>
+
+<p>I am using the new great
+ <a href="https://github.com/Unity-Technologies/Unity.Mathematics" target="_blank">Unity.Mathematics</a>
+ library
+, which is a new C# library, very efficient and really close to shader datatypes,
+<strong>make sure to add the package Entities in the package manager and
+set your project to use C# .NET 4.x in the player settings</strong> .</p>
+
+<h1 id="implementation">Implementation</h1>
+
+<p>Let&rsquo;s get started with the <code>Update()</code> method of the component,
+the first step in the update is to extract the positions from our game objects:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C#" data-lang="C#"> <span style="color:#999;font-style:italic">// Update is called once per frame
+</span><span style="color:#999;font-style:italic"></span>    <span style="color:#6ab825;font-weight:bold">void</span> Update ()
+    {
+        <span style="color:#6ab825;font-weight:bold">int</span> objLen = objects.Length;
+        float3<span style="color:#bbb">[]</span> positions = <span style="color:#6ab825;font-weight:bold">new</span> float3<span style="color:#bbb">[objLen]</span>;
+        float4x4<span style="color:#bbb">[]</span> frames = <span style="color:#6ab825;font-weight:bold">new</span> float4x4<span style="color:#bbb">[objLen]</span>;
+
+        <span style="color:#999;font-style:italic">//extracting the data from game objects
+</span><span style="color:#999;font-style:italic"></span>        <span style="color:#6ab825;font-weight:bold">for</span> (<span style="color:#6ab825;font-weight:bold">int</span> i = <span style="color:#3677a9">0</span>; i &lt; objLen; ++i)
+        {
+            positions<span style="color:#bbb">[i]</span> = objects<span style="color:#bbb">[i]</span>.transform.position;
+        }</code></pre></div>
+<p>Next let&rsquo;s start to visualize the curve, so we can also position
+the points as we like them:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C#" data-lang="C#"><span style="color:#999;font-style:italic">//draw the frames
+</span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">var</span> root = transform.localToWorldMatrix;
+<span style="color:#6ab825;font-weight:bold">for</span> (<span style="color:#6ab825;font-weight:bold">int</span> i = <span style="color:#3677a9">0</span>; i &lt; objLen-<span style="color:#3677a9">1</span>; ++i)
+{
+    Debug.DrawLine(positions<span style="color:#bbb">[i]</span>, positions<span style="color:#bbb">[i + 1]</span>  , Color.red);
+}</code></pre></div>
+<p>This is the result:</p>
+
+<p><img src="../images/03_parallel_transport/curveOnly.jpg" alt="curveOnly" /></p>
+
+<p>Everything is all set to start computing the frames along the curve,
+this is the code that does it:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C#" data-lang="C#">float3 up = initialVector;
+<span style="color:#999;font-style:italic">//calculate the frames
+</span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">float</span> twistStep = twistAmount / (<span style="color:#6ab825;font-weight:bold">float</span>)(objLen - <span style="color:#3677a9">1</span>);
+<span style="color:#6ab825;font-weight:bold">for</span> (<span style="color:#6ab825;font-weight:bold">int</span> i = <span style="color:#3677a9">0</span>; i &lt; objLen-<span style="color:#3677a9">1</span>; ++i)
+{
+    <span style="color:#999;font-style:italic">//computing the orthonormal frame
+</span><span style="color:#999;font-style:italic"></span>    frames<span style="color:#bbb">[i]</span> = computeFrame(positions<span style="color:#bbb">[i]</span>, positions<span style="color:#bbb">[i + 1]</span>, up, positions<span style="color:#bbb">[i]</span>);
+    <span style="color:#999;font-style:italic">//critical part of parallel transport, the up vector gets updated at every step
+</span><span style="color:#999;font-style:italic"></span>    up = frames<span style="color:#bbb">[i]</span>.c1.xyz;
+}</code></pre></div>
+<p>For each segment of the curve, (index i to index i+1),
+we call the <code>computeFrame</code> function,
+next we extract the Y axis from the matrix, which I decided to be
+the up vector of the frame.
+In my implementation I decided to have the X axis to be pointing down the curve,
+Y to be the up vector and finally Z to be the cross vector, in the end
+is totally up to you how you want to build up your frame, you can swizzle
+them as you please, but if you use those frames for actual computation
+to not introduce unwanted negate scales.</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C#" data-lang="C#">up = frames<span style="color:#bbb">[i]</span>.c1.xyz;</code></pre></div>
+<p>The above line of code is doing nothing more to access the second
+column <strong>c1</strong> , being a <code>float4</code> we extract the first 3 components
+with the property <code>.xyz</code> (I hope you now can see the similarities
+with shader languages).</p>
+
+<p>This is all good and fancy but we did not look at the <code>computeFrame</code>
+function yet! This is the core of the whole process, lets dive in:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C#" data-lang="C#">    <span style="color:#6ab825;font-weight:bold">public</span> <span style="color:#6ab825;font-weight:bold">static</span> float4x4 computeFrame(float3 start, float3 end, float3 up, float3 pos)
+    {
+        <span style="color:#999;font-style:italic">//compute an orthonormal frame from two points and an up vector
+</span><span style="color:#999;font-style:italic"></span>        float3 aim = math.normalize(end - start);
+        float3 cross = math.normalize(math.cross(aim, up));
+        up = math.normalize(math.cross(cross, aim));
+
+        <span style="color:#999;font-style:italic">//generating the matrix
+</span><span style="color:#999;font-style:italic"></span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">new</span> float4x4(
+            <span style="color:#6ab825;font-weight:bold">new</span> float4(aim, <span style="color:#3677a9">0.0f</span>),
+            <span style="color:#6ab825;font-weight:bold">new</span> float4(up, <span style="color:#3677a9">0.0f</span>),
+            <span style="color:#6ab825;font-weight:bold">new</span> float4(cross, <span style="color:#3677a9">0.0f</span>),
+            <span style="color:#6ab825;font-weight:bold">new</span> float4(pos, <span style="color:#3677a9">1.0f</span>));
+    }</code></pre></div>
+<p>The first thing we do is to extract the vector between our two points,
+where end is the point $i+1$ and start is the point at index $i$,
+after that we normalize it.
+What we need to do next is to create a vector that is perpendicular to both
+our up vector and our aim vector, the operation to do so is the
+<a href="https://en.wikipedia.org/wiki/Cross_product" target="_blank">cross product</a>.</p>
+
+<p>After performing the cross product we finally have 3 axes, we are ready
+to build our matrix/frame, or so we would think, there is still a small
+issue to take care of, we have no guarantee that the provided up vector
+is perpendicular to the aim vector, we are going to use another cross
+product to re-compute the up vector, now we have created an orthogonal
+matrix, given the fact we also normalized all three axes we
+just created an orthonormal matrix, meaning all axis perpendicular to
+each other and all axis have length one.</p>
+
+<p>The last step of the function is to pass in the columns of the matrix to
+the constructor.  If we go back to Unity now we will see this is the result:</p>
+
+<p><img src="../images/03_parallel_transport/workingParallel.gif" alt="parallel" /></p>
+
+<p>Two things to note on the above gif, first the up vector adapts when the
+point if it is moved up and down, but also when moving left and right you
+can see the natural twisting down the curve we get.</p>
+
+<p>To iterate one more time we use the previous up vector to compute the current
+frame, let me visualize this with the following image:</p>
+
+<p><img src="../images/03_parallel_transport/previous.jpg" alt="previous" /></p>
+
+<p>Once you have this frame moving along the curve there are several things you can do, for example you can apply a twist down the path:</p>
+
+<p><img src="../images/03_parallel_transport/spin.gif" alt="spin" /></p>
+
+<p>I am not going to cover in detail how the spin works, but simply put,
+I grabbed the formula to generate a
+<a href="a%20rotation%20matrix%20from%20an%20axis%20and%20an%20angle" target="_blank">https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_and_angle</a>
+
+and used to multiply our frames with an increasing angle.</p>
+
+<p>Below the full code:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C#" data-lang="C#"><span style="color:#6ab825;font-weight:bold">using</span> <span style="color:#447fcf;text-decoration:underline">System.Collections</span>;
+<span style="color:#6ab825;font-weight:bold">using</span> <span style="color:#447fcf;text-decoration:underline">System.Collections.Generic</span>;
+<span style="color:#6ab825;font-weight:bold">using</span> <span style="color:#447fcf;text-decoration:underline">Unity.Mathematics</span>;
+<span style="color:#6ab825;font-weight:bold">using</span> <span style="color:#447fcf;text-decoration:underline">UnityEngine</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb">[ExecuteInEditMode]</span>
+<span style="color:#6ab825;font-weight:bold">public</span> <span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">parallelTransport</span> : MonoBehaviour
+{
+
+    <span style="color:#6ab825;font-weight:bold">public</span> GameObject<span style="color:#bbb">[]</span> objects;
+    <span style="color:#6ab825;font-weight:bold">public</span> <span style="color:#6ab825;font-weight:bold">float</span> twistAmount;
+    <span style="color:#6ab825;font-weight:bold">public</span> float3 initialVector;
+    <span style="color:#6ab825;font-weight:bold">public</span> <span style="color:#6ab825;font-weight:bold">float</span> debugVectorScale;
+
+    <span style="color:#6ab825;font-weight:bold">public</span> <span style="color:#6ab825;font-weight:bold">static</span> float4x4 computeFrame(float3 start, float3 end, float3 up, float3 pos)
+    {
+        <span style="color:#999;font-style:italic">//compute an orthonormal frame from two points and an up vector
+</span><span style="color:#999;font-style:italic"></span>        float3 aim = math.normalize(start - end);
+        float3 cross = math.normalize(math.cross(aim, up));
+        up = math.normalize(math.cross(cross, aim));
+
+        <span style="color:#999;font-style:italic">//generating the matrix
+</span><span style="color:#999;font-style:italic"></span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">new</span> float4x4(
+            <span style="color:#6ab825;font-weight:bold">new</span> float4(aim, <span style="color:#3677a9">0.0f</span>),
+            <span style="color:#6ab825;font-weight:bold">new</span> float4(up, <span style="color:#3677a9">0.0f</span>),
+            <span style="color:#6ab825;font-weight:bold">new</span> float4(cross, <span style="color:#3677a9">0.0f</span>),
+            <span style="color:#6ab825;font-weight:bold">new</span> float4(pos, <span style="color:#3677a9">1.0f</span>));
+    }
+
+    <span style="color:#999;font-style:italic">//creating a rotation matrix from a given axis and angle
+</span><span style="color:#999;font-style:italic"></span>    <span style="color:#999;font-style:italic">//https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_and_angle
+</span><span style="color:#999;font-style:italic"></span>    float4x4 getRotationMatrix(float3 axis, <span style="color:#6ab825;font-weight:bold">float</span> angle)
+    {
+        <span style="color:#6ab825;font-weight:bold">float</span> rad = math.radians(angle);
+        <span style="color:#6ab825;font-weight:bold">float</span> cosA = math.cos(rad);
+        <span style="color:#6ab825;font-weight:bold">float</span> sinA = math.sin(rad);
+        <span style="color:#6ab825;font-weight:bold">return</span> math.transpose( <span style="color:#6ab825;font-weight:bold">new</span> float4x4
+        (
+            cosA + axis.x * axis.x * (<span style="color:#3677a9">1.0f</span> - cosA), axis.x * axis.y * (<span style="color:#3677a9">1.0f</span> - cosA) - axis.z * sinA,
+            axis.x * axis.z * (<span style="color:#3677a9">1.0f</span> - cosA) + axis.y * sinA, <span style="color:#3677a9">0</span>,
+            axis.y * axis.x * (<span style="color:#3677a9">1.0f</span> - cosA) + axis.z * sinA, cosA + axis.y * axis.y * (<span style="color:#3677a9">1.0f</span> - cosA),
+            axis.y * axis.z * (<span style="color:#3677a9">1.0f</span> - cosA) - axis.x * sinA, <span style="color:#3677a9">0</span>,
+            axis.z * axis.x * (<span style="color:#3677a9">1.0f</span> - cosA) - axis.y * sinA, axis.z * axis.y * (<span style="color:#3677a9">1.0f</span> - cosA) + axis.z * sinA,
+            cosA + axis.z * axis.z * (<span style="color:#3677a9">1.0f</span> - cosA), <span style="color:#3677a9">0</span>,
+            <span style="color:#3677a9">0</span>, <span style="color:#3677a9">0</span>, <span style="color:#3677a9">0</span>, <span style="color:#3677a9">1</span>
+        ));
+
+    }
+
+    <span style="color:#999;font-style:italic">// Update is called once per frame
+</span><span style="color:#999;font-style:italic"></span>    <span style="color:#6ab825;font-weight:bold">void</span> Update ()
+    {
+        <span style="color:#6ab825;font-weight:bold">int</span> objLen = objects.Length;
+        float3<span style="color:#bbb">[]</span> positions = <span style="color:#6ab825;font-weight:bold">new</span> float3<span style="color:#bbb">[objLen]</span>;
+        float4x4<span style="color:#bbb">[]</span> frames = <span style="color:#6ab825;font-weight:bold">new</span> float4x4<span style="color:#bbb">[objLen]</span>;
+
+        <span style="color:#999;font-style:italic">//extracting the data from game objects
+</span><span style="color:#999;font-style:italic"></span>        <span style="color:#6ab825;font-weight:bold">for</span> (<span style="color:#6ab825;font-weight:bold">int</span> i = <span style="color:#3677a9">0</span>; i &lt; objLen; ++i)
+        {
+            positions<span style="color:#bbb">[i]</span> = objects<span style="color:#bbb">[i]</span>.transform.position;
+        }
+
+        float3 up = initialVector;
+        <span style="color:#999;font-style:italic">//calculate the frames
+</span><span style="color:#999;font-style:italic"></span>        <span style="color:#6ab825;font-weight:bold">float</span> twistStep = twistAmount / (<span style="color:#6ab825;font-weight:bold">float</span>)(objLen - <span style="color:#3677a9">1</span>);
+        <span style="color:#6ab825;font-weight:bold">for</span> (<span style="color:#6ab825;font-weight:bold">int</span> i = <span style="color:#3677a9">0</span>; i &lt; objLen-<span style="color:#3677a9">1</span>; ++i)
+        {
+            <span style="color:#999;font-style:italic">//computing the orthonormal frame
+</span><span style="color:#999;font-style:italic"></span>            frames<span style="color:#bbb">[i]</span> = computeFrame(positions<span style="color:#bbb">[i]</span>, positions<span style="color:#bbb">[i + 1]</span>, up, positions<span style="color:#bbb">[i]</span>);
+            <span style="color:#999;font-style:italic">//applying twist
+</span><span style="color:#999;font-style:italic"></span>            frames<span style="color:#bbb">[i]</span> = math.mul( getRotationMatrix(frames<span style="color:#bbb">[i]</span>.c0.xyz, twistStep*(<span style="color:#6ab825;font-weight:bold">float</span>)i) , frames<span style="color:#bbb">[i]</span>);
+            <span style="color:#999;font-style:italic">//critical part of parallel transport, the up vector gets updated at every step
+</span><span style="color:#999;font-style:italic"></span>            up = frames<span style="color:#bbb">[i]</span>.c1.xyz;
+        }
+
+        <span style="color:#999;font-style:italic">//draw the frames
+</span><span style="color:#999;font-style:italic"></span>        <span style="color:#6ab825;font-weight:bold">var</span> root = transform.localToWorldMatrix;
+        <span style="color:#6ab825;font-weight:bold">for</span> (<span style="color:#6ab825;font-weight:bold">int</span> i = <span style="color:#3677a9">0</span>; i &lt; objLen-<span style="color:#3677a9">1</span>; ++i)
+        {
+            float3 currP = positions<span style="color:#bbb">[i ]</span>;
+            Debug.DrawLine(currP, currP + (frames<span style="color:#bbb">[i]</span>.c1.xyz)*debugVectorScale , Color.green);
+            Debug.DrawLine(currP, currP + (frames<span style="color:#bbb">[i]</span>.c2.xyz)*debugVectorScale , Color.blue);
+            Debug.DrawLine(currP, positions<span style="color:#bbb">[i + 1]</span>  , Color.red);
+        }
+    }
+}</code></pre></div>
+<p>The system has several limitations that can make it fail,
+if any up vector is parallel to the next aim (aka 90 degrees bent) the cross
+product will generate a zero vector and normalization will fail,
+or if you have a bend that is bigger than 90 degrees
+you will get a flip in your up vector and all the following ones.
+Those are limitations that have to be taken into account,
+and probably add error checking to make sure the code does not break at
+runtime.
+In reality that is not too much of a concern, most of the time the curves
+that are used (either discrete or mathematically defined) are smooth and well
+behaved.</p>
+
+<p>At this point you might wonder what all the fuss is about, what can you use it
+for? Mostly you can use it to attach object on a curve and let them move
+with a consistent orientation, but that is not all, once you have a stable frame
+you can decided to apply a twist as we did on the above example, and interpolate
+the twist between segments, a user might even specify a custom twist value
+per point on the curve giving quite granular control.</p>
+
+<p>The real reason for which I made this post is to have it as a reference I
+can point the user to for future tutorials, more specifically I used parallel
+transport to generate a stable frame along hairs for real-time simulation
+keep an eye out for that!!</p>
+
+<p>Here the <a href="https://github.com/giordi91/Unity-Tutorials/tree/master/04_parallel_transport" target="_blank">link</a>
+ to the Unity project.</p>
+
+<p>If you find it useful don&rsquo;t forget to share on social media!</p>
+ </div>
+
+    
+<footer class="post-footer">
+
+  <div class="post-footer-data">
+    
+<div class="tags">
+    
+      <div class="tag">
+        <a href="/tags/unity">#unity</a>
+      </div>
+    
+      <div class="tag">
+        <a href="/tags/math">#math</a>
+      </div>
+    
+</div>
+
+    <div class="date"> Jul 31, 2018 </div>
+  </div>
+
+</footer>
+
+
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "aprogrammerscave" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</article>
+
+  <footer>
+
+  <div class="social-links-footer">
+
+  
+  <a href="mailto:myemail"><div class="social-link">Email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">GitHub</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">Twitter</div></a>
+  
+
+  
+
+  <div class="social-link">
+  <a href="/index.xml" target="_blank">RSS</a>
+  </div>
+
+</div>
+
+
+  
+<div class="footer-menu">
+    
+    <a class="footer-menu" href="/comments-policy/">Comments Policy</a>
+    
+</div>
+
+
+  <div class="copyright"> Copyright (c) 2018 - present, all rights reserved. </div>
+
+  <div class="poweredby">
+    Powered by <a href="https://gohugo.io/">Hugo</a>.
+  </div>
+
+  </footer>
+
+</div> 
+
+</body>
+</html>
+

@@ -1,0 +1,152 @@
+:root {
+  --main-bg: #101010;
+  --secondary-bg: #181818;
+
+  --green: #99cc66;
+  --white: #ffffff;
+  --blue: #28aecc;
+}
+
+body {
+  background-color: var(--main-bg);
+}
+
+.emscripten {
+  background-color: var(--secondary-bg);
+  border-color: var(--green);
+  font-family: monospace;
+  color: var(--white);
+  width: 100%;
+}
+textarea.emscripten {
+  font-family: monospace;
+}
+.greentext {
+  color: var(--green);
+}
+
+h1 {
+  color: var(--green);
+  text-align: center;
+}
+.collapsible {
+  background-color: var(--secondary-bg);
+  color: var(--green);
+  border-color: var(--green);
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  text-align: left;
+  outline: none;
+  font-size: 14px;
+}
+.collapsible:hover {
+  text-decoration: underline;
+  color: var(--secondary-bg);
+  border-color: var(--secondary-bg);
+  background-color: var(--green);
+}
+
+.content {
+  padding: 0 18px;
+  background-color: var(--secondary-bg);
+  color: var(--white);
+  border-color: var(--green);
+  overflow-x: scroll;
+  max-width: 45vw;
+}
+/* Thick horizondal line */
+hr.thickbar {
+  border: 1px solid var(--green);
+}
+
+a {
+  color: var(--blue);
+}
+a:visited {
+  color: var(--white);
+}
+
+/* tabs */
+.tab {
+  overflow: hidden;
+  border: 1px solid var(--green);
+  background-color: var(--secondary-bg);
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  color: var(--green);
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: var(--green);
+  color: var(--white);
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: var(--green);
+  color: var(--white);
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-color: var(--green);
+  color: var(--white);
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+}
+.content--lhs {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
+}
+.content--lhs--source {
+  flex-direction: column;
+  display: flex;
+  flex: 1;
+  margin: 10px;
+}
+.content--lhs--output {
+  margin: 10px;
+  flex-direction: column;
+  display: flex;
+  flex: 1;
+}
+.content--rhs {
+  flex-direction: column;
+  display: flex;
+  flex: 1;
+}
+.content--rhs--ast {
+  flex-direction: column;
+  display: flex;
+  flex: 1;
+}
+.button{
+  background-color: var(--secondary-bg);
+  border-color: var(--green);
+  color:var(--green);
+  }
+  button:focus{
+  background-color:var(--green);
+  border-color: white;
+  color:white
+  }

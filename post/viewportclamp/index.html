@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+<meta charset="utf-8" />
+<meta name="author" content="Marco Giordano" />
+<meta name="description" content="A-programmer&#39;s-cave" />
+<meta name="keywords" content="" />
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+<meta name="generator" content="Hugo 0.47.1" />
+
+<link rel="canonical" href="/post/viewportclamp/">
+<base href="/" />
+<meta property="og:title" content="HLSL Viewport Clamping trick" />
+<meta property="og:description" content="Time to render that sweet skybox but how to avoid overdraw? The skybox problem I always found a skybox an incredible tool to increase the quality of your scene, as soon as you add a skybox everything looks better, even lighting although probably that is just my brain playing tricks.
+When I got to the point of rendering a skybox in my DX12 game engine I went the quick and hacky way, just render a big enough sphere and be done with it." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/post/viewportclamp/" /><meta property="article:published_time" content="2020-01-17T14:49:45&#43;00:00"/>
+<meta property="article:modified_time" content="2020-01-17T14:49:45&#43;00:00"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="HLSL Viewport Clamping trick"/>
+<meta name="twitter:description" content="Time to render that sweet skybox but how to avoid overdraw? The skybox problem I always found a skybox an incredible tool to increase the quality of your scene, as soon as you add a skybox everything looks better, even lighting although probably that is just my brain playing tricks.
+When I got to the point of rendering a skybox in my DX12 game engine I went the quick and hacky way, just render a big enough sphere and be done with it."/>
+
+
+
+<meta itemprop="name" content="HLSL Viewport Clamping trick">
+<meta itemprop="description" content="Time to render that sweet skybox but how to avoid overdraw? The skybox problem I always found a skybox an incredible tool to increase the quality of your scene, as soon as you add a skybox everything looks better, even lighting although probably that is just my brain playing tricks.
+When I got to the point of rendering a skybox in my DX12 game engine I went the quick and hacky way, just render a big enough sphere and be done with it.">
+
+
+<meta itemprop="datePublished" content="2020-01-17T14:49:45&#43;00:00" />
+<meta itemprop="dateModified" content="2020-01-17T14:49:45&#43;00:00" />
+<meta itemprop="wordCount" content="766">
+
+
+
+<meta itemprop="keywords" content="shader," />
+
+
+<script async src="/dist/main.js"></script>
+<link rel="stylesheet" href="dist/main.css" />
+<style type="text/css">
+body {
+  background-color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+a {
+  color: {
+     {
+      .Param 'colors.link';
+    }
+  }
+}
+
+pre {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+  border-radius: 5px;
+}
+
+code {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+}
+
+blockquote {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border-left: 3px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+table {
+  margin: 1em auto;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+th {
+  background: {
+     {
+      .Param 'colors.text';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+}
+
+.siteTitle a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+.post .content h1 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h2 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h3 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h4 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h5 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h6 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.social-link:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.nav-item-title:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.tag a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.copyright {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby a {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.post-preview .title a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.content-item a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post-list .title {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.rmore {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.terms .term a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+</style>
+
+
+
+<title>
+
+
+     HLSL Viewport Clamping trick 
+
+</title>
+
+</head>
+
+
+<body>
+<div class="main">
+    <header>
+
+        <div class="header-bar">
+
+            <nav>
+                <div class="siteTitle">
+                    <a href="/">A-programmer&#39;s-cave</a>
+                </div> 
+                
+                
+                <a class="nav-item active" href="/post/"><div class="nav-item-title">Posts</div></a>
+                
+                <a class="nav-item" href="/tags/"><div class="nav-item-title">Tags</div></a>
+                
+
+            </nav>
+        </div>
+
+        
+<div class="social-links-header">
+
+  
+  <a href="mailto:myemail"><div class="social-link">email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">gh</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">twtr</div></a>
+  
+
+  
+
+  <a href="pages/bind.html" target="_blank"><div class="social-link">TheBinder</div></a>
+
+</div>
+
+        <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+		
+    </header>
+
+
+<article class="post">
+    <h1 class="title"> HLSL Viewport Clamping trick </h1>
+		
+            
+		        Table of contents:
+            
+		    <nav id="TableOfContents">
+<ul>
+<li><a href="#the-skybox-problem">The skybox problem</a></li>
+<li><a href="#skybox-first">Skybox first</a></li>
+<li><a href="#using-stencil">Using stencil</a></li>
+<li><a href="#forcing-depth-to-far-plane">Forcing depth to far plane</a></li>
+<li><a href="#viewport-trick">Viewport trick</a></li>
+<li><a href="#how-does-it-work">How does it work?</a></li>
+</ul>
+</nav>
+		
+    <div class="content"> 
+
+<p style="background:gray;padding: 1em;">
+Time to render that sweet skybox but how to avoid overdraw?
+</p>
+
+<p><img src="../images/16_skybox/cover.png" alt="intro" />
+<br><br></p>
+
+<h1 id="the-skybox-problem">The skybox problem</h1>
+
+<p>I always found a skybox an incredible tool to increase the quality of your scene, as soon
+as you add a skybox everything looks better, even lighting although probably that is
+just my brain playing tricks.</p>
+
+<p>When I got to the point of rendering a skybox in my DX12 game engine I went the quick and
+hacky way, just render a big enough sphere and be done with it. That comes with several problems
+first of all if you don&rsquo;t move the sphere with your camera you can easily get out of the sphere
+or the sphere will start clipping far away objects when your camera moves.</p>
+
+<p>So how can we render the skybox?</p>
+
+<h1 id="skybox-first">Skybox first</h1>
+
+<p>An old school way to render the skybox was to render the skybox as first thing, with depth
+disabled. In doing so you will blit the skybox in the background without affecting the depth
+such that everything no matter how far it is will end up in front of the skybox (unless clipped
+by far plane). This surely works and is a quick and easy to do, main problem is you are
+shading a lot of pixels that will be later covered by the object in your scene.
+The more clutter you have in the scene the more wasted skybox pixel you will have</p>
+
+<h1 id="using-stencil">Using stencil</h1>
+
+<p>Another option is to use a stencil in pair with your depth, whenever a fragments survives depth,
+you write to the stencil as well then when you do you skybox pass you check the stencil, if there
+is a value different than your default clear value means a fragment has been written there and
+there is no need for skybox.
+This method works well and is not too bad to setup, but you are paying an extra price to write
+to the stencil.</p>
+
+<h1 id="forcing-depth-to-far-plane">Forcing depth to far plane</h1>
+
+<p>The next option is to force the depth to max value (or min value in case of inverted depth) in
+the vertex shader, although this surely works and does not involve the cost of the stencil
+it does give some visual artifacts where you can start to see distortion in interpolation
+due to forcing the depth.(Note did not see this personally since I did not implement this method).</p>
+
+<h1 id="viewport-trick">Viewport trick</h1>
+
+<p>I was ready to go and implement the stencil method, between me and me I was thinking that I was going
+to need stencil anyway due to screen space sub surface scattering. I decided to reach to
+<a href="https://twitter.com/mynameismjp?lang=en" target="_blank">Matt Pettineo</a>
+
+on twitter just to do a final check to see if I was missing something, and as usual MJP taught me
+something I did not know!</p>
+
+<p>He suggested to use
+<a href="https://docs.microsoft.com/en-us/windows/win32/api/d3d12/ns-d3d12-d3d12_viewport" target="_blank">D3D12_VIEWPORT</a>
+
+to force the output depth to max value for both the minimum and maximum, such that the only
+value it can output is either 1.0f or 0.0f, depending if you use inverted depth or not.</p>
+
+<p>I went to my computer, modified the viewport and voila&rsquo; working like a charm, no distortion
+no extra performance cost!</p>
+
+<p><iframe src="https://giphy.com/embed/S6prbT1uZRre8" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/S6prbT1uZRre8">via GIPHY</a></p></p>
+
+<p>I know, it is a simple thing, but something I did not know about, that is why I felt worth blogging
+about!</p>
+
+<p>Wait a second &hellip;. no distortion? How does it work?</p>
+
+<h1 id="how-does-it-work">How does it work?</h1>
+
+<p>As soon as I stopped and think about what I was doing I started to have questions of the like:
+&ldquo;Where is the viewport enforced? When does this clipping happens?&rdquo;
+Naively enough I thought the whole viewport was applied/enforced in one single point of the
+execution, this was also the source of my confusion.
+Matt actually kindly enough pointed me to the specific point in the
+<a href="https://microsoft.github.io/DirectX-Specs/d3d/archive/D3D11_3_FunctionalSpec.htm#15.6%20Viewport" target="_blank">DirectX specs</a>
+.</p>
+
+<p>Specifically:</p>
+
+<p style="background:gray;padding: 1em;">
+"An additional effect of the Viewport is that in the Output Merger, 
+just before the final rounding of z to depth-buffer format before depth compare, 
+the z value is always clamped: z = min(Viewport.MaxDepth,max(Viewport.MinDepth,z)), 
+in compliance with D3D11 Floating Point Rules(3.1) for min and max. 
+This clamping occurs regardless of where z came from: out of interpolation, 
+or from z output by the Pixel Shader (replacing the interpolated value). 
+Z input to the Pixel Shader is not clamped (since the clamp described here occurs after 
+the Pixel Shader)."
+</p>
+
+<p>As we can see the clamping happens at the end of fragment shader and right before depth compare.
+This explains why we don&rsquo;t get interpolation artifacts, since interpolation happens normally
+but right before depth compare we can just clamp it with the viewport.</p>
+
+<p>This is it! I hope it helps!</p>
+
+<p>Cheers</p>
+
+<p><br><br></p>
+ </div>
+
+    
+<footer class="post-footer">
+
+  <div class="post-footer-data">
+    
+<div class="tags">
+    
+      <div class="tag">
+        <a href="/tags/shader">#shader</a>
+      </div>
+    
+</div>
+
+    <div class="date"> Jan 17, 2020 </div>
+  </div>
+
+</footer>
+
+
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "aprogrammerscave" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</article>
+
+  <footer>
+
+  <div class="social-links-footer">
+
+  
+  <a href="mailto:myemail"><div class="social-link">Email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">GitHub</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">Twitter</div></a>
+  
+
+  
+
+  <div class="social-link">
+  <a href="/index.xml" target="_blank">RSS</a>
+  </div>
+
+</div>
+
+
+  
+<div class="footer-menu">
+    
+    <a class="footer-menu" href="/comments-policy/">Comments Policy</a>
+    
+</div>
+
+
+  <div class="copyright"> Copyright (c) 2018 - present, all rights reserved. </div>
+
+  <div class="poweredby">
+    Powered by <a href="https://gohugo.io/">Hugo</a>.
+  </div>
+
+  </footer>
+
+</div> 
+
+</body>
+</html>
+

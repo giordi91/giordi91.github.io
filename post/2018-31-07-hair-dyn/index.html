@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+<meta charset="utf-8" />
+<meta name="author" content="Marco Giordano" />
+<meta name="description" content="A-programmer&#39;s-cave" />
+<meta name="keywords" content="" />
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+<meta name="generator" content="Hugo 0.47.1" />
+
+<link rel="canonical" href="/post/2018-31-07-hair-dyn/">
+<base href="/" />
+<meta property="og:title" content="Unity custom hair simulation PT1" />
+<meta property="og:description" content="Introduction In today&rsquo;s blog post I would like to talk about hair simulation, it has been something that always piqued my interest. I attempted to do a proper simulation in the past based on the Position based dynamics , more specifically the one focusing on inextensible hair strand .
+The issue with both papers was that they did not worry about keeping the initial hair shape, basically the groom an artist would have spent days crafting." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/post/2018-31-07-hair-dyn/" />
+<meta property="og:image" content="/images/02_hairDyn/final.gif" />
+<meta property="article:published_time" content="2018-07-31T00:00:00&#43;00:00"/>
+<meta property="article:modified_time" content="2018-07-31T00:00:00&#43;00:00"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="/images/02_hairDyn/final.gif"/>
+
+<meta name="twitter:title" content="Unity custom hair simulation PT1"/>
+<meta name="twitter:description" content="Introduction In today&rsquo;s blog post I would like to talk about hair simulation, it has been something that always piqued my interest. I attempted to do a proper simulation in the past based on the Position based dynamics , more specifically the one focusing on inextensible hair strand .
+The issue with both papers was that they did not worry about keeping the initial hair shape, basically the groom an artist would have spent days crafting."/>
+
+
+
+<meta itemprop="name" content="Unity custom hair simulation PT1">
+<meta itemprop="description" content="Introduction In today&rsquo;s blog post I would like to talk about hair simulation, it has been something that always piqued my interest. I attempted to do a proper simulation in the past based on the Position based dynamics , more specifically the one focusing on inextensible hair strand .
+The issue with both papers was that they did not worry about keeping the initial hair shape, basically the groom an artist would have spent days crafting.">
+
+
+<meta itemprop="datePublished" content="2018-07-31T00:00:00&#43;00:00" />
+<meta itemprop="dateModified" content="2018-07-31T00:00:00&#43;00:00" />
+<meta itemprop="wordCount" content="2616">
+
+  <meta itemprop="image" content="/images/02_hairDyn/final.gif">
+
+
+
+<meta itemprop="keywords" content="unity,dynamics," />
+
+
+<script async src="/dist/main.js"></script>
+<link rel="stylesheet" href="dist/main.css" />
+<style type="text/css">
+body {
+  background-color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+a {
+  color: {
+     {
+      .Param 'colors.link';
+    }
+  }
+}
+
+pre {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+  border-radius: 5px;
+}
+
+code {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+}
+
+blockquote {
+  background: {
+     {
+      .Param 'colors.code-quote-bg';
+    }
+  }
+  border-left: 3px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+table {
+  margin: 1em auto;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid {
+     {
+      .Param 'colors.text';
+    }
+  }
+}
+
+th {
+  background: {
+     {
+      .Param 'colors.text';
+    }
+  }
+  color: {
+     {
+      .Param 'colors.background';
+    }
+  }
+}
+
+.siteTitle a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+.post .content h1 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h2 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h3 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h4 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h5 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content h6 {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post .content a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.social-link:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.nav-item-title:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.tag a:hover {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.copyright {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.poweredby a {
+  color: {
+     {
+      .Param 'colors.copyright';
+    }
+  }
+}
+.post-preview .title a {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.content-item a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.post-list .title {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.rmore {
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+.terms .term a:hover {
+  text-decoration: underline;
+  color: {
+     {
+      .Param 'colors.main';
+    }
+  }
+}
+
+</style>
+
+
+
+<title>
+
+
+     Unity custom hair simulation PT1 
+
+</title>
+
+</head>
+
+
+<body>
+<div class="main">
+    <header>
+
+        <div class="header-bar">
+
+            <nav>
+                <div class="siteTitle">
+                    <a href="/">A-programmer&#39;s-cave</a>
+                </div> 
+                
+                
+                <a class="nav-item active" href="/post/"><div class="nav-item-title">Posts</div></a>
+                
+                <a class="nav-item" href="/tags/"><div class="nav-item-title">Tags</div></a>
+                
+
+            </nav>
+        </div>
+
+        
+<div class="social-links-header">
+
+  
+  <a href="mailto:myemail"><div class="social-link">email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">gh</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">twtr</div></a>
+  
+
+  
+
+  <a href="pages/bind.html" target="_blank"><div class="social-link">TheBinder</div></a>
+
+</div>
+
+        <script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+		
+    </header>
+
+
+<article class="post">
+    <h1 class="title"> Unity custom hair simulation PT1 </h1>
+		
+            
+		        Table of contents:
+            
+		    <nav id="TableOfContents">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#verlet-integration">Verlet Integration</a></li>
+<li><a href="#edge-constraints">Edge constraints</a></li>
+<li><a href="#global-constraints">Global constraints</a></li>
+<li><a href="#local-constraints">Local constraints</a></li>
+</ul>
+</nav>
+		
+    <div class="content"> 
+
+<h1 id="introduction">Introduction</h1>
+
+<p>In today&rsquo;s blog post I would like to talk about hair simulation,
+it has been something that always piqued my interest. I attempted to do
+a proper simulation in the past based on the
+<a href="http://matthias-mueller-fischer.ch/publications/posBasedDyn.pdf" target="_blank">Position based dynamics</a>
+,
+more specifically the one focusing on
+<a href="http://matthias-mueller-fischer.ch/publications/FTLHairFur.pdf" target="_blank">inextensible hair strand</a>
+.</p>
+
+<p>The issue with both papers was that they did not worry about keeping the
+initial hair shape, basically the groom an artist would have spent
+days crafting.
+All the demos were with perfectly straight hair (or curly) but that
+did not keep the overall shape. I ended up being stuck in trying
+to create a stiffness constraint to fix this very problem.</p>
+
+<p>Recently I picked it up the challenge again, this time following the
+<a href="/papers/Real-timeHairSimulationwithEf%ef%ac%81cientHairStylePreservation.pdf" target="_blank">AMD TressFX paper</a>
+.
+Special thanks to Dongsoo Han that allowed me to upload the paper.
+After going through the paper I was surprised on how close to an
+actual working stiffness constraint I got, but more on that later.</p>
+
+<p>In case you are curious about the final result, here below a simulation of a
+single hair with quite high stiffness.</p>
+
+<p><img src="../images/02_hairDyn/final.gif" alt="final" /></p>
+
+<p>As you might have understood from the above gif we are going to write this
+implementation in Unity, the first pass is going to be in C# on the cpu,
+simulating a single hair, in future steps we are going to make a
+GPU implementation and having fun optimizing it.
+In this first part of the tutorial we are going to mostly talk about
+the theory and in the next part we are going to see the actual implementation.</p>
+
+<p>The way I approached it was to use a simple Monobehaviour that exposes
+pretty much everything needed by the simulation, from positions and masses to
+constraints parameters.
+The  Evaluation happens in the Update method, although not ideal, the correct
+time delta is used, VSync is also turned on which led to smooth 60fps.</p>
+
+<p>The computation is composed of five main steps:</p>
+
+<ul>
+<li>Integration</li>
+<li>Global constraints</li>
+<li>Local constraints</li>
+<li>Edge/Length constraints</li>
+<li>Collision resolution (not handled yet)</li>
+</ul>
+
+<p>Let&rsquo;s get started and explore each one of the stages, building up to our
+final simulation.</p>
+
+<h1 id="verlet-integration">Verlet Integration</h1>
+
+<p>The integration step is the step in which we compute the forces acting
+on each particle and compute the next step in the simulation, basically
+answering the question, based on all the information I have know
+(forces, positions etc) what will be the state of my system in X time?</p>
+
+<p>The good thing about Verlet integration is that, the velocity is not explicitly
+handled like in other integration method like
+<a href="https://en.wikipedia.org/wiki/Euler_method" target="_blank">explicit Euler</a>
+
+instead the velocity is kept implicit by keeping track of current and previous previous
+positions, which allows us to extract the velocity by subtracting the position
+at the current frame from the one at previous frame. The nice side effect of
+this, is that everything we do that manipulate the positions (constraints),
+will implicitly work on the velocity as-well.
+All this gives to a much more stable simulation compared to explicit Euler,
+only downside is that if you need to handle collision it gets slightly tricky
+because to change the velocity you need to manipulate the positions of the
+previous frame.</p>
+
+<p><details>
+  <summary>SPOILER: Implicit vs Explicit Euler? (click to show text)</summary>
+   <p style="background:gray;padding: 1em;">
+   Explicit and implicit Euler are numerical methods used to advance the simulation, the main
+   difference between the two is that explicit Euler calculate the state of a system at a later time from the state of the system at the current time, while implicit Euler finds a solution by solving an equation involving both the current state of the system and the later one.
+   </p>
+</details></p>
+
+<p>Lets have a quick look on how Verlet integration is implemented,
+here the formula:</p>
+
+<p>$$\begin{align}
+P_{i+1} &amp;= P_i + V + accel \cdot t^2   \\<br />
+V &amp;= P_i - P_{i-1}
+\end{align}$$</p>
+
+<p>Where $P_{i+1}$ is the next frame we want to compute, $P_i$ is the positions of the current frame,
+$V$ is the velocity extracted from the positions,$t$ is the delta time and $accel$ the resulting
+acceleration due to applied forces.</p>
+
+<p>If you are interested in the actual derivation you can have a look at the great video from
+<a href="https://www.youtube.com/watch?v=AZ8IGOHsjBk" target="_blank">Jorgue Rodriguez</a>
+.
+The main idea is to start Semi-Implicit Euler integration method, manipulate it, do few
+substitution to get a formula based on two sets of positions and not velocities.</p>
+
+<p>If you were to run the code now, you would be seeing the particles falling straight
+down with no interaction between each other, if that is the case, congratulations
+your integration step is working, but we want to simulate hair, we need to have
+the particles to be linked with each other, and respect an initial hair length.</p>
+
+<p>Although does not respect the order outlined above, adding edge constraints will allow
+us to have an initial simulation, after all the above list is the actual final order
+of the algorithm.</p>
+
+<h1 id="edge-constraints">Edge constraints</h1>
+
+<p>The edge constraints algorithm used is the same exact one outlined in the Position based
+paper. The idea is simple, if the vector between two consecutive particles is longer/shorter
+than an initial value, the length will be fixed accordingly.</p>
+
+<p>You can read the constraint explanation directly from the paper, but if you
+are like me, I always found that paper hard to digest, the way I understood it was
+thanks to the amazing Youtube video from a college class. The edge constraint
+starts around minute 52.</p>
+
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="//www.youtube.com/embed/fH3VW9SaQ_c" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+
+<p>The formulation boils down to:</p>
+
+<p>$$\begin{align}
+\vec{ n } &amp;= (P_1 - P_2) / |(P_1 - P_2)|          \\<br />
+\Delta d &amp;= |(P_1 - P_2)| - d               \\<br />
+\vec{ \Delta P_1 } &amp;=  - \frac{w_1}{(w_1 + w_2)} \cdot \Delta d \cdot n        \\<br />
+\vec{ \Delta P_2 } &amp;=   \frac{w_2}{(w_1 + w_2)} \cdot \Delta d \cdot n         \\<br />
+\end{align}
+$$</p>
+
+<p>It does seems like a lot of math, but lets try to unpack equations from $(3)$ to $(7)$ and you will
+see that even at an intuitive level will make sense.</p>
+
+<p>Lets start by defining the two points $P_1$ and $P_2$, those points are two consecutive
+points in the hair, defining a segment.
+Next at equation $(3)$ we are just extracting a normalized vector from $P_1$ to $P_2$, It
+represents the direction we will use to pull/push the particles.</p>
+
+<p>Equation $(4)$ is quite straight forward, we are computing the length of the vector $\vec{P_1 P_2}$
+and we are subtracting to it $d$ which is the length that the edge should have, also called its
+rest length. The notation $|(P_1 - P_2)|$, just means the length of the vector that is generated by
+doing  $(P_1 - P_2)$, It could be rewritten in the same way as: $\vec{P_1 P_2}$.</p>
+
+<p>Next, in equation $(5)$ and $(6)$ we compute the  vectors that we will push both  $P_1$ and $P_2$ to
+satisfy the constraint.
+The first part of the expression involves $w_1$ and $w_2$ which are the inverse masses of
+the two point respectively. The argument $\frac{w_1}{(w_1 + w_2)}$ is computing a ratio of
+the inverse masses with respect to $P_1$, equation $(6)$ does the same with respect with
+$P_2$. Once we understood that, the two equations boils down to pushing along
+the normal vector based on how much we need to push  ($\Delta d$) to satisfy the constraint
+relative to the inverse mass of the particle, meaning the smaller $w$ is the less the particle will move, the lighter it is, the more will be pushed around.</p>
+
+<p><details>
+  <summary>SPOILER: What are the inverse masses? (click to show text)</summary>
+   <p style="background:gray;padding: 1em;">
+   Each particle in the simulation has a given mass, that will affect the behavior of the
+   system. It is common to utilize inverse masses in the simulations because it allows to
+   have particles not affected by forces due to an infinitely large mass.
+   If we use the mass normally and we want to make the particle fixed in space, we can make the mass really big but eventually even if so slightly it will move, instead using the inverse mass we can define
+   an infinite mass by doing $\frac{1}{\inf} = 0$.</p>
+
+<p>In the hair simulation we keep all the masses the same, expect the root of the hair that needs
+   to be fixed, that will be zero.
+   </p>
+</details></p>
+
+<p>The ratio of the masses sums to one, to an intuitive level you split the amount we need to push
+in two fractions based on the mass, in reality for the hairs we use particles with all the same mass
+and it simplifies to $\frac{1}{2}$.</p>
+
+<p>After this bit of math, we actually start to have a pretty simulation going, here below an example:</p>
+
+<p><img src="../images/02_hairDyn/verlet.gif" alt="verlet" /></p>
+
+<p>One thing that we need to note is that, since we process the edges one at the time, in a sequential
+manner, a point will be pushed around more then once, let&rsquo;s start for example evaluating the first
+edge with $P_0$ and $P_1$, we apply the constraint, it is satisfied we move to the second constraint,
+involving points $P_1$ and $P_2$, we satisfy the constraint again, but $P_1$ moved again, that might
+violate the first edge constraint again.</p>
+
+<p>That issue brings us to the concepts of iterating constraints. The system is solved in an iterative way where (hopefully) each iteration converges to the final solution,
+rather than a system where all the constraints are satisfied at once.
+Simply put, we are going to call our constraint function many times, how many will be user defined</p>
+
+<h1 id="global-constraints">Global constraints</h1>
+
+<p>Now we start adventuring in the land of shape matching, or better, trying to attract our simulation
+to converge to a given initial shape, which can be an initial groom defined by an artist to match
+a specific style and or artistic direction.</p>
+
+<p>The first and simplest of those is the global constraints, a constraints that happens completely in
+world space, the main idea is to try to push the hair where it would be if it was transformed rigidly,
+for example if we are talking hair on a head, to transform the hair as it was rigid when the head move.
+Here an image extracted from the AMD paper:</p>
+
+<p><img src="../images/02_hairDyn/globalConstraint.jpg" alt="globalC" /></p>
+
+<p>The red hair, is the simulated shape, the black one would be the rigidly transformed one, and the
+blue one is the result of the constraint. The constraint has a value that goes from 0 to 1, which
+represent the strength, if set to 1 the constraint matches  perfectly the rigid shape.
+The mathematical formulation is really simple, is a linear interpolation of the two points.
+<strong>Make sure that you multiply the original curve by the new head transformation!</strong></p>
+
+<p>$$ P_i = S_G( H \cdot P^0_i - P_i) $$</p>
+
+<p>Where $S_G$ is the strength of the constraint, H is the matrix of the head (or whatever global transformation of the whole sim you might have), $P^0_i$ is the position of the hair vertex in
+rest pose, in local space of the head.
+Let me elaborate a tiny bit more on the last sentence about $P^0_i$, if you express your original
+hair in the space of the head, meaning the origin of the coordinate system is the head, you can
+later multiply  the vertex rest pose by the current head transformation ($H$), and get the hair
+in world space, ready to perform the global constraint.</p>
+
+<p>Here is the result of the global constraint:</p>
+
+<p><img src="../images/02_hairDyn/global.gif" alt="global" /></p>
+
+<p>It is a bit hard to see, but in purple, you can see the original hair being deformed rigidly,
+those are the points we will use for the linear interpolation. This constraint will be applied
+only once. In my case I found both the global and local constraint quite strong, meaning that to keep
+a soft hair I had to have really really low strength. Not sure if is a result of my implementation or
+simply on how I setup the simulation.</p>
+
+<h1 id="local-constraints">Local constraints</h1>
+
+<p>Next we are going to talk about the most complex constraint yet, the local constraint, the goal
+of this constraints is to apply a correction to the segments based on local deformation and not overall
+transformation, if you take a look again at the global constraint picture:</p>
+
+<p><img src="../images/02_hairDyn/globalConstraint.jpg" alt="globalC" /></p>
+
+<p>The hair bent quite uniformly from the original hair, meaning each segment roughly bent the same amount,
+but if you look on how much each particle has been corrected you will see that the more down the curve
+we go, the higher level of correction is applied, this is because, the rotation on the segments is sort of
+&ldquo;cumulative&rdquo;, the local constraint, on the other end, tries to figure out how much the segment rotated
+not overall, but only relative to the original hair segment.</p>
+
+<p>The main idea is for each segment you generate a local frame, aligned with the previous segment,
+this can be done with the <strong>Parallel transport</strong> method you can find in my previous <a href="post/2018-31-07-parallel-transport" target="_blank">article</a>
+, only difference being, instead of using $P_i$ and
+$P_{i+1}$, to generate the frame, $P_i$ and $P_{i-1}$ will be used instead.</p>
+
+<p><img src="../images/02_hairDyn/localConstraintDraw.jpg" alt="localC" /></p>
+
+<p>Once the local fram have been generated, we are going to perform the constraint in this local space
+which will take into account only how much the segment bent compared to the previous one.
+There are two way to apply this constraint, the first one is to convert you world position particle $P_4$
+into the local frame, involving an inverse matrix or, you can have the original hair, which has been converted in local space, being converted in back in world space using the new computed local frame transformation.
+The latter method is the one I used because less expensive.</p>
+
+<p>Given the fact that here we are only worried about rotations and not translation or scale, the fastest way
+to do it would be with quaternions, that is how TressFX has implemented it, in my first iteration I went with matrices so that I did not have to implement the quaternion math myself. With this new knowledge, if we grab the local delta of $P_4$ from the original hair (black hair) and multiply it by the local frame of the red hair we get something like this (where the black dot is the original deformation moved back
+in world space):</p>
+
+<p><img src="../images/02_hairDyn/localConstraintMul.jpg" alt="localCM" /></p>
+
+<p>As you can see the amount the point $P_4$ will need to be corrected is much smaller compared to
+the global constraint. This is the same implementation I came up with in the past, and worked quite well for short segment of hair, I was experimenting with 5 particles, as soon as you have more it starts to
+add a lot of oscillation, creating a wave ripple down the hair.</p>
+
+<p>The way the researchers corrected this artifact was by applying the correction not only at the end of the segment but the start of it as well, basically achieve a rotation from the center of the segment instead applying the rotation at the base of the segment. The final result with only local constraint and edge constraint is the following:</p>
+
+<p><img src="../images/02_hairDyn/local.gif" alt="local" /></p>
+
+<p>The effect is quite different from the global constraint, the local one fights to keep
+the shape (in this case perfectly straight) without fighting the overall simulation, the proposed simulation has a really strong constraint to make the effect quite obvious.
+The artist will end up playing with how many iterations and how strong the shape constraints are to achieve the desired effect. To note that the same issue we had with edge constraints appears here,
+we are modifying two particles at the same time, which will forces us applying the constraint multiple times.</p>
+
+<p>Let me propose you again the final result where everything comes together:
+<img src="../images/02_hairDyn/final.gif" alt="final" /></p>
+
+<p>In the next tutorial we are going to dive in the actual Unity implementation with full code available.
+I would really go back now and try to substitute the Verlet integration with the
+<a href="http://matthias-mueller-fischer.ch/publications/FTLHairFur.pdf" target="_blank">inextensible hair strand</a>
+ paper to see what the result is.</p>
+ </div>
+
+    
+<footer class="post-footer">
+
+  <div class="post-footer-data">
+    
+<div class="tags">
+    
+      <div class="tag">
+        <a href="/tags/unity">#unity</a>
+      </div>
+    
+      <div class="tag">
+        <a href="/tags/dynamics">#dynamics</a>
+      </div>
+    
+</div>
+
+    <div class="date"> Jul 31, 2018 </div>
+  </div>
+
+</footer>
+
+
+  <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "aprogrammerscave" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</article>
+
+  <footer>
+
+  <div class="social-links-footer">
+
+  
+  <a href="mailto:myemail"><div class="social-link">Email</div></a>
+  
+
+  
+  <a href="https://github.com/giordi91" target="_blank"><div class="social-link">GitHub</div></a>
+  
+
+  
+
+  
+  <a href="https://twitter.com/MGDev91" target="_blank"><div class="social-link">Twitter</div></a>
+  
+
+  
+
+  <div class="social-link">
+  <a href="/index.xml" target="_blank">RSS</a>
+  </div>
+
+</div>
+
+
+  
+<div class="footer-menu">
+    
+    <a class="footer-menu" href="/comments-policy/">Comments Policy</a>
+    
+</div>
+
+
+  <div class="copyright"> Copyright (c) 2018 - present, all rights reserved. </div>
+
+  <div class="poweredby">
+    Powered by <a href="https://gohugo.io/">Hugo</a>.
+  </div>
+
+  </footer>
+
+</div> 
+
+</body>
+</html>
+

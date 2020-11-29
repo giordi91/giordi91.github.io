@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>/post/resourcesystem/</loc>
+    <lastmod>2020-11-13T16:34:44+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/grass/</loc>
+    <lastmod>2020-09-25T17:17:44+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/disassemlbyrust1/</loc>
+    <lastmod>2020-05-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/spirvvec3/</loc>
+    <lastmod>2020-01-26T08:53:02+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/viewportclamp/</loc>
+    <lastmod>2020-01-17T14:49:45+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/vegaisa/</loc>
+    <lastmod>2019-03-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/resource_compiler/</loc>
+    <lastmod>2019-01-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/hairexpansion/</loc>
+    <lastmod>2018-11-05T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/gammatextures/</loc>
+    <lastmod>2018-11-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/never_trust_your_compiler_1/</loc>
+    <lastmod>2018-10-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2018-31-07-parallel-transport/</loc>
+    <lastmod>2018-07-31T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2018-31-07-hair-dyn/</loc>
+    <lastmod>2018-07-31T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/comments-policy/</loc>
+    <lastmod>2018-07-02T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/post/2018-03-07-will-it-mad/</loc>
+    <lastmod>2018-07-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/</loc>
+    <lastmod>2020-11-13T16:34:44+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/cpu/</loc>
+    <lastmod>2018-10-24T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/disassembly/</loc>
+    <lastmod>2020-05-23T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/dynamics/</loc>
+    <lastmod>2018-07-31T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/engine/</loc>
+    <lastmod>2020-11-13T16:34:44+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/hlsl/</loc>
+    <lastmod>2018-11-05T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/math/</loc>
+    <lastmod>2018-07-31T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/post/</loc>
+    <lastmod>2020-11-13T16:34:44+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/realtime/</loc>
+    <lastmod>2019-01-12T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/rust/</loc>
+    <lastmod>2020-05-23T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/shader/</loc>
+    <lastmod>2020-09-25T17:17:44+01:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/spirv/</loc>
+    <lastmod>2020-01-26T08:53:02+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <lastmod>2018-10-24T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/unity/</loc>
+    <lastmod>2018-11-05T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

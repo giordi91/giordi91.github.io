@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Dynamics on A-programmer&#39;s-cave</title>
+    <link>/tags/dynamics/</link>
+    <description>Recent content in Dynamics on A-programmer&#39;s-cave</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <copyright>Copyright (c) 2018 - present, all rights reserved.</copyright>
+    <lastBuildDate>Tue, 31 Jul 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/dynamics/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Unity custom hair simulation PT1</title>
+      <link>/post/2018-31-07-hair-dyn/</link>
+      <pubDate>Tue, 31 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2018-31-07-hair-dyn/</guid>
+      <description>Introduction In today&amp;rsquo;s blog post I would like to talk about hair simulation, it has been something that always piqued my interest. I attempted to do a proper simulation in the past based on the Position based dynamics , more specifically the one focusing on inextensible hair strand .
+The issue with both papers was that they did not worry about keeping the initial hair shape, basically the groom an artist would have spent days crafting.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Hlsl on A-programmer&#39;s-cave</title>
+    <link>/tags/hlsl/</link>
+    <description>Recent content in Hlsl on A-programmer&#39;s-cave</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <copyright>Copyright (c) 2018 - present, all rights reserved.</copyright>
+    <lastBuildDate>Mon, 05 Nov 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/hlsl/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Hair expansion in Vertex Shader</title>
+      <link>/post/hairexpansion/</link>
+      <pubDate>Mon, 05 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/hairexpansion/</guid>
+      <description>How would you go and expand your hair segment into polygons you can shade? Geometry Shader? Vertex Shader? Introduction The other day I was talking with a friend who was trying to make grass shader, he was going about it by using a geometry shader. Although a geometry shader is a really appealing solution, it might not be the fastest one.
+Why not geometry shader? Warning, what I am about to say is mostly what I gathered from the industry, my experience with geometry shader is near to not existent, the only geometry shader I ever implemented was the Nvidia solid wireframe shader .</description>
+    </item>
+    
+    <item>
+      <title>HLSL: Will it MAD/FMA ?</title>
+      <link>/post/2018-03-07-will-it-mad/</link>
+      <pubDate>Sun, 01 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2018-03-07-will-it-mad/</guid>
+      <description>SPOILER: What is a MAD/FMA? (click to show text)
+TL;DR: FMA (Fused multiply add) and MAD/MADD (multiply-add) are a specific instuction in a processor which allows to performa a multiplication followed by an add in a single instruction. Having that instruction baked in hardware allows to achieve two results, higher performance due to performaing the operation in a single instruction and less instruction/fetch and decoding down the cpu pipeline. Proper explanation: FMA on wikipedia</description>
+    </item>
+    
+  </channel>
+</rss>
